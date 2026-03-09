@@ -43,28 +43,15 @@ export default function SignupPage() {
     }
 
     try {
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      const { error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
       });
 
       if (authError) throw authError;
 
-      if (authData.user) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            id: authData.user.id,
-            full_name: formData.fullName,
-            email: formData.email,
-            mobile_number: formData.mobileNumber,
-            city: formData.city,
-          });
-
-        if (profileError) throw profileError;
-
-        router.push('/app');
-      }
+      // Signup successful, redirect user
+      router.push('/app');
     } catch (err: any) {
       setError(err.message || 'Failed to create account');
     } finally {
