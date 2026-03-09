@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary-bg: #0f0102;
+  --secondary-accent: #fc2857;
+  --text-primary: #ffffff;
+  --text-secondary: #e0e0e0;
+  --border-color: #fc2857;
+  --user-chat-bubble: #fc2857;
+  --other-chat-bubble: #0f0102;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--primary-bg);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+@keyframes glow {
+  0%, 100% {
+    text-shadow: 0 0 10px rgba(252, 40, 87, 0.5),
+                 0 0 20px rgba(252, 40, 87, 0.3),
+                 0 0 30px rgba(252, 40, 87, 0.2);
+  }
+  50% {
+    text-shadow: 0 0 20px rgba(252, 40, 87, 0.8),
+                 0 0 30px rgba(252, 40, 87, 0.5),
+                 0 0 40px rgba(252, 40, 87, 0.3);
+  }
+}
