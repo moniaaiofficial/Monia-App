@@ -137,7 +137,7 @@ return (
       </button>
 
       <div className="text-center text-sm text-[#e0e0e0]">
-        Don't have an account?{' '}
+        Don&apos;t have an account?{' '}
         <Link href="/auth/signup" className="text-[#fc2857]">
           Create account
         </Link>
