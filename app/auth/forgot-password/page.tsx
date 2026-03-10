@@ -23,72 +23,63 @@ export default function ForgotPasswordPage() {
       });
 
       if (error) throw error;
-
+      
       setMessage('Password reset link has been sent to your email');
     } catch (err: any) {
-      setError(err.message || 'Failed to send reset link');
+      setError(err.message || 'An error occurred');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-6 bg-[#0f0102]">
+    <div className="flex min-h-screen items-center justify-center px-6 bg-[#0f0102]">
       <div className="w-full max-w-md space-y-8">
-        <div className="space-y-4">
-          <Link
-            href="/auth/login"
-            className="inline-flex items-center text-[#fc2857] hover:underline"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Login
+        <div className="flex items-center gap-4">
+          <Link href="/auth/login" className="text-white hover:text-gray-300">
+            <ArrowLeft className="w-6 h-6" />
           </Link>
-
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-white mb-2">Forgot Password</h1>
-            <p className="text-[#e0e0e0]">
-              Enter your email and we&apos;ll send you a link to reset your password
-            </p>
-          </div>
+          <h1 className="text-center text-white font-bold text-xl">MONiA</h1>
         </div>
-
-        <form onSubmit={handleResetPassword} className="space-y-6">
-          {error && (
-            <div className="p-4 bg-red-500/10 border border-red-500 rounded-lg text-red-500 text-sm">
-              {error}
+        
+        <div className="space-y-4">
+          <p className="text-lg font-semibold text-white">Forgot Password</p>
+          
+          <form onSubmit={handleResetPassword} className="space-y-4">
+            <div>
+              <label className="block text-white mb-2">Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full px-4 py-3 bg-transparent border border-[#fc2857] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#fc2857]"
+                placeholder="Enter your email"
+              />
             </div>
-          )}
 
-          {message && (
-            <div className="p-4 bg-green-500/10 border border-green-500 rounded-lg text-green-500 text-sm">
-              {message}
-            </div>
-          )}
+            {error && (
+              <div className="text-red-500 text-sm">
+                {error}
+              </div>
+            )}
 
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-[#e0e0e0] mb-2">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full px-4 py-3 bg-transparent border border-[#fc2857] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#fc2857]"
-              placeholder="Enter your email"
-            />
-          </div>
+            {message && (
+              <div className="text-green-500 text-sm">
+                {message}
+              </div>
+            )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-4 bg-[#fc2857] text-white font-semibold rounded-lg hover:bg-[#e01f4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? 'Sending...' : 'Send Reset Link'}
-          </button>
-        </form>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-[#fc2857] text-white py-3 rounded-lg font-semibold hover:bg-opacity-90 transition disabled:opacity-50"
+            >
+              {loading ? 'Sending...' : 'Send Reset Link'}
+            </button>
+          </form>
+        </div>
       </div>
-    </main>
+    </div>
   );
 }
