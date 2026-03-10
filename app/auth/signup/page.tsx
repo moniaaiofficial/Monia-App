@@ -43,17 +43,49 @@ export default function SignupPage() {
     }
 
     try {
-      const { error: authError } = await supabase.auth.signUp({
+      const { data: { user }, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
+        options: {
+          // Metadata save kar rahe hain auth.users mein (future use ke liye)
+          data: {
+            full_name: formData.fullName,
+            mobile_number: formData.mobileNumber,
+            city: formData.city,
+          },
+          // Verification link click pe redirect dashboard pe
+          emailRedirectTo: window.location.origin + '/app',
+        },
       });
 
       if (authError) throw authError;
 
-      alert('Check your email for verification!');
-      
+      // Manually profiles table mein row insert kar rahe hain (authenticated context mein chalega)
+      if (user) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: user.id,  // auth.users.id se match
+            full_name: formData.fullName,
+            email: formData.email,
+            mobile_number: formData.mobileNumber,
+            city: formData.city,
+          });
+
+        if (profileError) {
+          console.error('Profile insert error:', profileError);
+          throw profileError;
+        }
+      }
+
+      alert('Check your email for verification! Click the link to confirm your account.');
+
+      // Optional: Verification page pe redirect kar sakta hai (agar bana hai)
+      // router.push('/auth/verify');
+
     } catch (err: any) {
-      setError(err.message || 'Failed to create account');
+      setError(err.message || 'Failed to create account. Please try again.');
+      console.error('Signup error details:', err);
     } finally {
       setLoading(false);
     }
