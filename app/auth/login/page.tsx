@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -18,7 +20,7 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
     setSuccess('');
-    
+
     try {
       if (!email || !password) {
         setError('Please enter both email and password');
@@ -72,7 +74,6 @@ export default function LoginPage() {
       if (oauthError) throw oauthError;
     } catch (err: any) {
       setError(err.message || 'An unexpected error occurred');
-    } finally {
       setLoading(false);
     }
   };
@@ -173,6 +174,7 @@ export default function LoginPage() {
           </div>
 
           <button
+            type="button"
             onClick={handleGoogleLogin}
             disabled={loading}
             className="w-full py-4 bg-transparent border-2 border-[#fc2857] text-white font-semibold rounded-lg hover:bg-[#fc2857]/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
