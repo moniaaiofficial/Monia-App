@@ -5,16 +5,16 @@ import { createBrowserClient } from '@supabase/ssr';
 let supabaseClient: any = null;
 
 export function createClient() {
-    if (supabaseClient) {
+  if (supabaseClient) {
     return supabaseClient;
-    }
+  }
 
-    supabaseClient = createBrowserClient(
+  supabaseClient = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+  );
 
-    return supabaseClient;
+  return supabaseClient;
 }
 
 export const supabase = createClient();
