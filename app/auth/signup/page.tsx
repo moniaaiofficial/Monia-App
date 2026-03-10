@@ -4,10 +4,11 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase/client';
-import { Eye, EyeOff } from 'lucide-react'; // Lucide icons already available in your project
+import { Eye, EyeOff } from 'lucide-react';
 
 export default function SignupPage() {
   const router = useRouter();
+
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -16,22 +17,27 @@ export default function SignupPage() {
     password: '',
     confirmPassword: '',
   });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
   };
 
-  const handleSignup = async (e: React.FormEvent) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
+
     setLoading(true);
     setError('');
+    setMessage('');
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
@@ -46,45 +52,29 @@ export default function SignupPage() {
     }
 
     try {
-      const { data: { user }, error: authError } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
-          // Metadata save kar rahe hain auth.users mein (future use ke liye)
           data: {
             full_name: formData.fullName,
             mobile_number: formData.mobileNumber,
             city: formData.city,
           },
-          // Verification link click pe redirect dashboard pe
-          emailRedirectTo: window.location.origin + '/app',
+          emailRedirectTo: `${window.location.origin}/app`,
         },
       });
 
-      if (authError) throw authError;
+      if (error) throw error;
 
-      // Manually profiles table mein row insert kar rahe hain (authenticated context mein chalega)
-      if (user) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            id: user.id,  // auth.users.id se match
-            full_name: formData.fullName,
-            email: formData.email,
-            mobile_number: formData.mobileNumber,
-            city: formData.city,
-          });
+      setMessage(
+        'Account created successfully. Please check your email and click the verification link.'
+      );
 
-        if (profileError) {
-          console.error('Profile insert error:', profileError);
-          throw profileError;
-        }
-      }
-
-      alert('Check your email for verification! Click the link to confirm your account.');
-    } catch (err: any) {
-      setError(err.message || 'Failed to create account. Please try again.');
-      console.error('Signup error details:', err);
+      console.log('Signup success:', data);
+    } catch (err) {
+      console.error('Signup error:', err);
+      setError(err.message || 'Signup failed');
     } finally {
       setLoading(false);
     }
@@ -93,25 +83,33 @@ export default function SignupPage() {
   return (
     <main className="flex min-h-screen items-center justify-center px-6 py-12 bg-[#0f0102]">
       <div className="w-full max-w-md space-y-8">
+
         <div className="text-center">
           <h1 className="text-5xl font-bold text-white mb-2">MONiA</h1>
           <p className="text-[#e0e0e0]">Create your account</p>
         </div>
 
         <form onSubmit={handleSignup} className="space-y-6">
+
           {error && (
             <div className="p-4 bg-red-500/10 border border-red-500 rounded-lg text-red-500 text-sm">
               {error}
             </div>
           )}
 
+          {message && (
+            <div className="p-4 bg-green-500/10 border border-green-500 rounded-lg text-green-400 text-sm">
+              {message}
+            </div>
+          )}
+
           <div className="space-y-4">
+
             <div>
-              <label htmlFor="fullName" className="block text-sm font-medium text-[#e0e0e0] mb-2">
+              <label className="block text-sm font-medium text-[#e0e0e0] mb-2">
                 Full Name *
               </label>
               <input
-                id="fullName"
                 name="fullName"
                 type="text"
                 value={formData.fullName}
@@ -123,11 +121,10 @@ export default function SignupPage() {
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-[#e0e0e0] mb-2">
+              <label className="block text-sm font-medium text-[#e0e0e0] mb-2">
                 Email *
               </label>
               <input
-                id="email"
                 name="email"
                 type="email"
                 value={formData.email}
@@ -139,11 +136,10 @@ export default function SignupPage() {
             </div>
 
             <div>
-              <label htmlFor="mobileNumber" className="block text-sm font-medium text-[#e0e0e0] mb-2">
+              <label className="block text-sm font-medium text-[#e0e0e0] mb-2">
                 Mobile Number *
               </label>
               <input
-                id="mobileNumber"
                 name="mobileNumber"
                 type="tel"
                 value={formData.mobileNumber}
@@ -155,11 +151,10 @@ export default function SignupPage() {
             </div>
 
             <div>
-              <label htmlFor="city" className="block text-sm font-medium text-[#e0e0e0] mb-2">
+              <label className="block text-sm font-medium text-[#e0e0e0] mb-2">
                 City
               </label>
               <input
-                id="city"
                 name="city"
                 type="text"
                 value={formData.city}
@@ -169,59 +164,58 @@ export default function SignupPage() {
               />
             </div>
 
-            {/* Password with show/hide */}
+            {/* Password */}
             <div className="relative">
-              <label htmlFor="password" className="block text-sm font-medium text-[#e0e0e0] mb-2">
+              <label className="block text-sm font-medium text-[#e0e0e0] mb-2">
                 Password *
               </label>
               <input
-                id="password"
                 name="password"
                 type={showPassword ? 'text' : 'password'}
                 value={formData.password}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 bg-transparent border border-[#fc2857] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#fc2857] pr-12"
+                className="w-full px-4 py-3 bg-transparent border border-[#fc2857] rounded-lg text-white pr-12"
                 placeholder="Create a password"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-[42px] text-[#ffeb3b] hover:text-[#ffea00] transition-colors focus:outline-none"
+                className="absolute right-4 top-[42px] text-[#ffeb3b]"
               >
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
 
-            {/* Confirm Password with show/hide */}
+            {/* Confirm Password */}
             <div className="relative">
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-[#e0e0e0] mb-2">
+              <label className="block text-sm font-medium text-[#e0e0e0] mb-2">
                 Confirm Password *
               </label>
               <input
-                id="confirmPassword"
                 name="confirmPassword"
                 type={showConfirmPassword ? 'text' : 'password'}
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 bg-transparent border border-[#fc2857] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#fc2857] pr-12"
+                className="w-full px-4 py-3 bg-transparent border border-[#fc2857] rounded-lg text-white pr-12"
                 placeholder="Confirm your password"
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-4 top-[42px] text-[#ffeb3b] hover:text-[#ffea00] transition-colors focus:outline-none"
+                className="absolute right-4 top-[42px] text-[#ffeb3b]"
               >
                 {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
+
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 bg-[#fc2857] text-white font-semibold rounded-lg hover:bg-[#e01f4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-4 bg-[#fc2857] text-white font-semibold rounded-lg hover:bg-[#e01f4a]"
           >
             {loading ? 'Creating account...' : 'Sign Up'}
           </button>
@@ -234,6 +228,7 @@ export default function SignupPage() {
               </Link>
             </p>
           </div>
+
         </form>
       </div>
     </main>
