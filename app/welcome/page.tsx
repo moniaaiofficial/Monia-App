@@ -29,7 +29,7 @@ export default function WelcomePage() {
         </div>
 
         <div className="space-y-6 mt-12">
-          {/* Niche wale checkboxes – Privacy Policy */}
+          {/* Privacy Policy Checkbox */}
           <label className="flex items-center gap-3 cursor-pointer">
             <div
               className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
@@ -47,7 +47,7 @@ export default function WelcomePage() {
             </span>
           </label>
 
-          {/* Niche wale checkboxes – Terms & Conditions */}
+          {/* T&C Checkbox – short name */}
           <label className="flex items-center gap-3 cursor-pointer">
             <div
               className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
@@ -60,12 +60,12 @@ export default function WelcomePage() {
             <span className="text-[#e0e0e0] text-sm">
               I have read and agree to the{' '}
               <Link href="/legal/terms" className="text-[#fc2857] underline">
-                Terms & Conditions
+                T&C
               </Link>
             </span>
           </label>
 
-          {/* Upar wala main checkbox – disabled jab tak niche dono ticked na ho */}
+          {/* Main Agreement Checkbox */}
           <div className="flex items-center gap-3 mt-8">
             <input
               type="checkbox"
@@ -78,13 +78,13 @@ export default function WelcomePage() {
               }`}
             />
             <label htmlFor="agree" className="text-sm text-[#e0e0e0] leading-tight">
-              I agree to the Terms & Conditions and Privacy Policy of MONiA.
+              I agree to the T&C and Privacy Policy of MONiA.
             </label>
           </div>
 
           {(!agreedPrivacy || !agreedTerms) && (
             <p className="text-xs text-[#fc2857] text-center mt-2">
-              Please read and agree to both Privacy Policy and Terms & Conditions
+              Please read and agree to both Privacy Policy and T&C
             </p>
           )}
 
