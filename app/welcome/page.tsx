@@ -7,10 +7,10 @@ import { useRouter } from 'next/navigation';
 export default function WelcomePage() {
   const router = useRouter();
   const [agreed, setAgreed] = useState(false);
-  const [viewedPrivacy, setViewedPrivacy] = useState(false);
-  const [viewedTerms, setViewedTerms] = useState(false);
+  const [agreedPrivacy, setAgreedPrivacy] = useState(false);
+  const [agreedTerms, setAgreedTerms] = useState(false);
 
-  const canContinue = viewedPrivacy && viewedTerms && agreed;
+  const canContinue = agreedPrivacy && agreedTerms && agreed;
 
   const handleContinue = () => {
     if (canContinue) {
@@ -29,26 +29,66 @@ export default function WelcomePage() {
         </div>
 
         <div className="space-y-6 mt-12">
-          <div className="flex items-start space-x-3">
+          {/* Niche wale checkboxes – Privacy Policy */}
+          <label className="flex items-center gap-3 cursor-pointer">
+            <div
+              className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                agreedPrivacy ? 'bg-green-500 border-green-500' : 'border-[#fc2857]'
+              }`}
+              onClick={() => setAgreedPrivacy(!agreedPrivacy)}
+            >
+              {agreedPrivacy && <div className="w-3 h-3 bg-white rounded-full" />}
+            </div>
+            <span className="text-[#e0e0e0] text-sm">
+              I have read and agree to the{' '}
+              <Link href="/legal/privacy-policy" className="text-[#fc2857] underline">
+                Privacy Policy
+              </Link>
+            </span>
+          </label>
+
+          {/* Niche wale checkboxes – Terms & Conditions */}
+          <label className="flex items-center gap-3 cursor-pointer">
+            <div
+              className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                agreedTerms ? 'bg-green-500 border-green-500' : 'border-[#fc2857]'
+              }`}
+              onClick={() => setAgreedTerms(!agreedTerms)}
+            >
+              {agreedTerms && <div className="w-3 h-3 bg-white rounded-full" />}
+            </div>
+            <span className="text-[#e0e0e0] text-sm">
+              I have read and agree to the{' '}
+              <Link href="/legal/terms" className="text-[#fc2857] underline">
+                Terms & Conditions
+              </Link>
+            </span>
+          </label>
+
+          {/* Upar wala main checkbox – disabled jab tak niche dono ticked na ho */}
+          <div className="flex items-center gap-3 mt-8">
             <input
               type="checkbox"
               id="agree"
               checked={agreed}
               onChange={(e) => setAgreed(e.target.checked)}
-              className="mt-1 w-5 h-5 accent-[#fc2857] cursor-pointer"
-              disabled={!viewedPrivacy || !viewedTerms}
+              disabled={!agreedPrivacy || !agreedTerms}
+              className={`w-6 h-6 accent-[#fc2857] cursor-pointer ${
+                !agreedPrivacy || !agreedTerms ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
             />
             <label htmlFor="agree" className="text-sm text-[#e0e0e0] leading-tight">
               I agree to the Terms & Conditions and Privacy Policy of MONiA.
             </label>
           </div>
 
-          {(!viewedPrivacy || !viewedTerms) && (
-            <p className="text-xs text-[#fc2857] text-center">
-              Please read both Privacy Policy and Terms & Conditions before continuing
+          {(!agreedPrivacy || !agreedTerms) && (
+            <p className="text-xs text-[#fc2857] text-center mt-2">
+              Please read and agree to both Privacy Policy and Terms & Conditions
             </p>
           )}
 
+          {/* Agree & Continue button */}
           <button
             onClick={handleContinue}
             disabled={!canContinue}
@@ -60,23 +100,6 @@ export default function WelcomePage() {
           >
             Agree & Continue
           </button>
-
-          <div className="flex flex-col space-y-3 text-center">
-            <Link
-              href="/legal/privacy-policy"
-              onClick={() => setViewedPrivacy(true)}
-              className="text-[#fc2857] hover:underline text-sm font-medium"
-            >
-              Privacy Policy {viewedPrivacy && '✓'}
-            </Link>
-            <Link
-              href="/legal/terms"
-              onClick={() => setViewedTerms(true)}
-              className="text-[#fc2857] hover:underline text-sm font-medium"
-            >
-              Terms & Conditions {viewedTerms && '✓'}
-            </Link>
-          </div>
         </div>
       </div>
     </main>
