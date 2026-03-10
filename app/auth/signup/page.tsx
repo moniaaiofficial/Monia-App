@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase/client';
+import { Eye, EyeOff } from 'lucide-react'; // Lucide icons already available in your project
 
 export default function SignupPage() {
   const router = useRouter();
@@ -17,6 +18,8 @@ export default function SignupPage() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -79,10 +82,6 @@ export default function SignupPage() {
       }
 
       alert('Check your email for verification! Click the link to confirm your account.');
-
-      // Optional: Verification page pe redirect kar sakta hai (agar bana hai)
-      // router.push('/auth/verify');
-
     } catch (err: any) {
       setError(err.message || 'Failed to create account. Please try again.');
       console.error('Signup error details:', err);
@@ -170,36 +169,52 @@ export default function SignupPage() {
               />
             </div>
 
-            <div>
+            {/* Password with show/hide */}
+            <div className="relative">
               <label htmlFor="password" className="block text-sm font-medium text-[#e0e0e0] mb-2">
                 Password *
               </label>
               <input
                 id="password"
                 name="password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 value={formData.password}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 bg-transparent border border-[#fc2857] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#fc2857]"
+                className="w-full px-4 py-3 bg-transparent border border-[#fc2857] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#fc2857] pr-12"
                 placeholder="Create a password"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-[42px] text-[#ffeb3b] hover:text-[#ffea00] transition-colors focus:outline-none"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
             </div>
 
-            <div>
+            {/* Confirm Password with show/hide */}
+            <div className="relative">
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-[#e0e0e0] mb-2">
                 Confirm Password *
               </label>
               <input
                 id="confirmPassword"
                 name="confirmPassword"
-                type="password"
+                type={showConfirmPassword ? 'text' : 'password'}
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 bg-transparent border border-[#fc2857] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#fc2857]"
+                className="w-full px-4 py-3 bg-transparent border border-[#fc2857] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#fc2857] pr-12"
                 placeholder="Confirm your password"
               />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-4 top-[42px] text-[#ffeb3b] hover:text-[#ffea00] transition-colors focus:outline-none"
+              >
+                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
             </div>
           </div>
 
