@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -115,7 +117,7 @@ export default function SignupPage() {
       }
 
       if (authData.user) {
-        setSuccess('Account created successfully! Please check your email for verification.');
+        setSuccess('Account created successfully! Please check your email to verify your account.');
         setTimeout(() => {
           router.push('/auth/login');
         }, 3000);
