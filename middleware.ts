@@ -2,26 +2,25 @@ import { authMiddleware } from "@clerk/nextjs";
 import { NextResponse } from "next/server";
 
 export default authMiddleware({
-  // Ye wo routes hain jinhe bina login ke access kiya ja sakta hai
+  // Ye pages bina login ke khulenge
   publicRoutes: ["/", "/api/webhooks/clerk"],
-  
+
   afterAuth(auth, req) {
-    // Agar user logged in nahi hai aur '/app' wale pages par jane ki koshish kare
+    // 1. Agar login nahi hai aur /app page par jana chahta hai
     if (!auth.userId && req.nextUrl.pathname.startsWith("/app")) {
-      const signInUrl = new URL("/", req.url);
-      return NextResponse.redirect(signInUrl);
+      return NextResponse.redirect(new URL("/", req.url));
     }
 
-    // Agar user logged in hai aur landing page par hai, toh seedha dashboard (/app) bhejo
+    // 2. Agar login hai aur landing page par hai, toh dashboard (/app) bhejo
     if (auth.userId && req.nextUrl.pathname === "/") {
-      const dashboard = new URL("/app", req.url);
-      return NextResponse.redirect(dashboard);
+      return NextResponse.redirect(new URL("/app", req.url));
     }
-  }
+    
+    return NextResponse.next();
+  },
 });
 
 export const config = {
-  // Ye matcher Clerk ko batata hai ki use kahan-kahan active rehna hai
   matcher: ['/((?!.+\\.[\\w]+$|_next).*)', '/', '/(api|trpc)(.*)'],
 };
 
