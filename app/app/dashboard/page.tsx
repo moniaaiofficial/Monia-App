@@ -1,21 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase/client';
+import { useUser } from '@clerk/nextjs';
 import { Search } from 'lucide-react';
 
 export default function ChatsPage() {
-  const [user, setUser] = useState<any>(null);
-
-  useEffect(() => {
-    const getUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setUser(user);
-    };
-    getUser();
-  }, []);
+  const { user, isLoaded } = useUser();
 
   return (
     <main className="min-h-screen bg-[#0f0102]">
