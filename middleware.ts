@@ -2,17 +2,47 @@ import { authMiddleware } from "@clerk/nextjs";
 import { NextResponse } from "next/server";
 
 export default authMiddleware({
-  // Ye pages bina login ke khulenge
-  publicRoutes: ["/", "/api/webhooks/clerk"],
+  // Public routes - accessible without authentication
+  publicRoutes: [
+    "/",
+    "/welcome",
+    "/auth/login",
+    "/auth/signup",
+    "/auth/verify-email",
+    "/auth/forgot-password",
+    "/auth/sso-callback",
+    "/api/webhooks/clerk",
+    "/legal/privacy-policy",
+    "/legal/terms",
+  ],
 
   afterAuth(auth, req) {
-    // 1. Agar login nahi hai aur /app page par jana chahta hai
-    if (!auth.userId && req.nextUrl.pathname.startsWith("/app")) {
-      return NextResponse.redirect(new URL("/", req.url));
+    const { pathname } = req.nextUrl;
+
+    // Allow public routes and static files
+    const isPublicRoute = [
+      "/",
+      "/welcome",
+      "/auth/",
+      "/api/webhooks/",
+      "/legal/",
+    ].some(route => pathname === route || pathname.startsWith(route));
+
+    // If not logged in and trying to access protected route
+    if (!auth.userId && pathname.startsWith("/app")) {
+      return NextResponse.redirect(new URL("/auth/login", req.url));
     }
 
-    // 2. Agar login hai aur landing page par hai, toh dashboard (/app) bhejo
-    if (auth.userId && req.nextUrl.pathname === "/") {
+    // If logged in and on auth pages (except verify-email during signup flow)
+    if (auth.userId) {
+      const authPages = ["/auth/login", "/auth/signup", "/auth/forgot-password"];
+      if (authPages.includes(pathname)) {
+        return NextResponse.redirect(new URL("/app", req.url));
+      }
+    }
+
+    // If logged in and on landing page, redirect to app
+    if (auth.userId && pathname === "/") {
       return NextResponse.redirect(new URL("/app", req.url));
     }
     

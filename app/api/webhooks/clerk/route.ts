@@ -3,7 +3,7 @@ import { headers } from 'next/headers'
 import { WebhookEvent } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 
-// Supabase Client Server-side ke liye
+// Supabase Client with Service Role Key (server-side only)
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -13,16 +13,17 @@ export async function POST(req: Request) {
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET
 
   if (!WEBHOOK_SECRET) {
-    throw new Error('Please add CLERK_WEBHOOK_SECRET from Clerk Dashboard to env')
+    console.error('CLERK_WEBHOOK_SECRET not set')
+    return new Response('Webhook secret not configured', { status: 500 })
   }
 
-  const headerPayload = headers();
+  const headerPayload = await headers();
   const svix_id = headerPayload.get("svix-id");
   const svix_timestamp = headerPayload.get("svix-timestamp");
   const svix_signature = headerPayload.get("svix-signature");
 
   if (!svix_id || !svix_timestamp || !svix_signature) {
-    return new Response('Error occured -- no svix headers', { status: 400 })
+    return new Response('Error occurred -- no svix headers', { status: 400 })
   }
 
   const payload = await req.json()
@@ -38,30 +39,91 @@ export async function POST(req: Request) {
       "svix-signature": svix_signature,
     }) as WebhookEvent
   } catch (err) {
-    return new Response('Error occured', { status: 400 })
+    console.error('Webhook verification failed:', err)
+    return new Response('Webhook verification failed', { status: 400 })
   }
 
-  // Jab naya user Signup kare
+  // Handle user.created event
   if (evt.type === 'user.created') {
-    const { id, email_addresses, first_name, last_name, image_url } = evt.data;
-    const email = email_addresses[0].email_address;
+    const { id, email_addresses, first_name, last_name, image_url, username, unsafe_metadata } = evt.data;
+    const email = email_addresses?.[0]?.email_address || '';
+    
+    // Get mobile and city from unsafe_metadata (set during signup)
+    const mobile = (unsafe_metadata as Record<string, string>)?.mobile || null;
+    const city = (unsafe_metadata as Record<string, string>)?.city || null;
 
     const { error } = await supabase
       .from('profiles')
-      .upsert({ // upsert use kar rahe hain taaki agar user pehle se ho toh update ho jaye
+      .upsert({
         id: id,
         email: email,
-        full_name: `${first_name || ''} ${last_name || ''}`,
-        avatar_url: image_url,
-        updated_at: new Date(),
+        username: username || null,
+        full_name: `${first_name || ''} ${last_name || ''}`.trim() || null,
+        mobile: mobile,
+        city: city,
+        avatar_url: image_url || null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }, {
+        onConflict: 'id'
       })
 
     if (error) {
-      console.error('Error syncing to Supabase:', error)
-      return new Response('Error syncing to Supabase', { status: 500 })
+      console.error('Error creating profile in Supabase:', error)
+      return new Response('Error creating profile', { status: 500 })
+    }
+
+    console.log('Profile created for user:', id)
+  }
+
+  // Handle user.updated event
+  if (evt.type === 'user.updated') {
+    const { id, email_addresses, first_name, last_name, image_url, username, unsafe_metadata } = evt.data;
+    const email = email_addresses?.[0]?.email_address || '';
+    
+    const mobile = (unsafe_metadata as Record<string, string>)?.mobile || null;
+    const city = (unsafe_metadata as Record<string, string>)?.city || null;
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        email: email,
+        username: username || null,
+        full_name: `${first_name || ''} ${last_name || ''}`.trim() || null,
+        mobile: mobile,
+        city: city,
+        avatar_url: image_url || null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+
+    if (error) {
+      console.error('Error updating profile in Supabase:', error)
+      return new Response('Error updating profile', { status: 500 })
+    }
+
+    console.log('Profile updated for user:', id)
+  }
+
+  // Handle user.deleted event
+  if (evt.type === 'user.deleted') {
+    const { id } = evt.data;
+
+    if (id) {
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', id)
+
+      if (error) {
+        console.error('Error deleting profile from Supabase:', error)
+        return new Response('Error deleting profile', { status: 500 })
+      }
+
+      console.log('Profile deleted for user:', id)
     }
   }
 
-  return new Response('Webhook received', { status: 200 })
+  return new Response('Webhook processed successfully', { status: 200 })
 }
 
