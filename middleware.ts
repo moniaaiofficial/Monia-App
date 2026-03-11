@@ -1,51 +1,27 @@
-import { createServerClient } from '@supabase/ssr';
-import { NextResponse, type NextRequest } from 'next/server';
+import { authMiddleware } from "@clerk/nextjs";
+import { NextResponse } from "next/server";
 
-export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  });
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
-          );
-          response = NextResponse.next({
-            request,
-          });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options)
-          );
-        },
-      },
+export default authMiddleware({
+  // Ye wo routes hain jinhe bina login ke access kiya ja sakta hai
+  publicRoutes: ["/", "/api/webhooks/clerk"],
+  
+  afterAuth(auth, req) {
+    // Agar user logged in nahi hai aur '/app' wale pages par jane ki koshish kare
+    if (!auth.userId && req.nextUrl.pathname.startsWith("/app")) {
+      const signInUrl = new URL("/", req.url);
+      return NextResponse.redirect(signInUrl);
     }
-  );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user && request.nextUrl.pathname.startsWith('/app')) {
-    return NextResponse.redirect(new URL('/auth/login', request.url));
+    // Agar user logged in hai aur landing page par hai, toh seedha dashboard (/app) bhejo
+    if (auth.userId && req.nextUrl.pathname === "/") {
+      const dashboard = new URL("/app", req.url);
+      return NextResponse.redirect(dashboard);
+    }
   }
-
-  if (user && request.nextUrl.pathname.startsWith('/auth')) {
-    return NextResponse.redirect(new URL('/app', request.url));
-  }
-
-  return response;
-}
+});
 
 export const config = {
-  matcher: ['/app/:path*', '/auth/:path*'],
+  // Ye matcher Clerk ko batata hai ki use kahan-kahan active rehna hai
+  matcher: ['/((?!.+\\.[\\w]+$|_next).*)', '/', '/(api|trpc)(.*)'],
 };
+
