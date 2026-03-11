@@ -29,7 +29,7 @@ export default authMiddleware({
     ].some(route => pathname === route || pathname.startsWith(route));
 
     // If not logged in and trying to access protected route
-    if (!auth.userId && pathname.startsWith("/app")) {
+    if (!auth.userId && pathname.startsWith("/dashboard")) {
       return NextResponse.redirect(new URL("/auth/login", req.url));
     }
 
@@ -37,13 +37,13 @@ export default authMiddleware({
     if (auth.userId) {
       const authPages = ["/auth/login", "/auth/signup", "/auth/forgot-password"];
       if (authPages.includes(pathname)) {
-        return NextResponse.redirect(new URL("/app", req.url));
+        return NextResponse.redirect(new URL("/dashboard", req.url));
       }
     }
 
-    // If logged in and on landing page, redirect to app
+    // If logged in and on landing page, redirect to dashboard
     if (auth.userId && pathname === "/") {
-      return NextResponse.redirect(new URL("/app", req.url));
+      return NextResponse.redirect(new URL("/dashboard", req.url));
     }
     
     return NextResponse.next();

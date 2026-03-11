@@ -31,7 +31,7 @@ export default function LoginPage() {
 
       if (result.status === 'complete') {
         await setActive({ session: result.createdSessionId });
-        router.push('/app');
+        router.push('/dashboard');
       } else {
         setError('Login incomplete. Please try again.');
       }
@@ -54,7 +54,7 @@ export default function LoginPage() {
       await signIn.authenticateWithRedirect({
         strategy: 'oauth_google',
         redirectUrl: '/auth/sso-callback',
-        redirectUrlComplete: '/app',
+        redirectUrlComplete: '/dashboard',
       });
     } catch (err: any) {
       console.error('Google login error:', err);

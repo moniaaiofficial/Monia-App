@@ -45,12 +45,14 @@ export async function POST(req: Request) {
 
   // Handle user.created event
   if (evt.type === 'user.created') {
-    const { id, email_addresses, first_name, last_name, image_url, username, unsafe_metadata } = evt.data;
+    const { id, email_addresses, first_name, last_name, image_url, username, unsafe_metadata, public_metadata } = evt.data;
     const email = email_addresses?.[0]?.email_address || '';
     
-    // Get mobile and city from unsafe_metadata (set during signup)
-    const mobile = (unsafe_metadata as Record<string, string>)?.mobile || null;
-    const city = (unsafe_metadata as Record<string, string>)?.city || null;
+    // Get mobile and city from unsafe_metadata or public_metadata (set during signup)
+    const unsafeMeta = unsafe_metadata as Record<string, string> | undefined;
+    const publicMeta = public_metadata as Record<string, string> | undefined;
+    const mobile = unsafeMeta?.mobile || publicMeta?.mobile || null;
+    const city = unsafeMeta?.city || publicMeta?.city || null;
 
     const { error } = await supabase
       .from('profiles')
@@ -78,11 +80,13 @@ export async function POST(req: Request) {
 
   // Handle user.updated event
   if (evt.type === 'user.updated') {
-    const { id, email_addresses, first_name, last_name, image_url, username, unsafe_metadata } = evt.data;
+    const { id, email_addresses, first_name, last_name, image_url, username, unsafe_metadata, public_metadata } = evt.data;
     const email = email_addresses?.[0]?.email_address || '';
     
-    const mobile = (unsafe_metadata as Record<string, string>)?.mobile || null;
-    const city = (unsafe_metadata as Record<string, string>)?.city || null;
+    const unsafeMeta = unsafe_metadata as Record<string, string> | undefined;
+    const publicMeta = public_metadata as Record<string, string> | undefined;
+    const mobile = unsafeMeta?.mobile || publicMeta?.mobile || null;
+    const city = unsafeMeta?.city || publicMeta?.city || null;
 
     const { error } = await supabase
       .from('profiles')

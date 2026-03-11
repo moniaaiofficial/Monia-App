@@ -8,10 +8,10 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   const navItems = [
-    { name: 'Chats', path: '/app', icon: MessageCircle },
-    { name: 'Calls', path: '/app/calls', icon: Phone },
-    { name: 'Updates', path: '/app/updates', icon: Clock },
-    { name: 'More', path: '/app/more', icon: Menu },
+    { name: 'Chats', path: '/dashboard', icon: MessageCircle },
+    { name: 'Calls', path: '/dashboard/calls', icon: Phone },
+    { name: 'Updates', path: '/dashboard/updates', icon: Clock },
+    { name: 'More', path: '/dashboard/more', icon: Menu },
   ];
 
   return (
