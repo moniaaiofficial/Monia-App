@@ -40,7 +40,7 @@ export default function VerifyEmailPage() {
       if (completeSignUp.status === 'complete') {
         await setActive({ session: completeSignUp.createdSessionId });
         sessionStorage.removeItem('signupData');
-        router.push('/dashboard');
+        router.push('/app/dashboard');
       } else {
         setError('Verification incomplete. Please try again.');
       }

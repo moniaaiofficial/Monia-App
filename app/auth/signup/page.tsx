@@ -108,7 +108,7 @@ export default function SignupPage() {
       await signUp.authenticateWithRedirect({
         strategy: 'oauth_google',
         redirectUrl: '/auth/sso-callback',
-        redirectUrlComplete: '/dashboard',
+        redirectUrlComplete: '/app/dashboard',
       });
     } catch (err: any) {
       console.error('Google signup error:', err);
