@@ -32,3 +32,9 @@ outputType = "webview"
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[userenv]
+
+[userenv.shared]
+NEXT_PUBLIC_CLERK_SIGN_IN_URL = "/auth/login"
+NEXT_PUBLIC_CLERK_SIGN_UP_URL = "/auth/signup"

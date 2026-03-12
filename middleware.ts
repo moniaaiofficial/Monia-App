@@ -2,9 +2,6 @@ import { authMiddleware } from "@clerk/nextjs";
 import { NextResponse } from "next/server";
 
 export default authMiddleware({
-  signInUrl: '/auth/login',
-  signUpUrl: '/auth/signup',
-
   publicRoutes: [
     "/",
     "/welcome",
