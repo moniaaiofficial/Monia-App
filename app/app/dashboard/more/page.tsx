@@ -31,10 +31,10 @@ export default function MorePage() {
   const handleLogout = async () => {
     setLoading(true);
     try {
-      await signOut();
-      router.push('/auth/login');
+      await signOut({ redirectUrl: '/auth/login' });
     } catch (error) {
       console.error('Error logging out:', error);
+      router.push('/auth/login');
     } finally {
       setLoading(false);
     }

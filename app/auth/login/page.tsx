@@ -25,15 +25,22 @@ export default function LoginPage() {
 
     try {
       const result = await signIn.create({
-        identifier, // Works with both email and username
+        identifier,
         password,
       });
 
       if (result.status === 'complete') {
         await setActive({ session: result.createdSessionId });
-        router.push('/app/dashboard');
+        window.location.href = '/app/dashboard';
+      } else if (result.status === 'needs_second_factor') {
+        setError('Two-factor authentication is required. Please check your authenticator app.');
+      } else if (
+        result.status === 'needs_first_factor' ||
+        result.status === 'needs_identifier'
+      ) {
+        setError('Additional verification required. Please try again or use Google sign-in.');
       } else {
-        setError('Login incomplete. Please try again.');
+        setError('Unable to complete sign in. Please try again.');
       }
     } catch (err: any) {
       console.error('Login error:', err);

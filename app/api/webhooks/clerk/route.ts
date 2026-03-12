@@ -43,106 +43,88 @@ export async function POST(req: Request) {
     return new Response('Webhook verification failed', { status: 400 })
   }
 
-  // Handle user.created event
   if (evt.type === 'user.created') {
     const { id, email_addresses, first_name, last_name, image_url, username, unsafe_metadata, public_metadata } = evt.data;
     const email = email_addresses?.[0]?.email_address || '';
-    
-    // Get mobile and city from unsafe_metadata or public_metadata (set during signup)
-    const unsafeMeta = unsafe_metadata as Record<string, string> | undefined;
-    const publicMeta = public_metadata as Record<string, string> | undefined;
-    const mobile = unsafeMeta?.mobile || publicMeta?.mobile || null;
-    const city = unsafeMeta?.city || publicMeta?.city || null;
-    const fullName = `${first_name || ''} ${last_name || ''}`.trim() || null;
 
-    // Log the data being inserted for debugging
-    console.log('Creating profile with data:', {
+    const unsafeMeta = (unsafe_metadata || {}) as Record<string, string>;
+    const publicMeta = (public_metadata || {}) as Record<string, string>;
+    const mobile = unsafeMeta.mobile || publicMeta.mobile || null;
+    const city = unsafeMeta.city || publicMeta.city || null;
+    const fullName = `${first_name || ''} ${last_name || ''}`.trim() || email.split('@')[0] || null;
+
+    const profileData = {
       id,
       email,
-      username,
+      username: username || null,
       full_name: fullName,
       mobile,
       city,
-      avatar_url: image_url,
-      unsafeMeta,
-      publicMeta
-    });
-
-    const profileData = {
-      id: id,
-      email: email,
-      username: username || null,
-      full_name: fullName,
-      mobile: mobile,
-      city: city,
       avatar_url: image_url || null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
 
-    const { data, error } = await supabase
-      .from('profiles')
-      .upsert(profileData, {
-        onConflict: 'id'
-      })
-      .select();
-
-    if (error) {
-      console.error('Error creating profile in Supabase:', error);
-      console.error('Profile data that failed:', profileData);
-      return new Response(`Error creating profile: ${error.message}`, { status: 500 })
-    }
-
-    console.log('Profile created successfully for user:', id, data)
-  }
-
-  // Handle user.updated event
-  if (evt.type === 'user.updated') {
-    const { id, email_addresses, first_name, last_name, image_url, username, unsafe_metadata, public_metadata } = evt.data;
-    const email = email_addresses?.[0]?.email_address || '';
-    
-    const unsafeMeta = unsafe_metadata as Record<string, string> | undefined;
-    const publicMeta = public_metadata as Record<string, string> | undefined;
-    const mobile = unsafeMeta?.mobile || publicMeta?.mobile || null;
-    const city = unsafeMeta?.city || publicMeta?.city || null;
+    console.log('Creating profile:', { id, email, username, full_name: fullName });
 
     const { error } = await supabase
       .from('profiles')
-      .update({
-        email: email,
-        username: username || null,
-        full_name: `${first_name || ''} ${last_name || ''}`.trim() || null,
-        mobile: mobile,
-        city: city,
-        avatar_url: image_url || null,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', id)
+      .upsert(profileData, { onConflict: 'id' });
 
     if (error) {
-      console.error('Error updating profile in Supabase:', error)
-      return new Response('Error updating profile', { status: 500 })
+      console.error('Error creating profile:', error.message, profileData);
+      return new Response(`Error creating profile: ${error.message}`, { status: 500 });
     }
 
-    console.log('Profile updated for user:', id)
+    console.log('Profile created for user:', id);
   }
 
-  // Handle user.deleted event
+  if (evt.type === 'user.updated') {
+    const { id, email_addresses, first_name, last_name, image_url, username, unsafe_metadata, public_metadata } = evt.data;
+    const email = email_addresses?.[0]?.email_address || '';
+
+    const unsafeMeta = (unsafe_metadata || {}) as Record<string, string>;
+    const publicMeta = (public_metadata || {}) as Record<string, string>;
+    const mobile = unsafeMeta.mobile || publicMeta.mobile || null;
+    const city = unsafeMeta.city || publicMeta.city || null;
+    const fullName = `${first_name || ''} ${last_name || ''}`.trim() || email.split('@')[0] || null;
+
+    const { error } = await supabase
+      .from('profiles')
+      .upsert(
+        {
+          id,
+          email,
+          username: username || null,
+          full_name: fullName,
+          mobile,
+          city,
+          avatar_url: image_url || null,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: 'id' }
+      );
+
+    if (error) {
+      console.error('Error updating profile:', error.message);
+      return new Response('Error updating profile', { status: 500 });
+    }
+
+    console.log('Profile updated for user:', id);
+  }
+
   if (evt.type === 'user.deleted') {
     const { id } = evt.data;
 
     if (id) {
-      const { error } = await supabase
-        .from('profiles')
-        .delete()
-        .eq('id', id)
+      const { error } = await supabase.from('profiles').delete().eq('id', id);
 
       if (error) {
-        console.error('Error deleting profile from Supabase:', error)
-        return new Response('Error deleting profile', { status: 500 })
+        console.error('Error deleting profile:', error.message);
+        return new Response('Error deleting profile', { status: 500 });
       }
 
-      console.log('Profile deleted for user:', id)
+      console.log('Profile deleted for user:', id);
     }
   }
 
