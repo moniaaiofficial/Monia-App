@@ -15,8 +15,8 @@ export default function BottomNav() {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-[#0f0102] border-t border-[#fc2857] z-50">
-      <div className="flex items-center justify-around h-16">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-5">
+      <div className="floating-nav flex items-center justify-around h-16 rounded-2xl px-2">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.path;
@@ -25,12 +25,16 @@ export default function BottomNav() {
             <Link
               key={item.name}
               href={item.path}
-              className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
-                isActive ? 'text-[#fc2857]' : 'text-white'
+              className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-all duration-200 ${
+                isActive ? 'text-[#ff1e43]' : 'text-white/50'
               }`}
             >
-              <Icon className="w-6 h-6 mb-1" />
-              <span className="text-xs font-medium">{item.name}</span>
+              <Icon
+                className={`w-6 h-6 transition-all duration-200 ${isActive ? 'icon-active-glow scale-110' : ''}`}
+              />
+              <span className={`text-xs font-semibold tracking-wide ${isActive ? 'opacity-100' : 'opacity-60'}`}>
+                {item.name}
+              </span>
             </Link>
           );
         })}

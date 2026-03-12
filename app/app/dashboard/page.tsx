@@ -7,25 +7,28 @@ export default function ChatsPage() {
   const { user, isLoaded } = useUser();
 
   return (
-    <main className="min-h-screen bg-[#0f0102]">
-      <div className="sticky top-0 bg-[#0f0102] border-b border-[#fc2857] z-10">
-        <div className="px-4 py-4">
-          <h1 className="text-2xl font-bold text-white mb-4">MONiA</h1>
+    <main className="min-h-screen bg-[#100002] page-enter">
+      <div className="sticky top-0 section-header z-10">
+        <div className="px-5 py-4">
+          <h1 className="text-2xl font-black text-white logo-glow mb-4">MONiA</h1>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 w-4 h-4" />
             <input
               type="text"
               placeholder="Search chats..."
-              className="w-full pl-10 pr-4 py-3 bg-transparent border border-[#fc2857] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#fc2857]"
+              className="glass-input pl-11 pr-4 py-3 text-sm font-medium"
             />
           </div>
         </div>
       </div>
 
-      <div className="p-4">
-        <div className="text-center py-20">
-          <h2 className="text-xl font-semibold text-white mb-2">Welcome to MONiA</h2>
-          <p className="text-[#e0e0e0]">Your conversations will appear here</p>
+      <div className="p-5">
+        <div className="text-center py-24">
+          <div className="w-16 h-16 rounded-2xl bg-[#ff1e43]/10 flex items-center justify-center mx-auto mb-5 shadow-glow">
+            <Search className="w-8 h-8 text-[#ff1e43] icon-active-glow" />
+          </div>
+          <h2 className="text-xl font-bold text-white mb-2">Welcome to MONiA</h2>
+          <p className="text-white/40 text-sm font-medium">Your conversations will appear here</p>
         </div>
       </div>
     </main>

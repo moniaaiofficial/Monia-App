@@ -1,42 +1,145 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --primary-bg: #0f0102;
-  --secondary-accent: #fc2857;
+  --primary-bg: #100002;
+  --brand: #ff1e43;
+  --brand-hover: #e01038;
   --text-primary: #ffffff;
-  --text-secondary: #e0e0e0;
-  --border-color: #fc2857;
-  --user-chat-bubble: #fc2857;
-  --other-chat-bubble: #0f0102;
+  --text-secondary: #9090a8;
 }
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Inter', sans-serif;
   background-color: var(--primary-bg);
   color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
 }
 
-@keyframes glow {
+@keyframes logoGlow {
   0%, 100% {
-    text-shadow: 0 0 10px rgba(252, 40, 87, 0.5),
-                 0 0 20px rgba(252, 40, 87, 0.3),
-                 0 0 30px rgba(252, 40, 87, 0.2);
+    text-shadow:
+      0 0 10px rgba(255, 30, 67, 0.7),
+      0 0 25px rgba(255, 30, 67, 0.5),
+      0 0 50px rgba(255, 30, 67, 0.3),
+      0 0 90px rgba(255, 30, 67, 0.15);
   }
   50% {
-    text-shadow: 0 0 20px rgba(252, 40, 87, 0.8),
-                 0 0 30px rgba(252, 40, 87, 0.5),
-                 0 0 40px rgba(252, 40, 87, 0.3);
+    text-shadow:
+      0 0 20px rgba(255, 30, 67, 1),
+      0 0 40px rgba(255, 30, 67, 0.7),
+      0 0 70px rgba(255, 30, 67, 0.5),
+      0 0 120px rgba(255, 30, 67, 0.25);
   }
 }
+
+@keyframes btnPulse {
+  0%, 100% {
+    box-shadow: 0 0 18px rgba(255, 30, 67, 0.45), 0 6px 24px rgba(255, 30, 67, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 32px rgba(255, 30, 67, 0.75), 0 8px 36px rgba(255, 30, 67, 0.55);
+  }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.logo-glow {
+  animation: logoGlow 3s ease-in-out infinite;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+.btn-glow {
+  background: linear-gradient(135deg, #ff1e43 0%, #cc0a2f 100%);
+  animation: btnPulse 2.5s ease-in-out infinite;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.btn-glow:hover:not(:disabled) {
+  animation: none;
+  box-shadow: 0 0 40px rgba(255, 30, 67, 0.85), 0 8px 32px rgba(255, 30, 67, 0.65);
+  transform: translateY(-1px);
+  background: linear-gradient(135deg, #ff3355 0%, #e01038 100%);
+}
+
+.btn-glow:active:not(:disabled) {
+  transform: translateY(0px) scale(0.99);
+}
+
+.btn-glow:disabled {
+  opacity: 0.4;
+  animation: none;
+  cursor: not-allowed;
+}
+
+.glass-card {
+  background: rgba(255, 30, 67, 0.04);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 1.5rem;
+}
+
+.glass-input {
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 0.875rem;
+  border: none;
+  outline: none;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+  color: #ffffff;
+  width: 100%;
+}
+
+.glass-input::placeholder {
+  color: rgba(255, 255, 255, 0.32);
+}
+
+.glass-input:focus {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 1.5px rgba(255, 30, 67, 0.65), 0 0 24px rgba(255, 30, 67, 0.2);
+}
+
+.floating-nav {
+  background: rgba(14, 0, 2, 0.88);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow:
+    0 -2px 40px rgba(255, 30, 67, 0.1),
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 30, 67, 0.08);
+}
+
+.section-header {
+  background: rgba(16, 0, 2, 0.96);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 4px 40px rgba(0, 0, 0, 0.4);
+}
+
+.icon-active-glow {
+  filter: drop-shadow(0 0 8px rgba(255, 30, 67, 0.85));
+}
+
+.page-enter {
+  animation: fadeInUp 0.35s ease both;
+}
+
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: #100002; }
+::-webkit-scrollbar-thumb { background: #ff1e43; border-radius: 2px; }

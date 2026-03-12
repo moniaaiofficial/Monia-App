@@ -16,8 +16,6 @@ export default function MorePage() {
   useEffect(() => {
     const getProfile = async () => {
       if (!isLoaded || !user) return;
-      
-      // Fetch profile from Supabase using Clerk user ID
       const { data } = await supabase
         .from('profiles')
         .select('*')
@@ -31,7 +29,8 @@ export default function MorePage() {
   const handleLogout = async () => {
     setLoading(true);
     try {
-      await signOut({ redirectUrl: '/auth/login' });
+      await signOut();
+      router.push('/auth/login');
     } catch (error) {
       console.error('Error logging out:', error);
       router.push('/auth/login');
@@ -41,71 +40,69 @@ export default function MorePage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#0f0102]">
-      <div className="sticky top-0 bg-[#0f0102] border-b border-[#fc2857] z-10">
-        <div className="px-4 py-4">
-          <h1 className="text-2xl font-bold text-white">More</h1>
+    <main className="min-h-screen bg-[#100002] page-enter">
+      <div className="sticky top-0 section-header z-10">
+        <div className="px-5 py-5">
+          <h1 className="text-2xl font-black text-white">More</h1>
         </div>
       </div>
 
-      <div className="p-4 space-y-6">
+      <div className="p-5 space-y-5">
         {profile && (
-          <div className="bg-[#0f0102] border border-[#fc2857] rounded-lg p-6">
-            <div className="flex items-center space-x-4">
-              <div className="w-16 h-16 bg-[#fc2857] rounded-full flex items-center justify-center">
-                <User className="w-8 h-8 text-white" />
+          <div className="glass-card p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-2xl bg-[#ff1e43]/15 flex items-center justify-center shadow-glow flex-shrink-0">
+                <User className="w-8 h-8 text-[#ff1e43] icon-active-glow" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-white">{profile.full_name}</h2>
-                <p className="text-[#e0e0e0] text-sm">{profile.email}</p>
+                <h2 className="text-lg font-bold text-white">{profile.full_name}</h2>
+                <p className="text-white/50 text-sm font-medium">{profile.email}</p>
                 {profile.mobile && (
-                  <p className="text-[#e0e0e0] text-sm">{profile.mobile}</p>
+                  <p className="text-white/40 text-sm">{profile.mobile}</p>
                 )}
               </div>
             </div>
           </div>
         )}
 
-        <div className="space-y-2">
+        <div className="space-y-3">
           <button
             onClick={() => router.push('/legal/privacy-policy')}
-            className="w-full bg-[#0f0102] border border-[#fc2857] rounded-lg p-4 flex items-center justify-between hover:bg-[#fc2857]/10 transition-colors"
+            className="w-full glass-card px-5 py-4 flex items-center justify-between active:scale-[0.98] transition-all"
           >
-            <div className="flex items-center space-x-3">
-              <Shield className="w-6 h-6 text-white" />
-              <span className="text-white font-medium">Privacy Policy</span>
+            <div className="flex items-center gap-3">
+              <Shield className="w-5 h-5 text-[#ff1e43]" />
+              <span className="text-white font-semibold text-sm">Privacy Policy</span>
             </div>
-            <ChevronRight className="w-5 h-5 text-white" />
+            <ChevronRight className="w-4 h-4 text-white/30" />
           </button>
 
           <button
             onClick={() => router.push('/legal/terms')}
-            className="w-full bg-[#0f0102] border border-[#fc2857] rounded-lg p-4 flex items-center justify-between hover:bg-[#fc2857]/10 transition-colors"
+            className="w-full glass-card px-5 py-4 flex items-center justify-between active:scale-[0.98] transition-all"
           >
-            <div className="flex items-center space-x-3">
-              <FileText className="w-6 h-6 text-white" />
-              <span className="text-white font-medium">Terms & Conditions</span>
+            <div className="flex items-center gap-3">
+              <FileText className="w-5 h-5 text-[#ff1e43]" />
+              <span className="text-white font-semibold text-sm">Terms & Conditions</span>
             </div>
-            <ChevronRight className="w-5 h-5 text-white" />
+            <ChevronRight className="w-4 h-4 text-white/30" />
           </button>
 
           <button
             onClick={handleLogout}
             disabled={loading}
-            className="w-full bg-[#fc2857] rounded-lg p-4 flex items-center justify-center space-x-3 hover:bg-[#e01f4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn-glow w-full rounded-2xl py-4 flex items-center justify-center gap-3 font-bold text-white text-sm"
           >
-            <LogOut className="w-6 h-6 text-white" />
-            <span className="text-white font-semibold">
-              {loading ? 'Logging out...' : 'Logout'}
-            </span>
+            <LogOut className="w-5 h-5" />
+            {loading ? 'Logging out...' : 'Logout'}
           </button>
         </div>
 
-        <div className="text-center text-[#e0e0e0] text-sm mt-8">
-          <p>MONiA v1.0.0</p>
-          <p className="mt-2">
+        <div className="text-center text-white/30 text-xs pt-4 space-y-1">
+          <p className="font-semibold">MONiA v1.0.0</p>
+          <p>
             Contact:{' '}
-            <a href="mailto:moniaaiofficial@gmail.com" className="text-[#fc2857] hover:underline">
+            <a href="mailto:moniaaiofficial@gmail.com" className="text-[#ff1e43] font-medium">
               moniaaiofficial@gmail.com
             </a>
           </p>

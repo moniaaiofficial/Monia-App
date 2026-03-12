@@ -30,18 +30,11 @@ export default function ForgotPasswordPage() {
     setError('');
 
     try {
-      await signIn.create({
-        strategy: 'reset_password_email_code',
-        identifier: email,
-      });
+      await signIn.create({ strategy: 'reset_password_email_code', identifier: email });
       setStep('code');
     } catch (err: any) {
       console.error('Forgot password error:', err);
-      if (err.errors?.[0]?.message) {
-        setError(err.errors[0].message);
-      } else {
-        setError('Failed to send reset code. Please try again.');
-      }
+      setError(err.errors?.[0]?.message || 'Failed to send reset code. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -59,17 +52,12 @@ export default function ForgotPasswordPage() {
         strategy: 'reset_password_email_code',
         code,
       });
-
       if (result.status === 'needs_new_password') {
         setStep('password');
       }
     } catch (err: any) {
       console.error('Code verification error:', err);
-      if (err.errors?.[0]?.message) {
-        setError(err.errors[0].message);
-      } else {
-        setError('Invalid code. Please try again.');
-      }
+      setError(err.errors?.[0]?.message || 'Invalid code. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -79,87 +67,52 @@ export default function ForgotPasswordPage() {
     e.preventDefault();
     if (!isLoaded || !signIn) return;
 
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters');
-      return;
-    }
+    if (password !== confirmPassword) { setError('Passwords do not match'); return; }
+    if (password.length < 8) { setError('Password must be at least 8 characters'); return; }
 
     setLoading(true);
     setError('');
 
     try {
-      const result = await signIn.resetPassword({
-        password,
-      });
-
+      const result = await signIn.resetPassword({ password });
       if (result.status === 'complete') {
         router.push('/auth/login?reset=success');
       }
     } catch (err: any) {
       console.error('Password reset error:', err);
-      if (err.errors?.[0]?.message) {
-        setError(err.errors[0].message);
-      } else {
-        setError('Failed to reset password. Please try again.');
-      }
+      setError(err.errors?.[0]?.message || 'Failed to reset password. Please try again.');
     } finally {
       setLoading(false);
     }
   };
+
+  const iconClass = 'absolute left-4 top-1/2 -translate-y-1/2 text-white/30 w-4 h-4 pointer-events-none';
+  const inputClass = 'glass-input pl-11 pr-4 py-3.5 text-sm font-medium';
 
   const renderStep = () => {
     switch (step) {
       case 'email':
         return (
           <>
-            <div className="text-center">
-              <div className="mx-auto w-16 h-16 bg-[#fc2857]/20 rounded-full flex items-center justify-center mb-4">
-                <Mail className="w-8 h-8 text-[#fc2857]" />
+            <div className="text-center space-y-3">
+              <div className="w-16 h-16 rounded-2xl bg-[#ff1e43]/10 flex items-center justify-center mx-auto shadow-glow">
+                <Mail className="w-8 h-8 text-[#ff1e43] icon-active-glow" />
               </div>
-              <h1 className="text-4xl font-bold text-white mb-2">MONiA</h1>
-              <h2 className="text-xl text-white mb-2">Forgot Password?</h2>
-              <p className="text-[#e0e0e0]">
-                Enter your email address and we&apos;ll send you a reset code.
-              </p>
+              <h1 className="text-5xl font-black text-white logo-glow">MONiA</h1>
+              <div>
+                <h2 className="text-lg font-bold text-white">Forgot Password?</h2>
+                <p className="text-white/40 text-sm mt-1">Enter your email and we&apos;ll send a reset code.</p>
+              </div>
             </div>
 
-            <form onSubmit={handleSendCode} className="space-y-6">
-              {error && (
-                <div className="bg-red-500/10 border border-red-500 text-red-400 px-4 py-3 rounded-lg text-sm">
-                  {error}
-                </div>
-              )}
-
+            <form onSubmit={handleSendCode} className="space-y-4">
+              {error && <div className="glass-card px-4 py-3 text-sm text-red-400 font-medium">{error}</div>}
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-transparent border border-[#fc2857] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#fc2857]"
-                  required
-                />
+                <Mail className={iconClass} />
+                <input type="email" placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass} required />
               </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-3 bg-[#fc2857] hover:bg-[#e01f4a] text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Sending...
-                  </>
-                ) : (
-                  'Send Reset Code'
-                )}
+              <button type="submit" disabled={loading} className="btn-glow w-full py-4 rounded-2xl font-bold text-white text-sm flex items-center justify-center gap-2">
+                {loading ? <><Loader2 className="w-4 h-4 animate-spin" />Sending...</> : 'Send Reset Code'}
               </button>
             </form>
           </>
@@ -168,55 +121,26 @@ export default function ForgotPasswordPage() {
       case 'code':
         return (
           <>
-            <div className="text-center">
-              <div className="mx-auto w-16 h-16 bg-[#fc2857]/20 rounded-full flex items-center justify-center mb-4">
-                <KeyRound className="w-8 h-8 text-[#fc2857]" />
+            <div className="text-center space-y-3">
+              <div className="w-16 h-16 rounded-2xl bg-[#ff1e43]/10 flex items-center justify-center mx-auto shadow-glow">
+                <KeyRound className="w-8 h-8 text-[#ff1e43] icon-active-glow" />
               </div>
-              <h1 className="text-4xl font-bold text-white mb-2">MONiA</h1>
-              <h2 className="text-xl text-white mb-2">Enter Reset Code</h2>
-              <p className="text-[#e0e0e0]">
-                We sent a code to
-                <span className="block text-[#fc2857] font-medium mt-1">{email}</span>
-              </p>
+              <h1 className="text-5xl font-black text-white logo-glow">MONiA</h1>
+              <div>
+                <h2 className="text-lg font-bold text-white">Enter Reset Code</h2>
+                <p className="text-white/40 text-sm mt-1">
+                  We sent a code to <span className="text-[#ff1e43] font-semibold">{email}</span>
+                </p>
+              </div>
             </div>
 
-            <form onSubmit={handleVerifyCode} className="space-y-6">
-              {error && (
-                <div className="bg-red-500/10 border border-red-500 text-red-400 px-4 py-3 rounded-lg text-sm">
-                  {error}
-                </div>
-              )}
-
-              <input
-                type="text"
-                placeholder="Enter 6-digit code"
-                value={code}
-                onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                className="w-full px-4 py-4 bg-transparent border border-[#fc2857] rounded-lg text-white text-center text-2xl tracking-widest placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#fc2857]"
-                maxLength={6}
-                required
-              />
-
-              <button
-                type="submit"
-                disabled={loading || code.length !== 6}
-                className="w-full py-3 bg-[#fc2857] hover:bg-[#e01f4a] text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Verifying...
-                  </>
-                ) : (
-                  'Verify Code'
-                )}
+            <form onSubmit={handleVerifyCode} className="space-y-4">
+              {error && <div className="glass-card px-4 py-3 text-sm text-red-400 font-medium">{error}</div>}
+              <input type="text" placeholder="• • • • • •" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))} className="glass-input px-4 py-5 text-center text-3xl font-black tracking-[0.5em]" maxLength={6} required />
+              <button type="submit" disabled={loading || code.length !== 6} className="btn-glow w-full py-4 rounded-2xl font-bold text-white text-sm flex items-center justify-center gap-2">
+                {loading ? <><Loader2 className="w-4 h-4 animate-spin" />Verifying...</> : 'Verify Code'}
               </button>
-
-              <button
-                type="button"
-                onClick={() => setStep('email')}
-                className="w-full text-[#e0e0e0] hover:text-white transition-colors"
-              >
+              <button type="button" onClick={() => setStep('email')} className="w-full text-white/35 hover:text-white transition-colors text-sm font-medium py-2">
                 Try a different email
               </button>
             </form>
@@ -226,76 +150,35 @@ export default function ForgotPasswordPage() {
       case 'password':
         return (
           <>
-            <div className="text-center">
-              <div className="mx-auto w-16 h-16 bg-[#fc2857]/20 rounded-full flex items-center justify-center mb-4">
-                <Lock className="w-8 h-8 text-[#fc2857]" />
+            <div className="text-center space-y-3">
+              <div className="w-16 h-16 rounded-2xl bg-[#ff1e43]/10 flex items-center justify-center mx-auto shadow-glow">
+                <Lock className="w-8 h-8 text-[#ff1e43] icon-active-glow" />
               </div>
-              <h1 className="text-4xl font-bold text-white mb-2">MONiA</h1>
-              <h2 className="text-xl text-white mb-2">Set New Password</h2>
-              <p className="text-[#e0e0e0]">Create a strong password for your account.</p>
+              <h1 className="text-5xl font-black text-white logo-glow">MONiA</h1>
+              <div>
+                <h2 className="text-lg font-bold text-white">Set New Password</h2>
+                <p className="text-white/40 text-sm mt-1">Create a strong password for your account.</p>
+              </div>
             </div>
 
-            <form onSubmit={handleResetPassword} className="space-y-6">
-              {error && (
-                <div className="bg-red-500/10 border border-red-500 text-red-400 px-4 py-3 rounded-lg text-sm">
-                  {error}
-                </div>
-              )}
-
-              <div className="space-y-4">
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="New Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-10 pr-12 py-3 bg-transparent border border-[#fc2857] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#fc2857]"
-                    required
-                    minLength={8}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
-                  >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
-                </div>
-
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    placeholder="Confirm New Password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full pl-10 pr-12 py-3 bg-transparent border border-[#fc2857] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#fc2857]"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
-                  >
-                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
-                </div>
+            <form onSubmit={handleResetPassword} className="space-y-4">
+              {error && <div className="glass-card px-4 py-3 text-sm text-red-400 font-medium">{error}</div>}
+              <div className="relative">
+                <Lock className={iconClass} />
+                <input type={showPassword ? 'text' : 'password'} placeholder="New Password" value={password} onChange={(e) => setPassword(e.target.value)} className="glass-input pl-11 pr-12 py-3.5 text-sm font-medium" required minLength={8} />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/70 transition-colors">
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-3 bg-[#fc2857] hover:bg-[#e01f4a] text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Resetting...
-                  </>
-                ) : (
-                  'Reset Password'
-                )}
+              <div className="relative">
+                <Lock className={iconClass} />
+                <input type={showConfirmPassword ? 'text' : 'password'} placeholder="Confirm New Password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="glass-input pl-11 pr-12 py-3.5 text-sm font-medium" required />
+                <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/70 transition-colors">
+                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+              <button type="submit" disabled={loading} className="btn-glow w-full py-4 rounded-2xl font-bold text-white text-sm flex items-center justify-center gap-2">
+                {loading ? <><Loader2 className="w-4 h-4 animate-spin" />Resetting...</> : 'Reset Password'}
               </button>
             </form>
           </>
@@ -304,16 +187,12 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-[#0f0102] px-4">
-      <div className="w-full max-w-md space-y-8">
-        <Link
-          href="/auth/login"
-          className="inline-flex items-center gap-2 text-[#e0e0e0] hover:text-white transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5" />
+    <main className="min-h-screen flex items-center justify-center bg-[#100002] px-5 py-10">
+      <div className="w-full max-w-sm space-y-8 page-enter">
+        <Link href="/auth/login" className="inline-flex items-center gap-2 text-white/40 hover:text-white transition-colors text-sm font-medium">
+          <ArrowLeft className="w-4 h-4" />
           Back to login
         </Link>
-
         {renderStep()}
       </div>
     </main>
