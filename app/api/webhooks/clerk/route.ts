@@ -53,29 +53,47 @@ export async function POST(req: Request) {
     const publicMeta = public_metadata as Record<string, string> | undefined;
     const mobile = unsafeMeta?.mobile || publicMeta?.mobile || null;
     const city = unsafeMeta?.city || publicMeta?.city || null;
+    const fullName = `${first_name || ''} ${last_name || ''}`.trim() || null;
 
-    const { error } = await supabase
+    // Log the data being inserted for debugging
+    console.log('Creating profile with data:', {
+      id,
+      email,
+      username,
+      full_name: fullName,
+      mobile,
+      city,
+      avatar_url: image_url,
+      unsafeMeta,
+      publicMeta
+    });
+
+    const profileData = {
+      id: id,
+      email: email,
+      username: username || null,
+      full_name: fullName,
+      mobile: mobile,
+      city: city,
+      avatar_url: image_url || null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    const { data, error } = await supabase
       .from('profiles')
-      .upsert({
-        id: id,
-        email: email,
-        username: username || null,
-        full_name: `${first_name || ''} ${last_name || ''}`.trim() || null,
-        mobile: mobile,
-        city: city,
-        avatar_url: image_url || null,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      }, {
+      .upsert(profileData, {
         onConflict: 'id'
       })
+      .select();
 
     if (error) {
-      console.error('Error creating profile in Supabase:', error)
-      return new Response('Error creating profile', { status: 500 })
+      console.error('Error creating profile in Supabase:', error);
+      console.error('Profile data that failed:', profileData);
+      return new Response(`Error creating profile: ${error.message}`, { status: 500 })
     }
 
-    console.log('Profile created for user:', id)
+    console.log('Profile created successfully for user:', id, data)
   }
 
   // Handle user.updated event

@@ -2,35 +2,36 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useUser, useClerk } from '@clerk/nextjs';
 import { supabase } from '@/lib/supabase/client';
 import { User, Shield, FileText, LogOut, ChevronRight } from 'lucide-react';
 
 export default function MorePage() {
   const router = useRouter();
+  const { user, isLoaded } = useUser();
+  const { signOut } = useClerk();
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const getProfile = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (user) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .maybeSingle();
-        setProfile(data);
-      }
+      if (!isLoaded || !user) return;
+      
+      // Fetch profile from Supabase using Clerk user ID
+      const { data } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle();
+      setProfile(data);
     };
     getProfile();
-  }, []);
+  }, [isLoaded, user]);
 
   const handleLogout = async () => {
     setLoading(true);
     try {
-      await supabase.auth.signOut();
+      await signOut();
       router.push('/auth/login');
     } catch (error) {
       console.error('Error logging out:', error);
@@ -57,8 +58,8 @@ export default function MorePage() {
               <div>
                 <h2 className="text-xl font-semibold text-white">{profile.full_name}</h2>
                 <p className="text-[#e0e0e0] text-sm">{profile.email}</p>
-                {profile.mobile_number && (
-                  <p className="text-[#e0e0e0] text-sm">{profile.mobile_number}</p>
+                {profile.mobile && (
+                  <p className="text-[#e0e0e0] text-sm">{profile.mobile}</p>
                 )}
               </div>
             </div>
