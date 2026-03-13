@@ -1,12 +1,15 @@
 import { ClerkProvider } from '@clerk/nextjs';
 import './globals.css';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
+
+export const viewport: Viewport = {
+  themeColor: '#0f0102',
+};
 
 export const metadata: Metadata = {
   title: 'MONiA - Your AI-Powered Communication Platform',
   description: 'MONiA - Connect, communicate, and collaborate with AI-powered features',
   manifest: '/manifest.json',
-  themeColor: '#0f0102',
   openGraph: {
     title: 'MONiA',
     description: 'Your AI-Powered Communication Platform',
