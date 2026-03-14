@@ -407,68 +407,20 @@ body {
   touch-action: pan-y;
   }
 
-/* FIX — red scroll ke liye */
-html, body {
-  background-color: #06000c !important;
-}
-
-/* FIX — icon search bar ke neeche na chhupe */
-.floating-nav,
-.section-header {
-  z-index: 999 !important;
-  position: relative;
-}
-
-/* FIX 1 — background red scroll ke liye */
+/* FINAL FIX — stable navigation & no red scroll */
 html {
   background-color: #06000c !important;
 }
 
-body {
-  background-color: #06000c !important;
-  min-height: 100vh;
-  margin: 0;
-  padding: 0;
-}
-
-/* FIX 2 — top bar (MONiA + search) ko z-index do */
-header,
-div:has(> h1:contains("MONiA")),
-.sticky,
-.top-bar,
-[class*="top"] {
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 9999 !important;
-  background-color: #06000c !important;
-}
-
-/* FIX 3 — navigation bar ka background fix */
 .floating-nav,
-.bottom-nav,
-nav:has(a[href*="chat"]),
-[class*="bottomNav"] {
-  background-color: rgba(6, 0, 12, 0.95) !important;
-  backdrop-filter: blur(0px) !important;
-  z-index: 999 !important;
-}
-
-/* FIX 4 — koi bhi element scroll me upar na jaye */
-main,
-.main-content,
-[class*="main"] {
-  position: relative;
-  z-index: 1;
-}
-
-/* FIX — सिर्फ यही 5 lines डाल */
-html, body {
-  background-color: #06000c !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-header, nav, .floating-nav, .bottom-nav {
-  background-color: #06000c !important;
+.bottom-nav {
+  background-color: rgba(6, 0, 12, 0.98) !important;
+  position: fixed !important;
+  bottom: 0 !important;
+  width: 100% !important;
+  z-index: 9999 !important;
   backdrop-filter: none !important;
 }
+
+
+
