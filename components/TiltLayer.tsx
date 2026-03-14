@@ -51,7 +51,7 @@ export default function TiltLayer({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <div ref={containerRef} style={{ position: 'contents' }}>
+    <div ref={containerRef} style={{ display: 'contents' }}>
       {children}
     </div>
   );
