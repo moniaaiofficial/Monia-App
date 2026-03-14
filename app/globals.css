@@ -182,8 +182,8 @@ body {
 /* Glass card */
 .glass-card {
   background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border-radius: 1.5rem;
   border: 1px solid rgba(255, 255, 255, 0.06);
   transition: border-color 0.2s ease;
