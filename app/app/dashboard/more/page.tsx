@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser, useClerk } from '@clerk/nextjs';
-import { supabase } from '@/lib/supabase/client';
 import { User, Shield, FileText, LogOut, ChevronRight } from 'lucide-react';
 
 export default function MorePage() {
@@ -16,12 +15,15 @@ export default function MorePage() {
   useEffect(() => {
     const getProfile = async () => {
       if (!isLoaded || !user) return;
-      const { data } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .maybeSingle();
-      setProfile(data);
+      try {
+        const res = await fetch('/api/profile');
+        if (res.ok) {
+          const data = await res.json();
+          setProfile(data.profile);
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      }
     };
     getProfile();
   }, [isLoaded, user]);
