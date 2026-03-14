@@ -6,8 +6,9 @@
 
 /* ─── Design Tokens ──────────────────────────────────────────────────────── */
 :root {
-  --bg:          #06000c;
-  --bg-surface:  rgba(255, 255, 255, 0.04);
+  /* CHANGE: Fixed Indigo Base for deep luxury feel */
+  --bg:          #06000c; 
+  --bg-surface:  #0a0118; /* CHANGE: Deep Indigo surface instead of transparent grey */
   --bg-nav:      rgba(6, 0, 12, 0.9);
   --neon:        #c6ff33;
   --neon-10:     rgba(198, 255, 51, 0.10);
@@ -24,12 +25,14 @@
   padding: 0;
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
+  /* CHANGE: Removed thick shadows, added subtle neon border trace */
+  border-color: rgba(198, 255, 51, 0.08); 
 }
 
 /* ─── Base ───────────────────────────────────────────────────────────────── */
 html {
   scroll-behavior: smooth;
-  background-color: #06000c;
+  background-color: #06000c !important; /* CHANGE: Force-kill burgundy flash */
 }
 
 body {
@@ -37,7 +40,7 @@ body {
   background-color: var(--bg);
   color: var(--text);
   min-height: 100vh;
-  overflow-x: hidden;
+  overflow-x: hidden; /* CHANGE: Fixed Nav shake/scroll */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -50,15 +53,10 @@ body {
 /* ─── Keyframes ──────────────────────────────────────────────────────────── */
 @keyframes breathePulse {
   0%, 100% {
-    box-shadow:
-      0 0 0 1px rgba(198,255,51,0.25),
-      inset 0 0 0 1px rgba(198,255,51,0.08);
+    box-shadow: 0 0 0 1px rgba(198,255,51,0.2);
   }
   50% {
-    box-shadow:
-      0 0 0 1.5px rgba(198,255,51,0.95),
-      inset 0 0 0 1px rgba(198,255,51,0.18),
-      0 0 18px rgba(198,255,51,0.22);
+    box-shadow: 0 0 0 1.5px rgba(198,255,51,0.8), 0 0 12px rgba(198,255,51,0.2);
   }
 }
 
@@ -90,27 +88,25 @@ body {
 }
 
 @keyframes neonBtnPulse {
-  0%,100% { box-shadow: 0 0 16px rgba(198,255,51,0.4), 0 4px 20px rgba(198,255,51,0.3); }
-  50%     { box-shadow: 0 0 28px rgba(198,255,51,0.7), 0 6px 32px rgba(198,255,51,0.5); }
+  0%,100% { box-shadow: 0 0 12px rgba(198,255,51,0.3); }
+  50%     { box-shadow: 0 0 20px rgba(198,255,51,0.5); }
 }
 
 @keyframes magneticPull {
   0%   { transform: scale(1)    translateY(0);   }
-  100% { transform: scale(1.12) translateY(-3px);}
+  100% { transform: scale(1.08) translateY(-3px);}
 }
 
 @keyframes logoIdleGlow {
-  0%,100% { text-shadow: 0 0 10px rgba(255,255,255,0.15), 0 0 30px rgba(198,255,51,0.08); }
-  50%     { text-shadow: 0 0 18px rgba(255,255,255,0.25), 0 0 50px rgba(198,255,51,0.14); }
+  0%,100% { text-shadow: 0 0 10px rgba(255,255,255,0.1), 0 0 30px rgba(198,255,51,0.05); }
+  50%     { text-shadow: 0 0 18px rgba(255,255,255,0.2), 0 0 50px rgba(198,255,51,0.1); }
 }
 
 /* ─── Utility Classes ────────────────────────────────────────────────────── */
 
-/* Page entrance */
 .page-enter { animation: fadeInUp 0.35s ease both; }
 .scale-enter { animation: scaleIn 0.25s ease both; }
 
-/* Logo */
 .logo-glow {
   color: #ffffff;
   letter-spacing: -0.02em;
@@ -122,108 +118,56 @@ body {
   letter-spacing: -0.02em;
 }
 
-/* Buttons */
-.btn-neon {
-  background: linear-gradient(135deg, #c6ff33 0%, #a8e000 100%);
-  color: #06000c;
-  font-weight: 700;
-  transition: transform 0.12s ease, opacity 0.12s ease, box-shadow 0.12s ease;
-  animation: neonBtnPulse 2.5s ease-in-out infinite;
-  will-change: transform;
-}
-
-.btn-neon:hover:not(:disabled) {
-  animation: none;
-  box-shadow: 0 0 36px rgba(198,255,51,0.75), 0 6px 28px rgba(198,255,51,0.55);
-  transform: translateY(-1px);
-}
-
-.btn-neon:active:not(:disabled) {
-  transform: translateY(0) scale(0.985);
-  animation: none;
-}
-
-.btn-neon:disabled {
-  opacity: 0.35;
-  animation: none;
-  cursor: not-allowed;
-}
-
-/* Keep btn-glow as alias */
-.btn-glow {
-  background: linear-gradient(135deg, #c6ff33 0%, #a8e000 100%);
+/* CHANGE: Fixed Button logic (No Red gradients, Solid Neon power) */
+.btn-neon, .btn-glow {
+  background: #c6ff33 !important; 
   color: #06000c !important;
   font-weight: 700;
-  transition: transform 0.12s ease, opacity 0.12s ease, box-shadow 0.12s ease;
+  transition: transform 0.1s cubic-bezier(0, 0, 0.2, 1); /* Faster Response */
   animation: neonBtnPulse 2.5s ease-in-out infinite;
   will-change: transform;
 }
 
-.btn-glow:hover:not(:disabled) {
+.btn-neon:hover:not(:disabled), .btn-glow:hover:not(:disabled) {
   animation: none;
-  box-shadow: 0 0 36px rgba(198,255,51,0.75), 0 6px 28px rgba(198,255,51,0.55);
-  transform: translateY(-1px);
-  background: linear-gradient(135deg, #d4ff5a 0%, #c6ff33 100%);
+  box-shadow: 0 0 20px rgba(198,255,51,0.6);
+  transform: translateY(-2px);
 }
 
-.btn-glow:active:not(:disabled) {
-  transform: translateY(0) scale(0.985);
+.btn-neon:active:not(:disabled), .btn-glow:active:not(:disabled) {
+  transform: scale(0.96); /* Instant feedback */
   animation: none;
 }
 
-.btn-glow:disabled {
-  opacity: 0.35;
-  animation: none;
-  cursor: not-allowed;
-}
-
-/* Glass card */
-.glass-card {
+/* Glass card & Input with Neon Boundary Fix */
+.glass-card, .glass-input {
   background: rgba(255, 255, 255, 0.04);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border-radius: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  transition: border-color 0.2s ease;
-}
-
-.glass-card:hover {
-  border-color: rgba(198, 255, 51, 0.12);
-}
-
-/* Glass input */
-.glass-input {
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border-radius: 0.875rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  outline: none;
-  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-  color: #ffffff;
-  width: 100%;
-}
-
-.glass-input::placeholder {
-  color: rgba(255, 255, 255, 0.28);
+  border-radius: 1rem;
+  border: 1px solid rgba(198, 255, 51, 0.1); /* Subtle Neon Border */
+  transition: all 0.2s ease;
 }
 
 .glass-input:focus {
+  border-color: #c6ff33;
   background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(198, 255, 51, 0.6);
-  box-shadow: 0 0 0 3px rgba(198, 255, 51, 0.08), 0 0 20px rgba(198, 255, 51, 0.12);
 }
 
-/* Floating nav */
+/* CHANGE: Rock Solid Floating Nav (No Shake) */
 .floating-nav {
+  position: fixed;
+  bottom: 0;
+  inset-x: 0;
+  width: 100%;
   background: rgba(6, 0, 12, 0.88);
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  box-shadow: 0 -1px 40px rgba(0, 0, 0, 0.6), 0 8px 32px rgba(0, 0, 0, 0.5);
+  border-top: 1px solid rgba(198, 255, 51, 0.2); /* Neon Boundary Top */
+  box-shadow: 0 -1px 20px rgba(198, 255, 51, 0.15); /* Neon Glow instead of Black */
+  z-index: 50;
 }
 
-/* Section header */
 .section-header {
   background: rgba(6, 0, 12, 0.94);
   backdrop-filter: blur(28px);
@@ -231,29 +175,18 @@ body {
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Icon active glow — neon */
-.icon-active-glow {
-  filter: drop-shadow(0 0 7px rgba(198, 255, 51, 0.9));
-}
-
-/* Active neon capsule */
-.neon-capsule {
-  position: relative;
-}
-
-.neon-capsule::before {
-  content: '';
-  position: absolute;
-  inset: -6px -10px;
-  background: rgba(198, 255, 51, 0.10);
-  border-radius: 999px;
-  animation: breathePulse 3s ease-in-out infinite;
-  pointer-events: none;
-}
-
-/* Nav icon floating */
+/* CHANGE: White Diamond Icon Shine */
 .nav-icon {
-  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.2s ease;
+  color: #ffffff !important;
+  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.8));
+  transition: transform 0.1s cubic-bezier(0, 0, 0.2, 1), color 0.2s ease;
+  opacity: 1 !important; /* No more grey icons */
+}
+
+/* CHANGE: Neon Active Swap */
+.icon-active-glow {
+  color: #c6ff33 !important;
+  filter: drop-shadow(0 0 8px rgba(198, 255, 51, 0.9));
 }
 
 .nav-icon:hover {
@@ -264,7 +197,7 @@ body {
   transform: translateY(-5px) scale(0.95);
 }
 
-/* Skeleton shimmer */
+/* Skeleton & Shimmer */
 .skeleton {
   background: linear-gradient(
     90deg,
@@ -277,26 +210,11 @@ body {
   border-radius: 0.5rem;
 }
 
-/* Spatial depth — scale bg when modal open */
-.spatial-dimmed {
-  transform: scale(0.94);
-  filter: brightness(0.6);
-  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), filter 0.3s ease;
-  pointer-events: none;
-  will-change: transform;
-}
-
 /* Liquid metal text */
 .liquid-metal-text {
   background: linear-gradient(
     90deg,
-    #ffffff 0%,
-    #ffffff 25%,
-    #c6ff33 40%,
-    #ffffff 50%,
-    #ffffff 65%,
-    #c6ff33 80%,
-    #ffffff 100%
+    #ffffff 0%, #ffffff 25%, #c6ff33 40%, #ffffff 50%, #ffffff 65%, #c6ff33 80%, #ffffff 100%
   );
   background-size: 200% auto;
   -webkit-background-clip: text;
@@ -305,7 +223,8 @@ body {
   animation: liquidMetal 2.4s linear infinite;
 }
 
-/* Swipe gesture hint */
-.swipe-target {
-  touch-action: pan-y;
+/* Speed Optimization: Hardware Acceleration */
+.nav-icon, .btn-neon, .btn-glow {
+  transform: translateZ(0);
+  will-change: transform;
 }
