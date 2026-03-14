@@ -406,21 +406,3 @@ body {
 .swipe-target {
   touch-action: pan-y;
   }
-
-/* FINAL FIX — stable navigation & no red scroll */
-html {
-  background-color: #06000c !important;
-}
-
-.floating-nav,
-.bottom-nav {
-  background-color: rgba(6, 0, 12, 0.98) !important;
-  position: fixed !important;
-  bottom: 0 !important;
-  width: 100% !important;
-  z-index: 9999 !important;
-  backdrop-filter: none !important;
-}
-
-
-
