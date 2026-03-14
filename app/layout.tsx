@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   },
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'black-translucent',
+    statusBarStyle: 'black',
     title: 'MONiA',
   },
 };
@@ -37,7 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       afterSignInUrl="/app"
       afterSignUpUrl="/app"
     >
-      <html lang="en">
+      <html lang="en" className="bg-[#06000c]">
         {/* FIX: Forced Indigo Background to kill any color flash */}
         <body className="bg-[#06000c] text-white antialiased min-h-screen selection:bg-[#c6ff33]/30">
           <UIProvider>
