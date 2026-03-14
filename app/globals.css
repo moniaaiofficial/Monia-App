@@ -304,7 +304,95 @@ body {
   -webkit-text-fill-color: transparent;
   animation: liquidMetal 2.4s linear infinite;
 }
+/* ─────────────────────────────────────────────────────────────
+   MONiA Neon Boundary System (non-destructive override)
+   Adds thin neon borders + breathing glow + sweep effect
+   ───────────────────────────────────────────────────────────── */
 
+@keyframes neonBorderBreath {
+  0%,100% {
+    box-shadow: 0 0 0 1px rgba(198,255,51,0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 1px rgba(198,255,51,0.95),
+                0 0 8px rgba(198,255,51,0.35);
+  }
+}
+
+/* Light sweep animation */
+@keyframes neonSweep {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Apply thin neon boundary to cards */
+.glass-card,
+.card,
+.box,
+.panel {
+  position: relative;
+  box-shadow: 0 0 0 1px rgba(198,255,51,0.35);
+}
+
+/* breathing glow when active */
+.glass-card:active,
+.glass-card:focus-within,
+.card:active,
+.box:active {
+  animation: neonBorderBreath 2.8s ease-in-out infinite;
+}
+
+/* sweep line */
+.glass-card::after,
+.card::after,
+.box::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    transparent 40%,
+    rgba(198,255,51,0.35) 50%,
+    transparent 60%,
+    transparent 100%
+  );
+
+  background-size: 200% 100%;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+/* trigger sweep on hover */
+.glass-card:hover::after,
+.card:hover::after,
+.box:hover::after {
+  opacity: 1;
+  animation: neonSweep 1.6s linear;
+}
+
+/* remove thick nav shadows without breaking layout */
+.floating-nav {
+  box-shadow: 0 0 0 1px rgba(198,255,51,0.25);
+  border-top: 1px solid rgba(198,255,51,0.35);
+}
+
+/* icon + border sync glow */
+.icon-active-glow {
+  filter: drop-shadow(0 0 6px rgba(198,255,51,0.95));
+}
+
+.glass-card:active .icon-active-glow,
+.card:active .icon-active-glow {
+  filter: drop-shadow(0 0 12px rgba(198,255,51,1));
+}
 /* Swipe gesture hint */
 .swipe-target {
   touch-action: pan-y;
