@@ -406,15 +406,3 @@ body {
 .swipe-target {
   touch-action: pan-y;
   }
-
-/* ─── FIX FOR BURGUNDY RED ISSUES ───────────────────────────────────────── */
-
-html {
-  background-color: #06000c !important;
-  scroll-behavior: smooth;
-}
-
-body {
-  background-color: #06000c !important;
-  min-height: 100vh;
-}
