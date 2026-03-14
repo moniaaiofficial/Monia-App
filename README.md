@@ -33,13 +33,16 @@ A modern, production-ready Progressive Web Application (PWA) built with Next.js 
 ## Design System
 
 ```css
-Primary Background: #0f0102
-Secondary Accent: #fc2857
-Text Primary: #ffffff
-Text Secondary: #e0e0e0
-Border Color: #fc2857
-User Chat Bubble: #fc2857
-Other Chat Bubble: #0f0102
+### Design System (2026 Futuristic Update)
+- **Primary Background:** #06000c (Deep Indigo Black)
+- **Primary Accent:** #c6ff33 (Electric Neon Yellow)
+- **Text Primary:** #ffffff (Pure White)
+- **Text Secondary:** #94a3b8 (Cool Slate)
+- **Border Color:** #c6ff33 (Electric Neon)
+- **User Chat Bubble:** #1a1033 (Deep Indigo)
+- **Other Chat Bubble:** #06000c (Black Indigo)
+- **Icon Style:** Diamond White Shine (#ffffff)
+
 ```
 
 **Font**: Poppins (Google Fonts)
