@@ -460,3 +460,15 @@ main,
   position: relative;
   z-index: 1;
 }
+
+/* FIX — सिर्फ यही 5 lines डाल */
+html, body {
+  background-color: #06000c !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+header, nav, .floating-nav, .bottom-nav {
+  background-color: #06000c !important;
+  backdrop-filter: none !important;
+}
