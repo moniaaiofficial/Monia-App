@@ -200,25 +200,11 @@ export async function POST(req: Request) {
       if (id) {
         console.log('[Webhook] Deleting profile:', id)
 
-        // Call the Supabase REST API directly for the DELETE
-        const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
-        const jwt = buildServiceRoleJwt()
-        const delResp = await fetch(
-          `${url}/rest/v1/profiles?id=eq.${encodeURIComponent(id)}`,
-          {
-            method:  'DELETE',
-            headers: {
-              'apikey':        jwt,
-              'Authorization': `Bearer ${jwt}`,
-              'Content-Type':  'application/json',
-            },
-          }
-        )
+        const { error } = await supabase.rpc('delete_clerk_user', { p_id: id })
 
-        if (!delResp.ok) {
-          const body = await delResp.text()
-          console.error('[Webhook] Error deleting profile:', delResp.status, body)
-          // Return 200 so Clerk does not retry — the row may already be gone
+        if (error) {
+          console.error('[Webhook] Error deleting profile:', error.message)
+          // Return 200 so Clerk does not retry on a row that may already be gone
         } else {
           console.log('[Webhook] Profile deleted:', id)
         }
