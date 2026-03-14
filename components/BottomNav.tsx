@@ -31,7 +31,6 @@ export default function BottomNav() {
                 transition: 'color 0.2s ease',
               }}
             >
-              {/* Breathing capsule backdrop for active item */}
               {isActive && (
                 <span
                   aria-hidden
@@ -51,8 +50,8 @@ export default function BottomNav() {
                   width: 22,
                   height: 22,
                   color: isActive ? '#c6ff33' : 'rgba(255,255,255,0.45)',
-                  transform: isActive ? 'scale(1.08)' : 'scale(1)',
-                  transition: 'color 0.2s ease, transform 0.2s ease',
+                  transform: isActive ? 'translateY(-5px) scale(1.08)' : 'translateY(0) scale(1)',
+                  transition: 'color 0.2s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
                 }}
               />
               <span

@@ -28,23 +28,8 @@ function createAudioContext(): AudioContext | null {
   }
 }
 
-function ramp(
-  gain: GainNode,
-  ctx: AudioContext,
-  from: number,
-  to: number,
-  duration: number
-) {
-  gain.gain.setValueAtTime(from, ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(
-    Math.max(to, 0.0001),
-    ctx.currentTime + duration
-  );
-}
-
 export default function UIProvider({ children }: { children: React.ReactNode }) {
   const audioRef = useRef<AudioContext | null>(null);
-  const startedRef = useRef(false);
 
   const getCtx = useCallback((): AudioContext | null => {
     if (!audioRef.current) {
@@ -56,7 +41,7 @@ export default function UIProvider({ children }: { children: React.ReactNode }) 
     return audioRef.current;
   }, []);
 
-  /* ── Soft liquid pop (click) ─────────────────────────────────── */
+  /* ── Soft liquid pop (click) — volume 0.15 ───────────────────── */
   const playClick = useCallback(() => {
     const ctx = getCtx();
     if (!ctx) return;
@@ -67,7 +52,7 @@ export default function UIProvider({ children }: { children: React.ReactNode }) 
     osc.type = 'sine';
     osc.frequency.setValueAtTime(900, ctx.currentTime);
     osc.frequency.exponentialRampToValueAtTime(220, ctx.currentTime + 0.09);
-    gain.gain.setValueAtTime(0.22, ctx.currentTime);
+    gain.gain.setValueAtTime(0.15, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.11);
     osc.start(ctx.currentTime);
     osc.stop(ctx.currentTime + 0.12);
@@ -117,7 +102,6 @@ export default function UIProvider({ children }: { children: React.ReactNode }) 
     const ctx = getCtx();
     if (!ctx) return;
 
-    /* Swoosh — swept noise-ish */
     const swoosh = ctx.createOscillator();
     const swooshGain = ctx.createGain();
     swoosh.connect(swooshGain);
@@ -131,7 +115,6 @@ export default function UIProvider({ children }: { children: React.ReactNode }) 
     swoosh.start(ctx.currentTime);
     swoosh.stop(ctx.currentTime + 0.7);
 
-    /* Crystal ping */
     const ping = ctx.createOscillator();
     const pingGain = ctx.createGain();
     ping.connect(pingGain);
@@ -144,19 +127,23 @@ export default function UIProvider({ children }: { children: React.ReactNode }) 
     ping.stop(ctx.currentTime + 1.4);
   }, [getCtx]);
 
-  /* ── Haptics ─────────────────────────────────────────────────── */
+  /* ── Haptics — 10ms tick on click ───────────────────────────── */
   const haptic = useCallback((type: 'click' | 'error' | 'success' = 'click') => {
     if (!('vibrate' in navigator)) return;
-    if (type === 'click')   navigator.vibrate(8);
+    if (type === 'click')   navigator.vibrate(10);
     if (type === 'error')   navigator.vibrate([25, 40, 25]);
     if (type === 'success') navigator.vibrate([10, 20, 10]);
   }, []);
 
-  /* ── Global click listener for auto-feedback ─────────────────── */
+  /* ── Targeted sound — only buttons, links, and nav icons ─────── */
   useEffect(() => {
-    const onInteract = () => {
-      haptic('click');
-      playClick();
+    const onInteract = (e: PointerEvent) => {
+      const target = e.target as Element | null;
+      if (!target) return;
+      if (target.closest('button, a, [data-ui-sound]')) {
+        haptic('click');
+        playClick();
+      }
     };
 
     document.addEventListener('pointerdown', onInteract, { passive: true });
