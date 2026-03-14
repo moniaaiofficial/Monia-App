@@ -407,3 +407,14 @@ body {
   touch-action: pan-y;
   }
 
+/* FIX — red scroll ke liye */
+html, body {
+  background-color: #06000c !important;
+}
+
+/* FIX — icon search bar ke neeche na chhupe */
+.floating-nav,
+.section-header {
+  z-index: 999 !important;
+  position: relative;
+}
