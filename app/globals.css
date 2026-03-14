@@ -418,3 +418,45 @@ html, body {
   z-index: 999 !important;
   position: relative;
 }
+
+/* FIX 1 — background red scroll ke liye */
+html {
+  background-color: #06000c !important;
+}
+
+body {
+  background-color: #06000c !important;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+/* FIX 2 — top bar (MONiA + search) ko z-index do */
+header,
+div:has(> h1:contains("MONiA")),
+.sticky,
+.top-bar,
+[class*="top"] {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 9999 !important;
+  background-color: #06000c !important;
+}
+
+/* FIX 3 — navigation bar ka background fix */
+.floating-nav,
+.bottom-nav,
+nav:has(a[href*="chat"]),
+[class*="bottomNav"] {
+  background-color: rgba(6, 0, 12, 0.95) !important;
+  backdrop-filter: blur(0px) !important;
+  z-index: 999 !important;
+}
+
+/* FIX 4 — koi bhi element scroll me upar na jaye */
+main,
+.main-content,
+[class*="main"] {
+  position: relative;
+  z-index: 1;
+}
