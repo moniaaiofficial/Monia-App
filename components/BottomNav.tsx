@@ -15,7 +15,7 @@ export default function BottomNav() {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-5">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-[calc(env(safe-area-inset-bottom)+12px)]">
       <div className="floating-nav flex items-center justify-around h-16 rounded-2xl px-2">
         {navItems.map((item) => {
           const Icon = item.icon;
