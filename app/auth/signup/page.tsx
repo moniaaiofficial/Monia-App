@@ -11,18 +11,13 @@ export default function SignupPage() {
   const router = useRouter();
 
   const [formData, setFormData] = useState({
-    fullName: '',
-    username: '',
-    email: '',
-    mobile: '',
-    city: '',
-    password: '',
-    confirmPassword: '',
+    fullName: '', username: '', email: '',
+    mobile: '', city: '', password: '', confirmPassword: '',
   });
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword,        setShowPassword]        = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [loading,             setLoading]             = useState(false);
+  const [error,               setError]               = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -32,59 +27,28 @@ export default function SignupPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isLoaded || !signUp) return;
-
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-    if (formData.password.length < 8) {
-      setError('Password must be at least 8 characters');
-      return;
-    }
-    if (formData.username.length < 3) {
-      setError('Username must be at least 3 characters');
-      return;
-    }
-    if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) {
-      setError('Username can only contain letters, numbers, and underscores');
-      return;
-    }
+    if (formData.password !== formData.confirmPassword) { setError('Passwords do not match'); return; }
+    if (formData.password.length < 8) { setError('Password must be at least 8 characters'); return; }
+    if (formData.username.length < 3) { setError('Username must be at least 3 characters'); return; }
+    if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) { setError('Username can only contain letters, numbers, and underscores'); return; }
 
     setLoading(true);
     setError('');
-
     try {
       const nameParts = formData.fullName.trim().split(' ');
-      const firstName = nameParts[0] || '';
-      const lastName = nameParts.slice(1).join(' ') || '';
-
       await signUp.create({
         emailAddress: formData.email,
         password: formData.password,
-        firstName,
-        lastName,
+        firstName: nameParts[0] || '',
+        lastName: nameParts.slice(1).join(' ') || '',
         username: formData.username,
-        unsafeMetadata: {
-          mobile: formData.mobile,
-          city: formData.city,
-        },
+        unsafeMetadata: { mobile: formData.mobile, city: formData.city },
       });
-
       await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
-
-      sessionStorage.setItem('signupData', JSON.stringify({
-        email: formData.email,
-        username: formData.username,
-      }));
-
+      sessionStorage.setItem('signupData', JSON.stringify({ email: formData.email, username: formData.username }));
       router.push('/auth/verify-email');
     } catch (err: any) {
-      console.error('Signup error:', err);
-      if (err.errors?.[0]?.message) {
-        setError(err.errors[0].message);
-      } else {
-        setError('Failed to create account. Please try again.');
-      }
+      setError(err.errors?.[0]?.message || 'Failed to create account. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -92,7 +56,6 @@ export default function SignupPage() {
 
   const handleGoogleSignup = async () => {
     if (!isLoaded || !signUp) return;
-
     try {
       await signUp.authenticateWithRedirect({
         strategy: 'oauth_google',
@@ -100,56 +63,62 @@ export default function SignupPage() {
         redirectUrlComplete: '/app/dashboard',
       });
     } catch (err: any) {
-      console.error('Google signup error:', err);
       setError('Failed to sign up with Google. Please try again.');
     }
   };
 
+  const iconStyle = { color: 'rgba(255,255,255,0.28)' };
+  const iconClass = 'absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none';
   const inputClass = 'glass-input pl-11 pr-4 py-3.5 text-sm font-medium';
-  const iconClass = 'absolute left-4 top-1/2 -translate-y-1/2 text-white/30 w-4 h-4 pointer-events-none';
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-[#100002] px-5 py-10">
-      <div className="w-full max-w-sm space-y-7 page-enter">
+    <main
+      className="min-h-screen flex items-center justify-center px-5 py-10 page-enter"
+      style={{ background: '#06000c' }}
+    >
+      <div className="w-full max-w-sm space-y-7">
         <div className="text-center space-y-2">
-          <h1 className="text-6xl font-black text-white logo-glow">MONiA</h1>
-          <p className="text-white/45 text-sm font-medium">Create your account</p>
+          <h1
+            className="font-black text-white logo-glow"
+            style={{ fontSize: '3.75rem', letterSpacing: '-0.03em' }}
+          >
+            MONiA
+          </h1>
+          <p className="text-sm font-medium" style={{ color: 'rgba(255,255,255,0.42)' }}>
+            Create your account
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3">
           {error && (
-            <div className="glass-card px-4 py-3 text-sm text-red-400 font-medium">
+            <div className="glass-card px-4 py-3 text-sm font-medium" style={{ color: '#ff6b6b' }}>
               {error}
             </div>
           )}
 
           <div className="relative">
-            <User className={iconClass} />
+            <User className={iconClass} style={iconStyle} />
             <input type="text" name="fullName" placeholder="Full Name" value={formData.fullName} onChange={handleChange} className={inputClass} required />
           </div>
-
           <div className="relative">
-            <AtSign className={iconClass} />
+            <AtSign className={iconClass} style={iconStyle} />
             <input type="text" name="username" placeholder="Username" value={formData.username} onChange={handleChange} className={inputClass} required />
           </div>
-
           <div className="relative">
-            <Mail className={iconClass} />
+            <Mail className={iconClass} style={iconStyle} />
             <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} className={inputClass} required />
           </div>
-
           <div className="relative">
-            <Phone className={iconClass} />
+            <Phone className={iconClass} style={iconStyle} />
             <input type="tel" name="mobile" placeholder="Mobile Number" value={formData.mobile} onChange={handleChange} className={inputClass} required />
           </div>
-
           <div className="relative">
-            <MapPin className={iconClass} />
+            <MapPin className={iconClass} style={iconStyle} />
             <input type="text" name="city" placeholder="City" value={formData.city} onChange={handleChange} className={inputClass} required />
           </div>
 
           <div className="relative">
-            <Lock className={iconClass} />
+            <Lock className={iconClass} style={iconStyle} />
             <input
               type={showPassword ? 'text' : 'password'}
               name="password"
@@ -160,13 +129,15 @@ export default function SignupPage() {
               required
               minLength={8}
             />
-            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/70 transition-colors">
+            <button type="button" onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 transition-colors"
+              style={{ color: 'rgba(255,255,255,0.28)' }}>
               {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
           </div>
 
           <div className="relative">
-            <Lock className={iconClass} />
+            <Lock className={iconClass} style={iconStyle} />
             <input
               type={showConfirmPassword ? 'text' : 'password'}
               name="confirmPassword"
@@ -176,7 +147,9 @@ export default function SignupPage() {
               className="glass-input pl-11 pr-12 py-3.5 text-sm font-medium"
               required
             />
-            <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/70 transition-colors">
+            <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 transition-colors"
+              style={{ color: 'rgba(255,255,255,0.28)' }}>
               {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
           </div>
@@ -184,21 +157,17 @@ export default function SignupPage() {
           <button
             type="submit"
             disabled={loading}
-            className="btn-glow w-full py-4 rounded-2xl font-bold text-white text-sm flex items-center justify-center gap-2 mt-2"
+            className="btn-neon w-full py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 mt-2"
+            style={{ color: '#06000c' }}
           >
             {loading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Creating account...
-              </>
-            ) : (
-              'Create Account'
-            )}
+              <><Loader2 className="w-4 h-4 animate-spin" />Creating account…</>
+            ) : 'Create Account'}
           </button>
 
-          <div className="flex items-center justify-center">
-            <span className="text-white/25 text-xs font-medium px-3">or continue with</span>
-          </div>
+          <p className="text-center text-xs font-medium" style={{ color: 'rgba(255,255,255,0.22)' }}>
+            or continue with
+          </p>
 
           <button
             type="button"
@@ -216,9 +185,10 @@ export default function SignupPage() {
           </button>
         </form>
 
-        <p className="text-center text-white/40 text-sm">
+        <p className="text-center text-sm" style={{ color: 'rgba(255,255,255,0.38)' }}>
           Already have an account?{' '}
-          <Link href="/auth/login" className="text-[#ff1e43] font-bold hover:opacity-80 transition-opacity">
+          <Link href="/auth/login" className="font-bold hover:opacity-80 transition-opacity"
+            style={{ color: '#c6ff33' }}>
             Sign in
           </Link>
         </p>

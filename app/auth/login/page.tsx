@@ -10,45 +10,27 @@ export default function LoginPage() {
   const { signIn, setActive, isLoaded } = useSignIn();
   const router = useRouter();
 
-  const [identifier, setIdentifier] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [identifier,    setIdentifier]    = useState('');
+  const [password,      setPassword]      = useState('');
+  const [showPassword,  setShowPassword]  = useState(false);
+  const [loading,       setLoading]       = useState(false);
+  const [error,         setError]         = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isLoaded || !signIn) return;
-
     setLoading(true);
     setError('');
-
     try {
-      const result = await signIn.create({
-        identifier,
-        password,
-      });
-
+      const result = await signIn.create({ identifier, password });
       if (result.status === 'complete') {
         await setActive({ session: result.createdSessionId });
         window.location.href = '/app/dashboard';
-      } else if (result.status === 'needs_second_factor') {
-        setError('Two-factor authentication is required. Please check your authenticator app.');
-      } else if (
-        result.status === 'needs_first_factor' ||
-        result.status === 'needs_identifier'
-      ) {
-        setError('Additional verification required. Please try again or use Google sign-in.');
       } else {
-        setError('Unable to complete sign in. Please try again.');
+        setError('Additional verification required. Please try again.');
       }
     } catch (err: any) {
-      console.error('Login error:', err);
-      if (err.errors?.[0]?.message) {
-        setError(err.errors[0].message);
-      } else {
-        setError('Invalid credentials. Please try again.');
-      }
+      setError(err.errors?.[0]?.message || 'Invalid credentials. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -56,7 +38,6 @@ export default function LoginPage() {
 
   const handleGoogleLogin = async () => {
     if (!isLoaded || !signIn) return;
-
     try {
       await signIn.authenticateWithRedirect({
         strategy: 'oauth_google',
@@ -64,28 +45,38 @@ export default function LoginPage() {
         redirectUrlComplete: '/app/dashboard',
       });
     } catch (err: any) {
-      console.error('Google login error:', err);
       setError('Failed to login with Google. Please try again.');
     }
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-[#100002] px-5 py-10">
-      <div className="w-full max-w-sm space-y-8 page-enter">
+    <main
+      className="min-h-screen flex items-center justify-center px-5 py-10 page-enter"
+      style={{ background: '#06000c' }}
+    >
+      <div className="w-full max-w-sm space-y-8">
         <div className="text-center space-y-2">
-          <h1 className="text-6xl font-black text-white logo-glow">MONiA</h1>
-          <p className="text-white/45 text-sm font-medium">Welcome back. Sign in to continue.</p>
+          <h1
+            className="font-black text-white logo-glow"
+            style={{ fontSize: '3.75rem', letterSpacing: '-0.03em' }}
+          >
+            MONiA
+          </h1>
+          <p className="text-sm font-medium" style={{ color: 'rgba(255,255,255,0.42)' }}>
+            Welcome back. Sign in to continue.
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <div className="glass-card px-4 py-3 text-sm text-red-400 font-medium">
+            <div className="glass-card px-4 py-3 text-sm font-medium" style={{ color: '#ff6b6b' }}>
               {error}
             </div>
           )}
 
           <div className="relative">
-            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 w-4 h-4 pointer-events-none" />
+            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
+              style={{ color: 'rgba(255,255,255,0.28)' }} />
             <input
               type="text"
               placeholder="Email or username"
@@ -97,7 +88,8 @@ export default function LoginPage() {
           </div>
 
           <div className="relative">
-            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 w-4 h-4 pointer-events-none" />
+            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
+              style={{ color: 'rgba(255,255,255,0.28)' }} />
             <input
               type={showPassword ? 'text' : 'password'}
               placeholder="Password"
@@ -109,7 +101,8 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/70 transition-colors"
+              className="absolute right-4 top-1/2 -translate-y-1/2 transition-colors"
+              style={{ color: 'rgba(255,255,255,0.28)' }}
             >
               {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
@@ -118,7 +111,8 @@ export default function LoginPage() {
           <div className="flex justify-end">
             <Link
               href="/auth/forgot-password"
-              className="text-xs text-[#ff1e43] font-semibold hover:opacity-80 transition-opacity"
+              className="text-xs font-semibold hover:opacity-80 transition-opacity"
+              style={{ color: '#c6ff33' }}
             >
               Forgot password?
             </Link>
@@ -127,21 +121,17 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="btn-glow w-full py-4 rounded-2xl font-bold text-white text-sm flex items-center justify-center gap-2"
+            className="btn-neon w-full py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2"
+            style={{ color: '#06000c' }}
           >
             {loading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Signing in...
-              </>
-            ) : (
-              'Sign In'
-            )}
+              <><Loader2 className="w-4 h-4 animate-spin" />Signing in…</>
+            ) : 'Sign In'}
           </button>
 
-          <div className="flex items-center justify-center">
-            <span className="text-white/25 text-xs font-medium px-3">or continue with</span>
-          </div>
+          <p className="text-center text-xs font-medium" style={{ color: 'rgba(255,255,255,0.22)' }}>
+            or continue with
+          </p>
 
           <button
             type="button"
@@ -159,9 +149,10 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <p className="text-center text-white/40 text-sm">
+        <p className="text-center text-sm" style={{ color: 'rgba(255,255,255,0.38)' }}>
           No account?{' '}
-          <Link href="/auth/signup" className="text-[#ff1e43] font-bold hover:opacity-80 transition-opacity">
+          <Link href="/auth/signup" className="font-bold hover:opacity-80 transition-opacity"
+            style={{ color: '#c6ff33' }}>
             Sign up
           </Link>
         </p>

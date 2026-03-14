@@ -39,6 +39,19 @@ All secrets are stored in Replit Secrets. Public vars are in Replit shared envir
 - `NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL` — `/app/dashboard`
 - `NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL` — `/app/dashboard`
 
+## Phase 2 UI/UX Design System
+Global design tokens defined in `app/globals.css` and `tailwind.config.ts`:
+- **Background**: `#06000c` (Abyssal Purple-Black)
+- **Active/Neon**: `#c6ff33` (Electric Neon)
+- **Passive text/icons**: `#ffffff`
+- **Font**: Inter (all weights, globally applied)
+
+Key classes: `.btn-neon`, `.btn-glow`, `.glass-card`, `.glass-input`, `.floating-nav`, `.neon-capsule`, `.skeleton`, `.liquid-metal-text`, `.logo-glow`, `.logo-notification`, `.icon-active-glow`, `.page-enter`, `.spatial-dimmed`, `.tilt-target`, `.nav-icon`
+
+Providers (added to `app/layout.tsx`):
+- `components/UIProvider.tsx` — Web Audio API sound engine (procedural synthesis) + Vibration API haptics, global click feedback
+- `components/TiltLayer.tsx` — DeviceOrientation parallax for `.tilt-target` elements, mouse fallback on desktop
+
 ## Running the App
 - **Dev**: `pnpm run dev` (port 5000)
 - **Build**: `pnpm run build`

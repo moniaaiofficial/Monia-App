@@ -1,9 +1,11 @@
 import { ClerkProvider } from '@clerk/nextjs';
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
+import UIProvider from '@/components/UIProvider';
+import TiltLayer from '@/components/TiltLayer';
 
 export const viewport: Viewport = {
-  themeColor: '#0f0102',
+  themeColor: '#06000c',
 };
 
 export const metadata: Metadata = {
@@ -27,11 +29,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider
       signInUrl="/auth/login"
@@ -40,9 +38,14 @@ export default function RootLayout({
       afterSignUpUrl="/app/dashboard"
     >
       <html lang="en">
-        <body>{children}</body>
+        <body>
+          <UIProvider>
+            <TiltLayer>
+              {children}
+            </TiltLayer>
+          </UIProvider>
+        </body>
       </html>
     </ClerkProvider>
   );
 }
-

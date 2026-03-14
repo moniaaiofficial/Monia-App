@@ -5,14 +5,23 @@ import { Search } from 'lucide-react';
 
 export default function ChatsPage() {
   const { user, isLoaded } = useUser();
+  const hasNotifications = false;
 
   return (
-    <main className="min-h-screen bg-[#100002] page-enter">
+    <main className="min-h-screen page-enter" style={{ background: '#06000c' }}>
       <div className="sticky top-0 section-header z-10">
         <div className="px-5 py-4">
-          <h1 className="text-2xl font-black text-white logo-glow mb-4">MONiA</h1>
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 w-4 h-4" />
+          <h1
+            className={hasNotifications ? 'logo-notification' : 'logo-glow'}
+            style={{ fontSize: '1.5rem', fontWeight: 900 }}
+          >
+            MONiA
+          </h1>
+          <div className="relative mt-4">
+            <Search
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4"
+              style={{ color: 'rgba(255,255,255,0.28)', pointerEvents: 'none' }}
+            />
             <input
               type="text"
               placeholder="Search chats..."
@@ -24,11 +33,19 @@ export default function ChatsPage() {
 
       <div className="p-5">
         <div className="text-center py-24">
-          <div className="w-16 h-16 rounded-2xl bg-[#ff1e43]/10 flex items-center justify-center mx-auto mb-5 shadow-glow">
-            <Search className="w-8 h-8 text-[#ff1e43] icon-active-glow" />
+          <div
+            className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5 tilt-target"
+            style={{ background: 'rgba(198,255,51,0.08)' }}
+          >
+            <Search
+              className="w-8 h-8 icon-active-glow"
+              style={{ color: '#c6ff33' }}
+            />
           </div>
           <h2 className="text-xl font-bold text-white mb-2">Welcome to MONiA</h2>
-          <p className="text-white/40 text-sm font-medium">Your conversations will appear here</p>
+          <p className="text-sm font-medium" style={{ color: 'rgba(255,255,255,0.38)' }}>
+            Your conversations will appear here
+          </p>
         </div>
       </div>
     </main>

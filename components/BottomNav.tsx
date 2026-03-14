@@ -8,10 +8,10 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   const navItems = [
-    { name: 'Chats', path: '/app/dashboard', icon: MessageCircle },
-    { name: 'Calls', path: '/app/dashboard/calls', icon: Phone },
+    { name: 'Chats',   path: '/app/dashboard',         icon: MessageCircle },
+    { name: 'Calls',   path: '/app/dashboard/calls',   icon: Phone },
     { name: 'Updates', path: '/app/dashboard/updates', icon: Clock },
-    { name: 'More', path: '/app/dashboard/more', icon: Menu },
+    { name: 'More',    path: '/app/dashboard/more',    icon: Menu },
   ];
 
   return (
@@ -25,14 +25,46 @@ export default function BottomNav() {
             <Link
               key={item.name}
               href={item.path}
-              className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-all duration-200 ${
-                isActive ? 'text-[#ff1e43]' : 'text-white/50'
-              }`}
+              className="flex flex-col items-center justify-center flex-1 h-full gap-1 relative"
+              style={{
+                color: isActive ? '#c6ff33' : 'rgba(255,255,255,0.45)',
+                transition: 'color 0.2s ease',
+              }}
             >
+              {/* Breathing capsule backdrop for active item */}
+              {isActive && (
+                <span
+                  aria-hidden
+                  style={{
+                    position: 'absolute',
+                    inset: '8px 6px',
+                    background: 'rgba(198,255,51,0.10)',
+                    borderRadius: 999,
+                    animation: 'breathePulse 3s ease-in-out infinite',
+                  }}
+                />
+              )}
+
               <Icon
-                className={`w-6 h-6 transition-all duration-200 ${isActive ? 'icon-active-glow scale-110' : ''}`}
+                className={`nav-icon relative z-10 ${isActive ? 'icon-active-glow' : ''}`}
+                style={{
+                  width: 22,
+                  height: 22,
+                  color: isActive ? '#c6ff33' : 'rgba(255,255,255,0.45)',
+                  transform: isActive ? 'scale(1.08)' : 'scale(1)',
+                  transition: 'color 0.2s ease, transform 0.2s ease',
+                }}
               />
-              <span className={`text-xs font-semibold tracking-wide ${isActive ? 'opacity-100' : 'opacity-60'}`}>
+              <span
+                className="relative z-10"
+                style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  letterSpacing: '0.04em',
+                  opacity: isActive ? 1 : 0.55,
+                  transition: 'opacity 0.2s ease',
+                }}
+              >
                 {item.name}
               </span>
             </Link>
