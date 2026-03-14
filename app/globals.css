@@ -418,16 +418,3 @@ body {
   background-color: #06000c !important;
   min-height: 100vh;
 }
-
-/* Overscroll effect ke liye */
-html::before {
-  content: '';
-  position: fixed;
-  top: -100vh;
-  left: 0;
-  right: 0;
-  height: 100vh;
-  background-color: #06000c;
-  pointer-events: none;
-  z-index: -1;
-}
