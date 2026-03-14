@@ -34,11 +34,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <ClerkProvider
       signInUrl="/auth/login"
       signUpUrl="/auth/signup"
-      afterSignInUrl="/app/dashboard"
-      afterSignUpUrl="/app/dashboard"
+      afterSignInUrl="/app"
+      afterSignUpUrl="/app"
     >
       <html lang="en">
-        <body>
+        {/* FIX: Forced Indigo Background to kill any color flash */}
+        <body className="bg-[#06000c] text-white antialiased min-h-screen selection:bg-[#c6ff33]/30">
           <UIProvider>
             <TiltLayer>
               {children}
