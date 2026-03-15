@@ -4,8 +4,8 @@
   "description": "Connect, communicate, and collaborate with AI-powered features",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f0102",
-  "theme_color": "#0f0102",
+  "background_color": "#06000c",
+"theme_color": "#06000c"
   "orientation": "portrait",
   "icons": [
     {
