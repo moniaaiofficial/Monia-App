@@ -47,8 +47,8 @@ export default function BottomNav() {
               <Icon
                 className={`nav-icon relative z-10 ${isActive ? 'icon-active-glow' : ''}`}
                 style={{
-                  width: 22,
-                  height: 22,
+                  width: 24,
+                  height: 24,
                   color: isActive ? '#c6ff33' : 'rgba(255,255,255,0.45)',
                   transform: isActive ? 'translateY(-5px) scale(1.08)' : 'translateY(0) scale(1)',
                   transition: 'color 0.2s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
@@ -57,7 +57,7 @@ export default function BottomNav() {
               <span
                 className="relative z-10"
                 style={{
-                  fontSize: 10,
+                  fontSize: 14,
                   fontWeight: 700,
                   letterSpacing: '0.04em',
                   opacity: isActive ? 1 : 0.55,
