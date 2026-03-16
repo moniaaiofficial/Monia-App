@@ -51,21 +51,23 @@ export default function ProfileSetupPage() {
     setLoading(true);
     setError('');
 
+    // ✅ Generate permanent_id safely
     const randomNum = Math.floor(10000 + Math.random() * 90000);
     const permanentId = `${randomNum}-${user.id}`;
 
+    // ✅ Call service-role API to insert/update profile
     const res = await fetch('/api/profile/update', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        userId: user.id,
-        username,
-        mobile,
-        city,
-        permanent_id: permanentId,
-        full_name: user.fullName || user.firstName || '',
-        email: user.primaryEmailAddress?.emailAddress || '',
-        avatar_url: user.imageUrl || '',
+        userId: user.id,                       // id column (Clerk UID)
+        username,                              // username column
+        mobile,                                // mobile column
+        city,                                  // city column
+        permanent_id: permanentId,             // permanent_id column
+        full_name: user.fullName || user.firstName || '',  // full_name column
+        email: user.primaryEmailAddress?.emailAddress || '', // email column
+        avatar_url: user.imageUrl || '',       // avatar_url column
       }),
     });
 
@@ -76,7 +78,7 @@ export default function ProfileSetupPage() {
       return;
     }
 
-    router.replace('/app/dashboard');
+    router.replace('/app/dashboard'); // ✅ Redirect to dashboard after setup
   };
 
   if (checking || !isLoaded) {
