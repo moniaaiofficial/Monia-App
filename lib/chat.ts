@@ -44,7 +44,8 @@ const partnerIds: string[] = Array.from(new Set(ids));
 
 let profileMap: Record<string, Profile> = {};
 
-  let profileMap: Record<string, Profile> = {};
+profileMap = profileMap;
+
   if (partnerIds.length > 0) {
     const { data: profiles } = await supabase
       .from('profiles')
