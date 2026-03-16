@@ -141,6 +141,53 @@ export default function PrivacyPolicyPage() {
             </a>
           </p>
         </section>
+
+        <section className="space-y-3">
+          <h3 className="text-lg font-semibold" style={{ color: '#c6ff33' }}>10. Messaging &amp; Data Transmission</h3>
+          <p>
+            MONiA provides a real-time messaging service. Before using the messaging features, please read the following carefully:
+          </p>
+          <ul className="list-disc pl-6 space-y-2">
+            <li>
+              <strong className="text-white">MONiA does NOT use end-to-end encryption.</strong> Messages you send
+              are transmitted and may be stored on our servers in a readable format.
+            </li>
+            <li>
+              All text messages are transmitted over TLS (Transport Layer Security) to protect data in transit,
+              but are NOT encrypted at rest with end-to-end keys.
+            </li>
+            <li>
+              Message content (text), sender and recipient identifiers, timestamps, and delivery status
+              (sent / delivered / read) are stored in our database.
+            </li>
+            <li>
+              Authorised MONiA staff may access message content for safety, abuse prevention, or legal compliance
+              purposes.
+            </li>
+            <li>
+              Do NOT share passwords, financial information, or highly sensitive personal data through MONiA
+              messaging.
+            </li>
+          </ul>
+        </section>
+
+        <section className="space-y-3">
+          <h3 className="text-lg font-semibold" style={{ color: '#c6ff33' }}>11. Message Retention &amp; Deletion</h3>
+          <ul className="list-disc pl-6 space-y-2">
+            <li>Text messages are retained until you request account deletion.</li>
+            <li>Media files (images, videos, documents, voice notes) are automatically deleted after <strong className="text-white">48 hours</strong>.</li>
+            <li>To request permanent deletion of your messages, contact us at moniaaiofficial@gmail.com.</li>
+          </ul>
+        </section>
+
+        <section className="space-y-3">
+          <h3 className="text-lg font-semibold" style={{ color: '#c6ff33' }}>12. Realtime Data</h3>
+          <p>
+            MONiA uses Supabase Realtime to deliver messages instantly. This involves establishing a persistent
+            WebSocket connection between your device and our servers. Metadata about active connections (such as
+            session duration and IP address) may be temporarily logged for performance and security monitoring.
+          </p>
+        </section>
       </div>
     </main>
   );

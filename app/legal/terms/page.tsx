@@ -162,6 +162,56 @@ export default function TermsPage() {
           </p>
         </section>
 
+        <section className="space-y-3">
+          <h3 className="text-lg font-semibold" style={{ color: '#c6ff33' }}>14. Messaging Service – Important Disclosure</h3>
+          <p className="font-semibold text-white">
+            MONiA messaging is NOT end-to-end encrypted.
+          </p>
+          <p>
+            By using MONiA's messaging features, you acknowledge and agree to the following:
+          </p>
+          <ul className="list-disc pl-6 space-y-2">
+            <li>
+              Messages are transmitted using TLS encryption in transit but are stored in a readable format on MONiA
+              servers. They are <strong className="text-white">not</strong> end-to-end encrypted.
+            </li>
+            <li>
+              You must not transmit passwords, financial credentials, government ID numbers, or other highly
+              sensitive data through MONiA messaging.
+            </li>
+            <li>
+              MONiA reserves the right to review message content to enforce these Terms, prevent abuse, or comply
+              with applicable law.
+            </li>
+            <li>
+              Delivery and read-receipt statuses (sent / delivered / read) are tracked and stored.
+            </li>
+          </ul>
+        </section>
+
+        <section className="space-y-3">
+          <h3 className="text-lg font-semibold" style={{ color: '#c6ff33' }}>15. Messaging Conduct</h3>
+          <p>When using MONiA messaging you must NOT:</p>
+          <ul className="list-disc pl-6 space-y-2">
+            <li>Send unsolicited bulk messages (spam).</li>
+            <li>Transmit malware, phishing links, or harmful content.</li>
+            <li>Use automated bots or scripts to send messages without prior approval.</li>
+            <li>Harass, threaten, or abuse other users.</li>
+          </ul>
+          <p>
+            Violations may result in immediate account suspension without notice.
+          </p>
+        </section>
+
+        <section className="space-y-3">
+          <h3 className="text-lg font-semibold" style={{ color: '#c6ff33' }}>16. Data Security Disclaimer</h3>
+          <p>
+            While MONiA implements industry-standard security measures (TLS, RLS, secure key storage), no
+            system is completely secure. MONiA is not liable for unauthorised access to messages resulting from
+            factors outside our reasonable control, including breaches of your device or account credentials.
+          </p>
+        </section>
+
         <section
           className="space-y-3 mt-8 p-4 rounded-2xl"
           style={{ border: '1px solid rgba(198,255,51,0.25)', background: 'rgba(198,255,51,0.04)' }}

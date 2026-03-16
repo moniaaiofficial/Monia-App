@@ -1,0 +1,67 @@
+You are a senior Next.js developer. Implement **only Phase 2B** of MONiA app. This phase adds the **core chat system** (text only – no attachments) AND updates the **Terms & Conditions and Privacy Policy** with **secure messaging and data protection information** (explicitly stating that end-to-end encryption is NOT used).
+
+## 🎯 CURRENT STATUS (Phase 1 + 2A complete)
+- ✅ Phase 1 (auth, splash, T&C, Privacy, login/signup) working.
+- ✅ **Phase 2A (5‑tab navigation, top bar with animated "Ask MONiA", search expand, M+Ai middle tab) already complete and working.**
+- ✅ UI theme preserved: #06000c background, #c6ff33 active, white inactive, thin neon border, breathing pulse.
+
+## 🚨 CRITICAL PRESERVATION RULES
+### 🔒 AUTH & BACKEND (DO NOT TOUCH)
+- ❌ DO NOT modify Phase 1 auth files: middleware.ts, app/api/webhooks/, lib/supabase/, Clerk config.
+- ❌ DO NOT alter Phase 2A navigation or top bar.
+- ❌ DO NOT change existing UI theme.
+
+### 🗄️ SUPABASE DATABASE (EXTRA SAFETY)
+- ❌ **DO NOT modify, drop, or alter any existing tables or RLS policies** – including `profiles`, `auth` schema, or any Phase 1 tables.
+- ✅ **ONLY ADD new tables** as listed below. Do NOT delete or change any existing data or schema.
+- ⚠️ All new tables must be created with `IF NOT EXISTS` to avoid errors.
+
+### 📁 PROJECT STRUCTURE
+- ⚠️ **FOLLOW EXISTING FOLDER STRUCTURE EXACTLY** – do NOT create duplicate "app" or "dashboard" folders. Use the current project structure as is.
+- ✅ **Phase 2A already done – now continue with Phase 2B only.**
+
+## 📋 FILES TO CREATE / MODIFY (Phase 2B only)
+
+### A. CHAT SYSTEM FILES
+- `app/dashboard/chats/page.tsx` – chat list (replace placeholder)
+- `app/dashboard/chat/[id]/page.tsx` – individual chat screen (new)
+- `lib/chat.ts` – chat utility functions (new)
+- `components/ChatBubble.tsx` (new)
+- `components/ChatInput.tsx` (new)
+- `components/TypingIndicator.tsx` (new)
+
+### B. LEGAL FILES (UPDATE – DO NOT DELETE EXISTING CONTENT)
+- `app/legal/terms/page.tsx` – add new sections (append only)
+- `app/legal/privacy-policy/page.tsx` – add new sections (append only)
+
+## 🔥 PHASE 2B – CHATS SYSTEM (SUPER ARCHITECTURE)
+
+### 1. DATABASE TABLES (Add to Supabase) – OPTIMIZED VERSION
+```sql
+-- Chats table (only if not exists)
+CREATE TABLE IF NOT EXISTS chats (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  participants UUID[] NOT NULL,
+  last_message TEXT,
+  last_message_time TIMESTAMP DEFAULT NOW(),
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Messages table (only if not exists)
+CREATE TABLE IF NOT EXISTS messages (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  chat_id UUID REFERENCES chats(id) ON DELETE CASCADE,
+  sender_id UUID NOT NULL,
+  content TEXT NOT NULL,
+  type TEXT DEFAULT 'text',
+  status TEXT CHECK (status IN ('sent','delivered','read')) DEFAULT 'sent',
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- ⚡ CRITICAL for stable Realtime updates
+ALTER TABLE messages REPLICA IDENTITY FULL;
+
+-- Indexes for performance (safe to create even if exist)
+CREATE INDEX IF NOT EXISTS idx_messages_chat_id ON messages(chat_id);
+CREATE INDEX IF NOT EXISTS idx_messages_created_at ON messages(created_at);
+CREATE INDEX IF NOT EXISTS idx_messages_sender_id ON messages(sender_id);
