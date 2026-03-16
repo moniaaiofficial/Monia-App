@@ -36,15 +36,16 @@ export async function getUserChats(userId: string): Promise<Chat[]> {
 
   if (error || !chats || chats.length === 0) return [];
 
-  const partnerIds: string[] = [
-    ...new Set(
-      chats.flatMap((c: any) =>
-        (c.participants as string[]).filter((id) => id !== userId),
-      ),
-    ),
-  ];
+const ids = chats.flatMap((c: any) =>
+  (c.participants as string[]).filter((id: string) => id !== userId)
+);
 
-  let profileMap: Record<string, Profile> = {};
+const partnerIds: string[] = Array.from(new Set(ids));
+
+let profileMap: Record<string, Profile> = {};
+
+profileMap = profileMap;
+
   if (partnerIds.length > 0) {
     const { data: profiles } = await supabase
       .from('profiles')
@@ -138,7 +139,7 @@ export function subscribeToMessages(
     .on(
       'postgres_changes',
       { event: 'INSERT', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` },
-      (payload) => onInsert(payload.new as Message),
+      (payload: any) => onInsert(payload.new as Message)
     )
     .subscribe();
 
