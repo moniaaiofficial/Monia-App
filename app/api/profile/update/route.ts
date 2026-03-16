@@ -45,10 +45,16 @@ export async function POST(request: Request) {
       }
     }
 
-    const { error } = await supabase
-      .from('profiles')
-      .update(profileData)
-      .eq('id', userId);
+const { error } = await supabase
+  .from('profiles')
+  .upsert({ 
+    id: userId, 
+    ...profileData 
+  }, { 
+    onConflict: 'id',
+    ignoreDuplicates: false 
+  });
+    
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
