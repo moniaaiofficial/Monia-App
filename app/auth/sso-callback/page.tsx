@@ -10,7 +10,10 @@ export default function SSOCallbackPage() {
   useEffect(() => {
     async function handleCallback() {
       try {
-        await handleRedirectCallback({});
+        await handleRedirectCallback({
+          afterSignUpUrl: '/app/profile-setup',
+          afterSignInUrl: '/app/dashboard',
+        });
       } catch (err) {
         console.error('SSO callback error:', err);
         window.location.href = '/auth/login';
@@ -20,19 +23,13 @@ export default function SSOCallbackPage() {
   }, [handleRedirectCallback]);
 
   return (
-    <main
-      className="min-h-screen flex items-center justify-center"
-      style={{ background: '#06000c' }}
-    >
+    <main className="min-h-screen flex items-center justify-center" style={{ background: '#06000c' }}>
       <div className="text-center space-y-4">
         <div
-          className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto tilt-target"
+          className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto"
           style={{ background: 'rgba(198,255,51,0.08)' }}
         >
-          <Loader2
-            className="w-8 h-8 animate-spin icon-active-glow"
-            style={{ color: '#c6ff33' }}
-          />
+          <Loader2 className="w-8 h-8 animate-spin icon-active-glow" style={{ color: '#c6ff33' }} />
         </div>
         <p className="font-bold text-lg text-white">Completing sign in…</p>
         <p className="text-sm" style={{ color: 'rgba(255,255,255,0.38)' }}>Please wait a moment</p>

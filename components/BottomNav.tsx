@@ -12,7 +12,6 @@ const NAV_ITEMS = [
   { name: 'Calls',  path: '/app/dashboard/calls',   icon: Phone,         middle: false },
   { name: 'More',   path: '/app/dashboard/more',    icon: Menu,          middle: false },
 ];
-
 const TAB_PATHS = NAV_ITEMS.map((n) => n.path);
 
 function hapticTick() {
@@ -20,117 +19,74 @@ function hapticTick() {
 }
 
 export default function BottomNav() {
-  const pathname  = usePathname();
-  const router    = useRouter();
-  const touchX    = useRef<number | null>(null);
-  const navRef    = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+  const router   = useRouter();
+  const touchX   = useRef<number | null>(null);
 
-  /* ── Swipe left/right to change tab ─────────────────────────── */
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    touchX.current = e.touches[0].clientX;
-  }, []);
+  const isInChat = pathname.startsWith('/app/dashboard/chat/');
 
-  const handleTouchEnd = useCallback(
-    (e: React.TouchEvent) => {
-      if (touchX.current === null) return;
-      const dx = e.changedTouches[0].clientX - touchX.current;
-      touchX.current = null;
-      if (Math.abs(dx) < 50) return;
+  /* ── Swipe on nav bar ────────────────────────────────────── */
+  const onTouchStart = useCallback((e: React.TouchEvent) => { touchX.current = e.touches[0].clientX; }, []);
+  const onTouchEnd   = useCallback((e: React.TouchEvent) => {
+    if (touchX.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchX.current;
+    touchX.current = null;
+    if (Math.abs(dx) < 50) return;
+    const cur = TAB_PATHS.indexOf(pathname);
+    if (cur === -1) return;
+    const next = dx < 0 ? Math.min(cur + 1, TAB_PATHS.length - 1) : Math.max(cur - 1, 0);
+    if (next !== cur) { hapticTick(); router.push(TAB_PATHS[next]); }
+  }, [pathname, router]);
 
-      const currentIdx = TAB_PATHS.indexOf(pathname);
-      if (currentIdx === -1) return;
-
-      const nextIdx = dx < 0
-        ? Math.min(currentIdx + 1, TAB_PATHS.length - 1)
-        : Math.max(currentIdx - 1, 0);
-
-      if (nextIdx !== currentIdx) {
-        hapticTick();
-        router.push(TAB_PATHS[nextIdx]);
-      }
-    },
-    [pathname, router],
-  );
-
-  /* ── Swipe on the full document too ─────────────────────────── */
+  /* ── Swipe anywhere on screen ────────────────────────────── */
   useEffect(() => {
-    let startX = 0;
-    const onStart = (e: TouchEvent) => { startX = e.touches[0].clientX; };
-    const onEnd   = (e: TouchEvent) => {
-      const dx = e.changedTouches[0].clientX - startX;
+    let sx = 0;
+    const s = (e: TouchEvent) => { sx = e.touches[0].clientX; };
+    const en = (e: TouchEvent) => {
+      const dx = e.changedTouches[0].clientX - sx;
       if (Math.abs(dx) < 60) return;
-
-      const currentIdx = TAB_PATHS.indexOf(pathname);
-      if (currentIdx === -1) return;
-
-      const nextIdx = dx < 0
-        ? Math.min(currentIdx + 1, TAB_PATHS.length - 1)
-        : Math.max(currentIdx - 1, 0);
-
-      if (nextIdx !== currentIdx) {
-        hapticTick();
-        router.push(TAB_PATHS[nextIdx]);
-      }
+      const cur = TAB_PATHS.indexOf(pathname);
+      if (cur === -1) return;
+      const next = dx < 0 ? Math.min(cur + 1, TAB_PATHS.length - 1) : Math.max(cur - 1, 0);
+      if (next !== cur) { hapticTick(); router.push(TAB_PATHS[next]); }
     };
-
-    document.addEventListener('touchstart', onStart, { passive: true });
-    document.addEventListener('touchend',   onEnd,   { passive: true });
-    return () => {
-      document.removeEventListener('touchstart', onStart);
-      document.removeEventListener('touchend',   onEnd);
-    };
+    document.addEventListener('touchstart', s, { passive: true });
+    document.addEventListener('touchend', en, { passive: true });
+    return () => { document.removeEventListener('touchstart', s); document.removeEventListener('touchend', en); };
   }, [pathname, router]);
 
   return (
     <>
-      {/* ── FAB – centered above tab bar ─────────────────────── */}
-      <div
-        style={{
-          position: 'fixed',
-          bottom: 88,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          zIndex: 60,
-        }}
-      >
-        <button
-          aria-label="Quick actions"
-          style={{
-            width: 48,
-            height: 48,
-            borderRadius: '50%',
-            background: 'linear-gradient(135deg, #c6ff33 0%, #a8e000 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 0 20px rgba(198,255,51,0.55), 0 4px 16px rgba(0,0,0,0.5)',
-            border: 'none',
-            cursor: 'pointer',
-            transition: 'transform 0.2s cubic-bezier(0.175,0.885,0.32,1.275)',
-          }}
-          onPointerDown={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.transform = 'scale(0.92)';
-          }}
-          onPointerUp={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)';
-          }}
-        >
-          <Plus style={{ width: 22, height: 22, color: '#06000c', strokeWidth: 2.5 }} />
-        </button>
-      </div>
+      {/* ── FAB (hidden in chat pages) ────────────────────────── */}
+      {!isInChat && (
+        <div style={{ position: 'fixed', bottom: 88, left: '50%', transform: 'translateX(-50%)', zIndex: 60 }}>
+          <button
+            aria-label="New chat"
+            onClick={() => router.push('/app/dashboard')}
+            style={{
+              width: 48, height: 48, borderRadius: '50%',
+              background: 'linear-gradient(135deg, #c6ff33 0%, #a8e000 100%)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 0 20px rgba(198,255,51,0.5)', border: 'none', cursor: 'pointer',
+              transition: 'transform 0.2s cubic-bezier(0.175,0.885,0.32,1.275)',
+            }}
+          >
+            <Plus style={{ width: 22, height: 22, color: '#06000c', strokeWidth: 2.5 }} />
+          </button>
+        </div>
+      )}
 
-      {/* ── Bottom nav bar ───────────────────────────────────── */}
+      {/* ── Bottom Nav Bar ────────────────────────────────────── */}
       <nav
-        ref={navRef}
         className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-5"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
       >
         <div className="floating-nav flex items-center justify-around h-16 rounded-2xl px-1">
           {NAV_ITEMS.map((item) => {
-            const Icon     = item.icon;
+            const Icon = item.icon;
             const isActive = pathname === item.path;
-            const isMiddle = item.middle;
+            const isMid = item.middle;
 
             return (
               <Link
@@ -138,59 +94,30 @@ export default function BottomNav() {
                 href={item.path}
                 onClick={hapticTick}
                 className="flex flex-col items-center justify-center flex-1 h-full gap-0.5 relative"
-                style={{
-                  color: isMiddle
-                    ? 'transparent'
-                    : isActive
-                    ? '#c6ff33'
-                    : 'rgba(255,255,255,0.45)',
-                  transition: 'color 0.2s ease',
-                }}
+                style={{ color: isMid ? '#c6ff33' : isActive ? '#c6ff33' : '#ffffff' }}
               >
-                {/* Active breathing capsule (non-middle tabs only) */}
-                {isActive && !isMiddle && (
-                  <span
-                    aria-hidden
-                    style={{
-                      position: 'absolute',
-                      inset: '8px 6px',
-                      background: 'rgba(198,255,51,0.10)',
-                      borderRadius: 999,
-                      animation: 'breathePulse 3s ease-in-out infinite',
-                    }}
-                  />
+                {/* Breathing capsule */}
+                {isActive && !isMid && (
+                  <span aria-hidden style={{ position: 'absolute', inset: '8px 6px', background: 'rgba(198,255,51,0.10)', borderRadius: 999, animation: 'breathePulse 3s ease-in-out infinite' }} />
                 )}
 
                 <Icon
-                  className={[
-                    'nav-icon relative z-10',
-                    isMiddle  ? 'middle-icon'      : '',
-                    isActive && !isMiddle ? 'icon-active-glow' : '',
-                  ].join(' ')}
+                  className={`nav-icon relative z-10 ${isMid ? 'middle-icon' : isActive ? 'icon-active-glow' : ''}`}
                   style={{
-                    width:     isMiddle ? 26 : 22,
-                    height:    isMiddle ? 26 : 22,
-                    color:     isMiddle
-                      ? '#c6ff33'
-                      : isActive
-                      ? '#c6ff33'
-                      : 'rgba(255,255,255,0.45)',
-                    transform: isActive && !isMiddle
-                      ? 'translateY(-5px) scale(1.08)'
-                      : 'translateY(0) scale(1)',
-                    transition:
-                      'color 0.2s ease, transform 0.3s cubic-bezier(0.175,0.885,0.32,1.275)',
+                    width: isMid ? 26 : 22,
+                    height: isMid ? 26 : 22,
+                    color: isMid ? '#c6ff33' : isActive ? '#c6ff33' : '#ffffff',
+                    transform: isActive && !isMid ? 'translateY(-5px) scale(1.08)' : 'translateY(0) scale(1)',
+                    transition: 'color 0.15s ease, transform 0.3s cubic-bezier(0.175,0.885,0.32,1.275)',
                   }}
                 />
                 <span
                   className="relative z-10"
                   style={{
-                    fontSize:      isMiddle ? 9 : 10,
-                    fontWeight:    700,
-                    letterSpacing: '0.04em',
-                    opacity:       isActive ? 1 : 0.55,
-                    transition:    'opacity 0.2s ease',
-                    color:         isMiddle ? '#c6ff33' : undefined,
+                    fontSize: isMid ? 9 : 10, fontWeight: 700, letterSpacing: '0.04em',
+                    opacity: isActive ? 1 : 0.65,
+                    color: isMid ? '#c6ff33' : isActive ? '#c6ff33' : '#ffffff',
+                    transition: 'opacity 0.15s ease',
                   }}
                 >
                   {item.name}

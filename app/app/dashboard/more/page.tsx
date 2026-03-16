@@ -2,42 +2,30 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser, useClerk } from '@clerk/nextjs';
+import { useUser } from '@clerk/nextjs';
 import { supabase } from '@/lib/supabase/client';
-import { User, Shield, FileText, LogOut, ChevronRight } from 'lucide-react';
+import { User, Shield, FileText, ChevronRight } from 'lucide-react';
+import { getInitials } from '@/lib/chat';
 
 export default function MorePage() {
   const router = useRouter();
   const { user, isLoaded } = useUser();
-  const { signOut } = useClerk();
   const [profile, setProfile] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const getProfile = async () => {
-      if (!isLoaded || !user) return;
+    if (!isLoaded || !user) return;
+    (async () => {
       const { data } = await supabase
         .from('profiles')
-        .select('*')
+        .select('full_name, email, mobile, username, avatar_url')
         .eq('id', user.id)
         .maybeSingle();
       setProfile(data);
-    };
-    getProfile();
+    })();
   }, [isLoaded, user]);
 
-  const handleLogout = async () => {
-    setLoading(true);
-    try {
-      await signOut();
-      router.push('/auth/login');
-    } catch (error) {
-      console.error('Error logging out:', error);
-      router.push('/auth/login');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const avatarUrl = profile?.avatar_url || user?.imageUrl;
+  const displayName = profile?.full_name || user?.fullName || 'MONiA User';
 
   return (
     <main className="min-h-screen page-enter" style={{ background: '#06000c' }}>
@@ -47,87 +35,74 @@ export default function MorePage() {
         </div>
       </div>
 
-      <div className="p-5 space-y-5">
-        {profile ? (
-          <div className="glass-card p-6">
-            <div className="flex items-center gap-4">
-              <div
-                className="w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0"
-                style={{ background: 'rgba(198,255,51,0.08)' }}
-              >
-                <User className="w-8 h-8 icon-active-glow" style={{ color: '#c6ff33' }} />
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-white">{profile.full_name}</h2>
-                <p className="text-sm font-medium" style={{ color: 'rgba(255,255,255,0.45)' }}>
-                  {profile.email}
-                </p>
-                {profile.mobile && (
-                  <p className="text-sm" style={{ color: 'rgba(255,255,255,0.35)' }}>
-                    {profile.mobile}
-                  </p>
-                )}
-              </div>
+      <div className="p-5 space-y-4">
+        {/* Profile card — tappable → /app/profile */}
+        <button
+          onClick={() => router.push('/app/profile')}
+          className="w-full text-left"
+          style={{
+            display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px',
+            borderRadius: 20, background: 'rgba(255,255,255,0.04)',
+            border: 'none', cursor: 'pointer',
+          }}
+        >
+          {avatarUrl ? (
+            <img src={avatarUrl} alt={displayName} style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(198,255,51,0.30)', flexShrink: 0 }} />
+          ) : profile ? (
+            <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'rgba(198,255,51,0.10)', border: '1.5px solid rgba(198,255,51,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 18, color: '#c6ff33', flexShrink: 0 }}>
+              {getInitials(displayName)}
             </div>
-          </div>
-        ) : (
-          <div className="glass-card p-6">
-            <div className="flex items-center gap-4">
-              <div className="skeleton w-16 h-16 rounded-2xl flex-shrink-0" />
-              <div className="space-y-2 flex-1">
-                <div className="skeleton h-5 rounded w-3/4" />
-                <div className="skeleton h-4 rounded w-1/2" />
-              </div>
-            </div>
-          </div>
-        )}
+          ) : (
+            <div className="skeleton" style={{ width: 52, height: 52, borderRadius: '50%', flexShrink: 0 }} />
+          )}
 
-        <div className="space-y-3">
+          <div style={{ minWidth: 0, flex: 1 }}>
+            {profile ? (
+              <>
+                <p style={{ color: '#fff', fontWeight: 700, fontSize: 16, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayName}</p>
+                <p style={{ color: '#c6ff33', fontSize: 13, fontWeight: 600, marginTop: 1 }}>@{profile.username || '—'}</p>
+                <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: 12, marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{profile.email}</p>
+              </>
+            ) : (
+              <div className="space-y-2">
+                <div className="skeleton h-4 rounded w-3/4" />
+                <div className="skeleton h-3 rounded w-1/2" />
+              </div>
+            )}
+          </div>
+          <ChevronRight style={{ width: 18, height: 18, color: 'rgba(255,255,255,0.25)', flexShrink: 0 }} />
+        </button>
+
+        {/* Links */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <button
             onClick={() => router.push('/legal/privacy-policy')}
-            className="w-full glass-card px-5 py-4 flex items-center justify-between transition-all active:scale-[0.98]"
+            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: 'none', cursor: 'pointer' }}
           >
-            <div className="flex items-center gap-3">
-              <Shield className="w-5 h-5" style={{ color: '#c6ff33' }} />
-              <span className="text-white font-semibold text-sm">Privacy Policy</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <Shield style={{ width: 20, height: 20, color: '#c6ff33' }} />
+              <span style={{ color: '#fff', fontWeight: 600, fontSize: 14 }}>Privacy Policy</span>
             </div>
-            <ChevronRight className="w-4 h-4" style={{ color: 'rgba(255,255,255,0.25)' }} />
+            <ChevronRight style={{ width: 16, height: 16, color: 'rgba(255,255,255,0.25)' }} />
           </button>
 
           <button
             onClick={() => router.push('/legal/terms')}
-            className="w-full glass-card px-5 py-4 flex items-center justify-between transition-all active:scale-[0.98]"
+            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: 'none', cursor: 'pointer' }}
           >
-            <div className="flex items-center gap-3">
-              <FileText className="w-5 h-5" style={{ color: '#c6ff33' }} />
-              <span className="text-white font-semibold text-sm">Terms & Conditions</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <FileText style={{ width: 20, height: 20, color: '#c6ff33' }} />
+              <span style={{ color: '#fff', fontWeight: 600, fontSize: 14 }}>Terms & Conditions</span>
             </div>
-            <ChevronRight className="w-4 h-4" style={{ color: 'rgba(255,255,255,0.25)' }} />
-          </button>
-
-          <button
-            onClick={handleLogout}
-            disabled={loading}
-            className="btn-neon w-full rounded-2xl py-4 flex items-center justify-center gap-3 font-bold text-sm"
-            style={{ color: '#06000c' }}
-          >
-            <LogOut className="w-5 h-5" />
-            {loading ? 'Logging out…' : 'Logout'}
+            <ChevronRight style={{ width: 16, height: 16, color: 'rgba(255,255,255,0.25)' }} />
           </button>
         </div>
 
         <div className="text-center pt-4 space-y-1" style={{ color: 'rgba(255,255,255,0.25)' }}>
           <p className="font-semibold text-xs">MONiA v1.0.0</p>
-          <p className="text-xs">
-            Contact:{' '}
-            <a
-              href="mailto:moniaaiofficial@gmail.com"
-              className="font-medium"
-              style={{ color: '#c6ff33' }}
-            >
-              moniaaiofficial@gmail.com
-            </a>
-          </p>
+          <a href="mailto:moniaaiofficial@gmail.com" style={{ color: '#c6ff33', fontSize: 12 }}>
+            moniaaiofficial@gmail.com
+          </a>
         </div>
       </div>
     </main>
