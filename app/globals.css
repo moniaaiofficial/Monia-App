@@ -309,3 +309,32 @@ body {
 .swipe-target {
   touch-action: pan-y;
 }
+
+/* ─── Phase 2A Animations ────────────────────────────────────────────────── */
+
+@keyframes askMoniaNeon {
+  0%   { color: #c6ff33; text-shadow: 0 0 10px #c6ff33; }
+  25%  { color: #00e5ff; text-shadow: 0 0 15px #00e5ff; }
+  50%  { color: #ff00ff; text-shadow: 0 0 15px #ff00ff; }
+  75%  { color: #a855f7; text-shadow: 0 0 15px #a855f7; }
+  100% { color: #c6ff33; text-shadow: 0 0 10px #c6ff33; }
+}
+
+.ask-monia-live {
+  animation: askMoniaNeon 8s infinite;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@keyframes middleIconNeon {
+  0%   { filter: drop-shadow(0 0 5px #c6ff33); color: #c6ff33; }
+  25%  { filter: drop-shadow(0 0 8px #00e5ff); color: #00e5ff; }
+  50%  { filter: drop-shadow(0 0 8px #ff00ff); color: #ff00ff; }
+  75%  { filter: drop-shadow(0 0 8px #a855f7); color: #a855f7; }
+  100% { filter: drop-shadow(0 0 5px #c6ff33); color: #c6ff33; }
+}
+
+.middle-icon {
+  animation: middleIconNeon 8s infinite;
+  transform: scale(1.1);
+}

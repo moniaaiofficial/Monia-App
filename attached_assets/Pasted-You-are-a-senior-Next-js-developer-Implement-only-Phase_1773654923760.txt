@@ -1,0 +1,77 @@
+You are a senior Next.js developer. Implement **only Phase 2A** of MONiA app as described below. This phase focuses on **UI/navigation changes only** – no chat logic, no attachments, no status system.
+
+## 🎯 CURRENT STATUS (Phase 1 – DO NOT TOUCH)
+- ✅ Splash screen, T&C, Privacy Policy, Login/Signup/Signin working with Clerk.
+- ✅ Dashboard with bottom navigation (currently 4 tabs: Chats, Calls, Updates, More).
+- ✅ UI theme: background #06000c, neon green #c6ff33 active, white inactive, thin neon border, breathing pulse, light sweep.
+- ✅ Clerk authentication, Supabase profiles table, webhook working, GitHub, Vercel deployed.
+
+## 🚨 CRITICAL PRESERVATION RULES (MUST FOLLOW)
+- ❌ DO NOT modify or delete any existing authentication file: middleware.ts, app/api/webhooks/, lib/supabase/, Clerk config.
+- ❌ DO NOT alter database schema (no new tables/columns in this phase).
+- ❌ DO NOT change existing UI theme (colours, fonts, borders, animations) except adding new animations.
+- ❌ DO NOT modify Phase 1 pages (app/auth/, app/legal/).
+- ✅ ONLY modify the files explicitly listed below.
+- ✅ ALL new files must be created (never overwrite existing ones).
+
+## 📋 FILES TO MODIFY (Explicit List)
+1. `app/dashboard/layout.tsx` – update bottom navigation to 5 tabs.
+2. `components/BottomNav.tsx` – replace with new 5‑tab version (preserve active state logic).
+3. `app/globals.css` – add new CSS animations (see below).
+4. `app/dashboard/page.tsx` – update placeholder for chats.
+5. `app/dashboard/status/page.tsx` – create new (placeholder).
+6. `app/dashboard/ai/page.tsx` – create new (placeholder for middle tab).
+7. `app/dashboard/calls/page.tsx` – update placeholder.
+8. `app/dashboard/more/page.tsx` – update placeholder.
+
+## 🔥 PHASE 2A – EXACT IMPLEMENTATION
+
+### 1. TOP BAR REDESIGN
+- **Left side:** Replace "MONiA" text with **"Ask MONiA"**.
+  - Add CSS animation: colour cycles through #c6ff33 → #00e5ff → #ff00ff → #a855f7 smoothly, each colour 2 seconds (total 8s). Use `text-shadow` matching current colour.
+  - Make it clickable (opens AI chat – placeholder for now).
+- **Right side:** Search icon (🔍) and Profile icon (👤) – keep existing.
+  - Search click: expand to full‑width input, temporarily hide left text and profile icon, show back arrow to collapse.
+- **No partition lines** – seamless background.
+
+### 2. BOTTOM NAVIGATION (5 Tabs)
+- **Tab order (left to right):**
+  1. Chats (💬) – links to `/dashboard`
+  2. Status (✨) – links to `/dashboard/status` (new)
+  3. **M+Ai (🤖)** – middle tab, links to `/dashboard/ai` (new)
+  4. Calls (📞) – links to `/dashboard/calls`
+  5. More (☰) – links to `/dashboard/more`
+- **Middle tab special:**
+  - Icon size slightly larger than others.
+  - Icon and its boundary continuously cycle through neon colours (same palette as above, 2s per colour).
+- **Other tabs:** Icon white, active state neon green (#c6ff33) – preserve existing.
+- **Gestures:** Swipe left/right to switch tabs.
+- **Haptics:** Short 8ms vibration on tab switch.
+- **FAB:** Add a Floating Action Button (centered above tab bar) – placeholder for quick actions.
+
+### 3. CSS ANIMATIONS (Add to globals.css)
+```css
+@keyframes askMoniaNeon {
+  0%   { color: #c6ff33; text-shadow: 0 0 10px #c6ff33; }
+  25%  { color: #00e5ff; text-shadow: 0 0 15px #00e5ff; }
+  50%  { color: #ff00ff; text-shadow: 0 0 15px #ff00ff; }
+  75%  { color: #a855f7; text-shadow: 0 0 15px #a855f7; }
+  100% { color: #c6ff33; text-shadow: 0 0 10px #c6ff33; }
+}
+.ask-monia-live {
+  animation: askMoniaNeon 8s infinite;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@keyframes middleIconNeon {
+  0%   { filter: drop-shadow(0 0 5px #c6ff33); }
+  25%  { filter: drop-shadow(0 0 8px #00e5ff); }
+  50%  { filter: drop-shadow(0 0 8px #ff00ff); }
+  75%  { filter: drop-shadow(0 0 8px #a855f7); }
+  100% { filter: drop-shadow(0 0 5px #c6ff33); }
+}
+.middle-icon {
+  animation: middleIconNeon 8s infinite;
+  transform: scale(1.1);
+}
