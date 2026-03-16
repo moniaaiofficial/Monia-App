@@ -139,7 +139,7 @@ export function subscribeToMessages(
     .on(
       'postgres_changes',
       { event: 'INSERT', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` },
-      (payload) => onInsert(payload.new as Message),
+      (payload: any) => onInsert(payload.new as Message)
     )
     .subscribe();
 
