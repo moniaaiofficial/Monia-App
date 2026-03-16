@@ -36,11 +36,13 @@ export async function getUserChats(userId: string): Promise<Chat[]> {
 
   if (error || !chats || chats.length === 0) return [];
 
-  const ids = chats.flatMap((c: any) =>
+const ids = chats.flatMap((c: any) =>
   (c.participants as string[]).filter((id: string) => id !== userId)
 );
 
 const partnerIds: string[] = Array.from(new Set(ids));
+
+let profileMap: Record<string, Profile> = {};
 
   let profileMap: Record<string, Profile> = {};
   if (partnerIds.length > 0) {
