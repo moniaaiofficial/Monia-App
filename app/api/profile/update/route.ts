@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import { clerkClient } from '@clerk/nextjs/server';
+import { createClient } from '@supabase/supabase-js';
 
+// This is a separate admin client for the uniqueness check.
+// The primary database write should happen via the webhook.
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -12,59 +14,52 @@ function getSupabaseAdmin() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { userId, username, mobile, city, full_name, email, avatar_url } = body;
+    const { userId, username, mobile, city } = body;
 
-    if (!userId) return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
+    if (!userId) {
+      return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
+    }
 
     const supabase = getSupabaseAdmin();
 
-    // 1️⃣ Username uniqueness check
+    // 1️⃣ Username uniqueness check (this is a good practice to keep)
     if (username) {
-      const { data: existing } = await supabase
+      const { data: existing, error: checkError } = await supabase
         .from('profiles')
         .select('id')
         .eq('username', username)
         .neq('id', userId)
         .maybeSingle();
 
+      if (checkError) {
+        console.error("Username check error:", checkError.message);
+        throw new Error(`Supabase error: ${checkError.message}`);
+      }
+
       if (existing) {
         return NextResponse.json({ error: 'Username already taken' }, { status: 409 });
       }
     }
 
-    // 2️⃣ SUPABASE UPSERT (Google login entry ko update karega)
-    const { error: dbError } = await supabase
-      .from('profiles')
-      .upsert({ 
-        id: userId, 
-        username, 
-        mobile, 
-        city, 
-        full_name,
-        email,
-        avatar_url,
-        updated_at: new Date().toISOString()
-      }, { onConflict: 'id' });
+    // 2️⃣ CLERK METADATA UPDATE
+    // This is the single source of truth. The webhook will handle the rest.
+    await clerkClient.users.updateUserMetadata(userId, {
+      publicMetadata: {
+        username,
+        mobile,
+        city,
+      }
+    });
 
-    if (dbError) throw new Error(dbError.message);
+    // The Supabase update is now handled by the 'user.updated' webhook.
+    // We no longer write to Supabase directly from here.
 
-    // 3️⃣ CLERK METADATA UPDATE (Clerk dashboard ke liye)
-    try {
-      await clerkClient.users.updateUserMetadata(userId, {
-        publicMetadata: {
-          username,
-          mobile,
-          city
-        }
-      });
-    } catch (clerkErr: any) {
-      console.error("Clerk Metadata Update Error:", clerkErr.message);
-      // Not throwing error because the primary goal is to save data in Supabase
-    }
+    return NextResponse.json({ success: true, message: "Clerk metadata updated. Webhook will sync to Supabase." });
 
-    return NextResponse.json({ success: true });
   } catch (err: any) {
-    console.error("API Error:", err.message);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.error("API Error in /api/profile/update:", err.message);
+    // Return a more specific error message if available
+    const errorMessage = err.errors?.[0]?.message || err.message || 'An unknown error occurred';
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

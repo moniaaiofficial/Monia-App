@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { AtSign, Phone, MapPin, Loader2 } from 'lucide-react';
@@ -15,26 +15,46 @@ export default function ProfileSetupPage() {
   const [checking, setChecking] = useState(true);
   const [error, setError] = useState('');
 
-  /* ── If user already has username, skip to dashboard ───────── */
+  // Redirect if user already has a username
   useEffect(() => {
     if (!isLoaded || !user) return;
     (async () => {
       const { data } = await supabase
         .from('profiles')
-        .select('username, mobile')
+        .select('username')
         .eq('id', user.id)
         .maybeSingle();
 
       if (data?.username) {
         router.replace('/app/dashboard');
-        return;
+      } else {
+        setChecking(false);
       }
-
-      /* Pre-fill mobile if available */
-      if (data?.mobile) setFormData((p) => ({ ...p, mobile: data.mobile }));
-      setChecking(false);
     })();
   }, [isLoaded, user, router]);
+
+  const pollForProfile = useCallback(async (userId: string) => {
+    for (let i = 0; i < 10; i++) { // Poll for 10 seconds
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('id', userId)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Polling error:', error.message);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        continue;
+      }
+
+      if (data?.username) {
+        return true;
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+    return false;
+  }, [supabase]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,34 +71,29 @@ export default function ProfileSetupPage() {
     setLoading(true);
     setError('');
 
-    // ✅ Generate permanent_id safely
-    const randomNum = Math.floor(10000 + Math.random() * 90000);
-    const permanentId = `${randomNum}-${user.id}`;
-
-    // ✅ Call service-role API to insert/update profile
     const res = await fetch('/api/profile/update', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        userId: user.id,                       // id column (Clerk UID)
-        username,                              // username column
-        mobile,                                // mobile column
-        city,                                  // city column
-        permanent_id: permanentId,             // permanent_id column
-        full_name: user.fullName || user.firstName || '',  // full_name column
-        email: user.primaryEmailAddress?.emailAddress || '', // email column
-        avatar_url: user.imageUrl || '',       // avatar_url column
-      }),
+      body: JSON.stringify({ userId: user.id, username, mobile, city }),
     });
 
     const data = await res.json();
+
     if (!res.ok) {
-      setError(data.error || 'Failed to save profile');
+      setError(data.error || 'Failed to update profile');
       setLoading(false);
       return;
     }
 
-    router.replace('/app/dashboard'); // ✅ Redirect to dashboard after setup
+    // Now, poll for the profile update
+    const profileExists = await pollForProfile(user.id);
+
+    if (profileExists) {
+      router.replace('/app/dashboard');
+    } else {
+      setError('Verification failed. Please try again.');
+      setLoading(false);
+    }
   };
 
   if (checking || !isLoaded) {
@@ -105,7 +120,6 @@ export default function ProfileSetupPage() {
           </p>
         </div>
 
-        {/* Avatar preview */}
         {user?.imageUrl && (
           <div className="flex justify-center">
             <img
@@ -165,7 +179,7 @@ export default function ProfileSetupPage() {
             className="btn-neon w-full py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 mt-2"
             style={{ color: '#06000c' }}
           >
-            {loading ? <><Loader2 className="w-4 h-4 animate-spin" />Setting up…</> : 'Continue to MONiA'}
+            {loading ? <><Loader2 className="w-4 h-4 animate-spin" />Verifying & Saving...</> : 'Continue to MONiA'}
           </button>
         </form>
       </div>
