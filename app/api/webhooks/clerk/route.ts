@@ -1,32 +1,18 @@
+
 import { Webhook } from 'svix';
 import { headers } from 'next/headers';
 import { WebhookEvent } from '@clerk/nextjs/server';
 import { createClient } from '@supabase/supabase-js';
 
-function getSupabaseAdmin() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-  if (!url || !key) throw new Error('Supabase credentials not set');
-  return createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl || !supabaseServiceKey) {
+  throw new Error('Supabase credentials are not set in the environment variables');
 }
 
-function extractProfileData(data: Record<string, any>) {
-  const { id, public_metadata, primary_email_address_id, email_addresses, first_name, last_name, image_url, username: clerkUsername } = data;
-
-  const email = email_addresses.find((e: any) => e.id === primary_email_address_id)?.email_address || email_addresses[0]?.email_address || '';
-  const fullName = `${first_name || ''} ${last_name || ''}`.trim() || email.split('@')[0];
-  const username = public_metadata?.username || clerkUsername || '';
-
-  return {
-    id,
-    email,
-    username,
-    full_name: fullName,
-    mobile: public_metadata?.mobile || null,
-    city: public_metadata?.city || null,
-    avatar_url: image_url || null,
-  };
-}
+// Initialize Supabase admin client
+const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 export async function POST(req: Request) {
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
@@ -35,63 +21,70 @@ export async function POST(req: Request) {
     return new Response('Webhook secret not configured', { status: 500 });
   }
 
-  const rawBody = await req.text();
-  const headerPayload = headers();
-  const svixId = headerPayload.get('svix-id');
-  const svixTimestamp = headerPayload.get('svix-timestamp');
-  const svixSignature = headerPayload.get('svix-signature');
+  const headersList = headers();
+  const svix_id = headersList.get('svix-id');
+  const svix_timestamp = headersList.get('svix-timestamp');
+  const svix_signature = headersList.get('svix-signature');
 
-  if (!svixId || !svixTimestamp || !svixSignature) {
-    return new Response('Missing svix headers', { status: 400 });
+  if (!svix_id || !svix_timestamp || !svix_signature) {
+    return new Response('Error occurred -- no svix headers', { status: 400 });
   }
+
+  const payload = await req.json();
+  const body = JSON.stringify(payload);
 
   const wh = new Webhook(WEBHOOK_SECRET);
   let evt: WebhookEvent;
 
   try {
-    evt = wh.verify(rawBody, {
-      'svix-id': svixId,
-      'svix-timestamp': svixTimestamp,
-      'svix-signature': svixSignature,
+    evt = wh.verify(body, {
+      'svix-id': svix_id,
+      'svix-timestamp': svix_timestamp,
+      'svix-signature': svix_signature,
     }) as WebhookEvent;
   } catch (err) {
-    console.error('[Webhook] Signature verification failed:', err);
-    return new Response('Webhook verification failed', { status: 400 });
+    console.error('Error verifying webhook:', err);
+    return new Response('Error verifying webhook', { status: 400 });
   }
 
-  const supabase = getSupabaseAdmin();
+  if (evt.type === 'user.created' || evt.type === 'user.updated') {
+    const { id: userId, email_addresses, first_name, last_name, image_url, public_metadata } = evt.data;
+    const userEmail = email_addresses[0]?.email_address;
+    const userFullName = `${first_name || ''} ${last_name || ''}`.trim();
 
-  try {
-    const p = extractProfileData(evt.data as Record<string, any>);
-
-    if (evt.type === 'user.created' || evt.type === 'user.updated') {
-      const { error } = await supabase.rpc('sync_clerk_user', {
-        p_id: p.id,
-        p_email: p.email,
-        p_username: p.username,
-        p_full_name: p.full_name,
-        p_mobile: p.mobile,
-        p_city: p.city,
-        p_avatar_url: p.avatar_url,
-      });
-
-      if (error) {
-        console.error(`[Webhook] Error syncing user ${p.id}:`, error.message);
-        return new Response(`Error syncing user: ${error.message}`, { status: 500 });
-      }
-    } else if (evt.type === 'user.deleted') {
-      if (evt.data.id) {
-        const { error } = await supabase.rpc('delete_clerk_user', { p_id: evt.data.id });
-        if (error) {
-          console.error(`[Webhook] Error deleting user ${evt.data.id}:`, error.message);
-          // Don't retry deletion if the user is already gone
-        }
-      }
+    if (!userId || !userEmail) {
+      return new Response('Missing user ID or email', { status: 400 });
     }
-  } catch (err: any) {
-    console.error('[Webhook] Unexpected error:', err);
-    return new Response(`Internal error: ${err.message}`, { status: 500 });
+
+    const { error } = await supabaseAdmin.rpc('sync_user_profile', {
+      user_id: userId,
+      user_email: userEmail,
+      user_full_name: userFullName,
+      user_avatar_url: image_url,
+      user_raw_metadata: public_metadata,
+    });
+
+    if (error) {
+      console.error(`[Webhook] Error syncing user ${userId}:`, error);
+      return new Response(`Error syncing user: ${error.message}`, { status: 500 });
+    }
+
+    console.log(`[Webhook] Successfully synced user ${userId}`);
+  } else if (evt.type === 'user.deleted') {
+    const { id: userId } = evt.data;
+    if (!userId) {
+      return new Response('Missing user ID', { status: 400 });
+    }
+    
+    const { error } = await supabaseAdmin.from('profiles').delete().eq('id', userId);
+
+    if (error) {
+      console.error(`[Webhook] Error deleting user ${userId}:`, error);
+      return new Response(`Error deleting user: ${error.message}`, { status: 500 });
+    }
+
+    console.log(`[Webhook] Successfully deleted user ${userId}`);
   }
 
-  return new Response('OK', { status: 200 });
+  return new Response('Webhook processed successfully', { status: 200 });
 }

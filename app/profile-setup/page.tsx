@@ -1,10 +1,10 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { AtSign, Phone, MapPin, Loader2 } from 'lucide-react';
-import { supabase } from '@/lib/supabase/client';
 
 export default function ProfileSetupPage() {
   const { user, isLoaded } = useUser();
@@ -12,79 +12,43 @@ export default function ProfileSetupPage() {
 
   const [formData, setFormData] = useState({ username: '', mobile: '', city: '' });
   const [loading, setLoading] = useState(false);
-  const [checking, setChecking] = useState(true);
   const [error, setError] = useState('');
 
-  // Redirect if user already has a username
   useEffect(() => {
-    if (!isLoaded || !user) return;
-    (async () => {
-      const { data } = await supabase
-        .from('profiles')
-        .select('username')
-        .eq('id', user.id)
-        .maybeSingle();
-
-      if (data?.username) {
-        window.location.href = '/dashboard';
-      } else {
-        setChecking(false);
-      }
-    })();
+    if (isLoaded && user?.publicMetadata?.profile_complete) {
+      router.push('/dashboard');
+    }
   }, [isLoaded, user, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
 
-    setError(''); // Clear error on submission
-
-    const username = formData.username.trim().replace(/^@/, '');
-    const mobile = formData.mobile.trim();
-    const city = formData.city.trim();
-
-    if (username.length < 3) {
-      setError('Username must be at least 3 characters');
-      return;
-    }
-    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-      setError('Username can only contain letters, numbers and underscores');
-      return;
-    }
-    if (!mobile) {
-      setError('Mobile number is required');
-      return;
-    }
-
+    setError('');
     setLoading(true);
 
     try {
-      const res = await fetch('/api/profile/update', {
+      const response = await fetch('/api/profile/update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id, username, mobile, city }),
+        body: JSON.stringify({ ...formData, userId: user.id }),
       });
 
-      if (!res.ok) {
-        const data = await res.json();
+      if (response.ok) {
+        await user.reload(); // Reload the user to get the latest metadata
+        router.push('/dashboard');
+      } else {
+        const data = await response.json();
         setError(data.error || 'Failed to update profile');
-        setLoading(false);
-        return;
       }
-
-      // Successful API response, wait 1.5 seconds for DB sync
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // Hard refresh to dashboard
-      window.location.href = '/dashboard';
-
     } catch (error) {
       setError('An unexpected error occurred. Please try again.');
+    } finally {
       setLoading(false);
     }
   };
 
-  if (checking || !isLoaded) {
+  if (!isLoaded || !user) {
     return (
       <main className="min-h-screen flex items-center justify-center" style={{ background: '#06000c' }}>
         <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#c6ff33' }} />
