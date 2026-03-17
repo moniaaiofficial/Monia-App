@@ -63,7 +63,7 @@ export default function ChatsPage() {
     if (chat) {
       setNewChatOpen(false);
       setProfileQuery('');
-      router.push(`/app/dashboard/chat/${chat.id}`);
+      router.push(`/dashboard/chat/${chat.id}`);
     }
   };
 
@@ -105,7 +105,7 @@ export default function ChatsPage() {
           ) : (
             <div className="flex items-center justify-between">
               {/* Ask MONiA */}
-              <button className="ask-monia-live text-xl" onClick={() => router.push('/app/dashboard/ai')} aria-label="Open MONiA AI">
+              <button className="ask-monia-live text-xl" onClick={() => router.push('/dashboard/ai')} aria-label="Open MONiA AI">
                 Ask MONiA
               </button>
 
@@ -118,7 +118,7 @@ export default function ChatsPage() {
                 {/* Profile avatar */}
                 <button
                   aria-label="Profile"
-                  onClick={() => router.push('/app/profile')}
+                  onClick={() => router.push('/profile')}
                   style={{ flexShrink: 0 }}
                 >
                   {avatarUrl ? (
@@ -213,7 +213,7 @@ export default function ChatsPage() {
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             {displayedChats.map((chat) => (
-              <button key={chat.id} onClick={() => router.push(`/app/dashboard/chat/${chat.id}`)}
+              <button key={chat.id} onClick={() => router..push(`/dashboard/chat/${chat.id}`)}
                 style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 14, padding: '11px 10px', borderRadius: 16, background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', transition: 'background 0.1s' }}
                 onPointerEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.04)')}
                 onPointerLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = 'transparent')}

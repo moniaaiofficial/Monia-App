@@ -26,7 +26,7 @@ export default function ProfileSetupPage() {
         .maybeSingle();
 
       if (data?.username) {
-        router.replace('/app/dashboard');
+        window.location.href = '/dashboard';
       } else {
         setChecking(false);
       }
