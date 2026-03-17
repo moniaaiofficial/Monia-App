@@ -3,19 +3,23 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
-import { ArrowLeft, MoreVertical, Eye } from 'lucide-react';
-import {
-  getChatMessages,
-  sendMessage as sendMsg,
-  subscribeToMessages,
-  updateMessageStatus,
-  getInitials,
-  type Message,
-} from '@/lib/chat';
+import { ArrowLeft, MoreVertical } from 'lucide-react';
+import { getChatMessages, sendMessage as sendMsg, subscribeToMessages, updateMessageStatus, getInitials, type Message, type Profile } from '@/lib/chat';
 import { supabase } from '@/lib/supabase/client';
 import ChatBubble from '@/components/ChatBubble';
 import ChatInput from '@/components/ChatInput';
 import TypingIndicator from '@/components/TypingIndicator';
+
+const isTimeInSleepMode = (start?: string, end?: string) => {
+  if (!start || !end) return false;
+  const now = new Date();
+  const startTime = new Date(now.toDateString() + ' ' + start);
+  const endTime = new Date(now.toDateString() + ' ' + end);
+  if (endTime < startTime) {
+    endTime.setDate(endTime.getDate() + 1);
+  }
+  return now >= startTime && now <= endTime;
+};
 
 export default function ChatPage() {
   const { id: chatId } = useParams<{ id: string }>();
@@ -24,13 +28,12 @@ export default function ChatPage() {
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
-  const [partnerName, setPartnerName] = useState('');
-  const [partnerInitials, setPartnerInitials] = useState('');
-  const [partnerStatus, setPartnerStatus] = useState('');
+  const [partner, setPartner] = useState<Profile | null>(null);
   const [isTyping, setIsTyping] = useState(false);
   const [sending, setSending] = useState(false);
 
   const bottomRef = useRef<HTMLDivElement>(null);
+  const channelRef = useRef<any>(null);
 
   const scrollToBottom = useCallback((smooth = false) => {
     bottomRef.current?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto' });
@@ -39,75 +42,89 @@ export default function ChatPage() {
   useEffect(() => {
     if (!isLoaded || !user || !chatId) return;
 
-    (async () => {
-      const { data: chat } = await supabase
-        .from('chats')
-        .select('participants')
-        .eq('id', chatId)
-        .single();
+    const setupChat = async () => {
+      const { data: chat } = await supabase.from('chats').select('participants').eq('id', chatId).single();
+      if (!chat) { setLoading(false); return; }
 
-      if (chat) {
-        const partnerId = (chat.participants as string[]).find((id) => id !== user.id);
-        if (partnerId) {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('full_name, status')
-            .eq('id', partnerId)
-            .single();
-          const name = profile?.full_name ?? 'User';
-          setPartnerName(name);
-          setPartnerInitials(getInitials(name));
-          setPartnerStatus(profile?.status ?? '');
-        }
+      const partnerId = (chat.participants as string[]).find((id) => id !== user.id);
+      if (partnerId) {
+        const { data: profile } = await supabase.from('profiles').select('*').eq('id', partnerId).single();
+        setPartner(profile as Profile);
       }
 
       const msgs = await getChatMessages(chatId);
       setMessages(msgs);
       setLoading(false);
 
-      const unread = msgs.filter((m) => m.sender_id !== user.id && m.status !== 'read');
-      unread.forEach((m) => updateMessageStatus(m.id, 'read'));
+      const unreadMessages = msgs.filter((m) => m.sender_id !== user.id && m.status !== 'read');
+      for (const m of unreadMessages) {
+        await updateMessageStatus(m.id, 'read');
+      }
 
-      setTimeout(() => scrollToBottom(false), 60);
-    })();
-  }, [isLoaded, user, chatId, scrollToBottom]);
+      setTimeout(() => scrollToBottom(false), 100);
+    };
 
-  useEffect(() => {
-    if (!chatId || !user) return;
+    setupChat();
 
-    const channel = supabase.channel(`chat:${chatId}`);
-
-    const messageSub = subscribeToMessages(chatId, (newMsg) => {
-      setMessages((prev) => {
-        if (prev.some((m) => m.id === newMsg.id)) return prev;
-        return [...prev, newMsg];
-      });
+    const handleNewMessage = (newMsg: Message) => {
+      setMessages((prev) => [...prev, newMsg]);
       if (newMsg.sender_id !== user.id) {
         updateMessageStatus(newMsg.id, 'read');
       }
-      setTimeout(() => scrollToBottom(true), 60);
-    });
+      setTimeout(() => scrollToBottom(true), 100);
+    };
 
-    const typingSub = channel
-      .on('broadcast', { event: 'typing' }, ({ payload }) => {
-        if (payload.userId !== user.id) {
-          setIsTyping(payload.isTyping);
-        }
+    const handleUpdatedMessage = (updatedMsg: Message) => {
+      setMessages((prev) => prev.map((m) => (m.id === updatedMsg.id ? updatedMsg : m)));
+    };
+
+    const messageSubscription = subscribeToMessages(chatId, handleNewMessage, handleUpdatedMessage);
+    
+    const presenceChannel = supabase.channel(`chat-presence:${chatId}`);
+    channelRef.current = presenceChannel;
+
+    presenceChannel
+      .on('presence', { event: 'sync' }, () => {
+        const newState = presenceChannel.presenceState();
+        const partnerPresence = Object.values(newState).flat().find((p: any) => p.user_id !== user.id);
+        setIsTyping(partnerPresence ? (partnerPresence as any).is_typing : false);
       })
-      .subscribe();
+      .on('presence', { event: 'join' }, ({ newPresences }) => {
+         // Handle user join if needed
+      })
+      .on('presence', { event: 'leave' }, ({ leftPresences }) => {
+        const partnerPresence = leftPresences.find(p => p.user_id !== user.id);
+        if(partnerPresence) setIsTyping(false);
+      })
+      .subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          await presenceChannel.track({ user_id: user.id, is_typing: false });
+        }
+      });
 
     return () => {
-      messageSub();
-      supabase.removeChannel(channel);
+      messageSubscription();
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
+      }
     };
-  }, [chatId, user, scrollToBottom]);
+  }, [isLoaded, user, chatId, scrollToBottom]);
+
+  const handleTyping = async (isTyping: boolean) => {
+    if (channelRef.current && user) {
+      await channelRef.current.track({ user_id: user.id, is_typing: isTyping });
+    }
+  };
 
   const handleSend = async (content: string) => {
-    if (!user || !chatId || sending) return;
+    if (!user || !chatId || sending || !content.trim()) return;
     setSending(true);
+    await handleTyping(false);
 
-    const optimistic: Message = {
-      id: `opt-${Date.now()}`,
+    const optimisticId = `opt-${Date.now()}`;
+    const optimisticMsg: Message = {
+      id: optimisticId,
       chat_id: chatId,
       sender_id: user.id,
       content,
@@ -115,87 +132,50 @@ export default function ChatPage() {
       status: 'sent',
       created_at: new Date().toISOString(),
     };
-    setMessages((prev) => [...prev, optimistic]);
-    setTimeout(() => scrollToBottom(true), 60);
+    setMessages((prev) => [...prev, optimisticMsg]);
+    setTimeout(() => scrollToBottom(true), 100);
 
-    const sent = await sendMsg(chatId, user.id, content);
+    const sentMsg = await sendMsg(chatId, user.id, content);
     setSending(false);
 
-    if (sent) {
-      setMessages((prev) =>
-        prev.map((m) => (m.id === optimistic.id ? sent : m)),
-      );
+    if (sentMsg) {
+        setMessages((prev) => prev.map((m) => (m.id === optimisticId ? sentMsg : m)));
+    } else {
+        setMessages(prev => prev.filter(m => m.id !== optimisticId)); // remove optimistic if failed
     }
   };
 
-  if (loading) {
-    return (
-      <main style={{ background: '#06000c', minHeight: '100vh' }}>
-        <div style={{ position: 'sticky', top: 0, zIndex: 20, background: 'rgba(6,0,12,0.94)', backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div className="skeleton" style={{ width: 40, height: 40, borderRadius: '50%' }} />
-          <div style={{ flex: 1 }}>
-            <div className="skeleton" style={{ height: 16, width: 120, marginBottom: 6 }} />
-            <div className="skeleton" style={{ height: 12, width: 60 }} />
-          </div>
-        </div>
-        <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {[...Array(6)].map((_, i) => (
-            <div key={i} style={{ display: 'flex', justifyContent: i % 2 ? 'flex-end' : 'flex-start' }}>
-              <div className="skeleton" style={{ height: 44, width: `${50 + Math.random() * 30}%`, borderRadius: 18 }} />
-            </div>
-          ))}
-        </div>
-      </main>
-    );
+  if (loading || !partner) {
+    return <div style={{ background: '#06000c', minHeight: '100vh' }} >...Loading</div>; // Basic loader
   }
 
+  const partnerInSleep = isTimeInSleepMode(partner.sleep_start, partner.sleep_end);
+
   return (
-    <main style={{ background: '#06000c', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ position: 'sticky', top: 0, zIndex: 20, background: 'rgba(6,0,12,0.94)', backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
-        <button onClick={() => router.back()} style={{ color: '#c6ff33', flexShrink: 0 }} aria-label="Back">
-          <ArrowLeft style={{ width: 22, height: 22 }} />
-        </button>
-        <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(198,255,51,0.10)', border: '1px solid rgba(198,255,51,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 14, fontWeight: 700, color: '#c6ff33' }}>
-          {partnerInitials}
+    <main style={{ background: '#06000c', height: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ position: 'sticky', top: 0, zIndex: 20, background: 'rgba(6,0,12,0.94)', backdropFilter: 'blur(28px)', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <button onClick={() => router.back()} style={{ color: '#c6ff33' }}><ArrowLeft size={22} /></button>
+        <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(198,255,51,0.10)', border: '1px solid rgba(198,255,51,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c6ff33', fontWeight: 700, fontSize: 14 }}>
+          {getInitials(partner.full_name)}
         </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{ color: '#fff', fontWeight: 700, fontSize: 15, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {partnerName}
-          </p>
-          <p style={{ color: 'rgba(255,255,255,0.38)', fontSize: 11, fontWeight: 500, marginTop: 2 }}>
-            {partnerStatus === 'sleep' ? '🌙 Sleep Mode' : 'MONiA user'}
+        <div style={{ flex: 1 }}>
+          <p style={{ color: '#fff', fontWeight: 700 }}>{partner.full_name}</p>
+          <p style={{ color: 'rgba(255,255,255,0.38)', fontSize: 12 }}>
+            {partnerInSleep ? '🌙 In Sleep Mode' : (isTyping ? 'typing... 〰️' : 'Online')}
           </p>
         </div>
-        <button style={{ color: 'rgba(255,255,255,0.4)' }} aria-label="More options">
-          <MoreVertical style={{ width: 20, height: 20 }} />
-        </button>
+        <button style={{ color: 'rgba(255,255,255,0.4)' }}><MoreVertical size={20} /></button>
       </div>
-      <div style={{ flex: 1, padding: '16px 16px 160px', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
-        {messages.length === 0 ? (
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(198,255,51,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontSize: 26 }}>
-                💬
-              </div>
-              <p style={{ color: '#fff', fontWeight: 700, marginBottom: 6 }}>Start the conversation</p>
-              <p style={{ color: 'rgba(255,255,255,0.38)', fontSize: 13 }}>Say hello to {partnerName}</p>
-            </div>
-          </div>
-        ) : (
-          messages.map((msg) => (
-            <ChatBubble
-              key={msg.id}
-              content={msg.content}
-              timestamp={msg.created_at}
-              isSent={msg.sender_id === user?.id}
-              status={msg.status}
-            />
-          ))
-        )}
-        {isTyping && <TypingIndicator />} 
+
+      <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
+        {messages.map((msg) => (
+          <ChatBubble key={msg.id} {...msg} isSent={msg.sender_id === user?.id} />
+        ))}
+        {isTyping && !partnerInSleep && <TypingIndicator />} 
         <div ref={bottomRef} />
       </div>
-      <ChatInput onSend={handleSend} disabled={sending} />
+
+      <ChatInput onSend={handleSend} onTyping={handleTyping} disabled={sending || partnerInSleep} />
     </main>
   );
 }
