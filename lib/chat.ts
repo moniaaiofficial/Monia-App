@@ -15,6 +15,7 @@ export type Profile = {
   id: string;
   full_name: string;
   email: string;
+  username: string;
   mobile_number?: string;
   sleep_start?: string;
   sleep_end?: string;
@@ -88,7 +89,7 @@ export async function updateMessageStatus(messageId: string, status: 'delivered'
 }
 
 export async function searchProfiles(query: string, excludeId: string): Promise<Profile[]> {
-  const { data } = await supabase.from('profiles').select('id, full_name, email').neq('id', excludeId).or(`full_name.ilike.%${query}%,email.ilike.%${query}%`).limit(20);
+  const { data } = await supabase.from('profiles').select('id, full_name, email, username').neq('id', excludeId).or(`full_name.ilike.%${query}%,email.ilike.%${query}%,username.ilike.%${query}%`).limit(20);
   return (data ?? []) as Profile[];
 }
 

@@ -4,19 +4,24 @@
 import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
-import { AtSign, Phone, MapPin, Loader2 } from 'lucide-react';
+import { AtSign, Loader2 } from 'lucide-react';
 
 export default function ProfileSetupPage() {
   const { user, isLoaded } = useUser();
   const router = useRouter();
 
-  const [formData, setFormData] = useState({ username: '', mobile: '', city: '' });
+  const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (isLoaded && user?.publicMetadata?.profile_complete) {
-      router.push('/dashboard');
+    if (isLoaded && user) {
+      if (user.publicMetadata?.profile_complete) {
+        router.push('/dashboard');
+      } else if (user.firstName && user.lastName) {
+        const suggestedUsername = `${user.firstName.toLowerCase()}_${user.lastName.toLowerCase()}`;
+        setUsername(suggestedUsername);
+      }
     }
   }, [isLoaded, user, router]);
 
@@ -31,11 +36,11 @@ export default function ProfileSetupPage() {
       const response = await fetch('/api/profile/update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, userId: user.id }),
+        body: JSON.stringify({ username, userId: user.id }),
       });
 
       if (response.ok) {
-        await user.reload(); // Reload the user to get the latest metadata
+        await user.reload(); 
         router.push('/dashboard');
       } else {
         const data = await response.json();
@@ -48,16 +53,13 @@ export default function ProfileSetupPage() {
     }
   };
 
-  if (!isLoaded || !user) {
+  if (!isLoaded) {
     return (
       <main className="min-h-screen flex items-center justify-center" style={{ background: '#06000c' }}>
         <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#c6ff33' }} />
       </main>
     );
   }
-
-  const iconClass = 'absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none';
-  const iconStyle = { color: 'rgba(255,255,255,0.28)' };
 
   return (
     <main className="min-h-screen flex items-center justify-center px-5 py-10 page-enter" style={{ background: '#06000c' }}>
@@ -90,38 +92,15 @@ export default function ProfileSetupPage() {
           )}
 
           <div className="relative">
-            <AtSign className={iconClass} style={iconStyle} />
+            <AtSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: 'rgba(255,255,255,0.28)' }} />
             <input
               type="text"
               placeholder="Username (e.g. john_doe)"
-              value={formData.username}
-              onChange={(e) => setFormData((p) => ({ ...p, username: e.target.value }))}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               className="glass-input pl-11 pr-4 py-3.5 text-sm font-medium"
               required
               autoComplete="off"
-            />
-          </div>
-
-          <div className="relative">
-            <Phone className={iconClass} style={iconStyle} />
-            <input
-              type="tel"
-              placeholder="Mobile Number"
-              value={formData.mobile}
-              onChange={(e) => setFormData((p) => ({ ...p, mobile: e.target.value }))}
-              className="glass-input pl-11 pr-4 py-3.5 text-sm font-medium"
-              required
-            />
-          </div>
-
-          <div className="relative">
-            <MapPin className={iconClass} style={iconStyle} />
-            <input
-              type="text"
-              placeholder="City (optional)"
-              value={formData.city}
-              onChange={(e) => setFormData((p) => ({ ...p, city: e.target.value }))}
-              className="glass-input pl-11 pr-4 py-3.5 text-sm font-medium"
             />
           </div>
 

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
@@ -10,7 +11,6 @@ import ChatBubble from '@/components/ChatBubble';
 import ChatInput from '@/components/ChatInput';
 import TypingIndicator from '@/components/TypingIndicator';
 
-// Define a type for the presence state to avoid using 'any'
 interface PresenceState {
   user_id: string;
   is_typing: boolean;
@@ -39,7 +39,7 @@ export default function ChatPage() {
   const [sending, setSending] = useState(false);
 
   const bottomRef = useRef<HTMLDivElement>(null);
-  const channelRef = useRef<any>(null); // RealtimeChannel type is complex, any is acceptable here for now
+  const channelRef = useRef<any>(null);
 
   const scrollToBottom = useCallback((smooth = false) => {
     bottomRef.current?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto' });
@@ -85,7 +85,7 @@ export default function ChatPage() {
     };
 
     const messageSubscription = subscribeToMessages(chatId, handleNewMessage, handleUpdatedMessage);
-    
+
     const presenceChannel = supabase.channel(`chat-presence:${chatId}`);
     channelRef.current = presenceChannel;
 
