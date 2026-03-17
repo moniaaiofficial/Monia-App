@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { AtSign, Phone, MapPin, Loader2 } from 'lucide-react';
@@ -33,65 +33,53 @@ export default function ProfileSetupPage() {
     })();
   }, [isLoaded, user, router]);
 
-  const pollForProfile = useCallback(async (userId: string) => {
-    for (let i = 0; i < 10; i++) { // Poll for 10 seconds
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('username')
-        .eq('id', userId)
-        .maybeSingle();
-
-      if (error) {
-        console.error('Polling error:', error.message);
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        continue;
-      }
-
-      if (data?.username) {
-        return true;
-      }
-
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    }
-    return false;
-  }, [supabase]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
+
+    setError(''); // Clear error on submission
 
     const username = formData.username.trim().replace(/^@/, '');
     const mobile = formData.mobile.trim();
     const city = formData.city.trim();
 
-    if (username.length < 3) { setError('Username must be at least 3 characters'); return; }
-    if (!/^[a-zA-Z0-9_]+$/.test(username)) { setError('Username can only contain letters, numbers and underscores'); return; }
-    if (!mobile) { setError('Mobile number is required'); return; }
-
-    setLoading(true);
-    setError('');
-
-    const res = await fetch('/api/profile/update', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: user.id, username, mobile, city }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      setError(data.error || 'Failed to update profile');
-      setLoading(false);
+    if (username.length < 3) {
+      setError('Username must be at least 3 characters');
+      return;
+    }
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      setError('Username can only contain letters, numbers and underscores');
+      return;
+    }
+    if (!mobile) {
+      setError('Mobile number is required');
       return;
     }
 
-    // Now, poll for the profile update
-    const profileExists = await pollForProfile(user.id);
+    setLoading(true);
 
-    if (profileExists) {
-      router.replace('/app/dashboard');
-    } else {
-      setError('Verification failed. Please try again.');
+    try {
+      const res = await fetch('/api/profile/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.id, username, mobile, city }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error || 'Failed to update profile');
+        setLoading(false);
+        return;
+      }
+
+      // Successful API response, wait 1.5 seconds for DB sync
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      // Hard refresh to dashboard
+      window.location.href = '/dashboard';
+
+    } catch (error) {
+      setError('An unexpected error occurred. Please try again.');
       setLoading(false);
     }
   };
