@@ -213,7 +213,7 @@ export default function ChatsPage() {
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             {displayedChats.map((chat) => (
-              <button key={chat.id} onClick={() => router..push(`/dashboard/chat/${chat.id}`)}
+              <button key={chat.id} onClick={() => router.push(`/dashboard/chat/${chat.id}`)}
                 style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 14, padding: '11px 10px', borderRadius: 16, background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', transition: 'background 0.1s' }}
                 onPointerEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.04)')}
                 onPointerLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = 'transparent')}

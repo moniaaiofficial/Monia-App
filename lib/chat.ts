@@ -169,7 +169,7 @@ export async function searchProfiles(
   return (data ?? []) as Profile[];
 }
 
-/* ── Format timestamp for display ──────────────────────────── */
+/* ── Format timestamp for display ──────────────────── */
 export function formatMsgTime(iso: string): string {
   const d = new Date(iso);
   const now = new Date();
