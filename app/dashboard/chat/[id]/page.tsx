@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
-import { ArrowLeft, MoreVertical } from 'lucide-react';
+import { ArrowLeft, MoreVertical, Eye } from 'lucide-react';
 import {
   getChatMessages,
   sendMessage as sendMsg,
@@ -15,6 +15,7 @@ import {
 import { supabase } from '@/lib/supabase/client';
 import ChatBubble from '@/components/ChatBubble';
 import ChatInput from '@/components/ChatInput';
+import TypingIndicator from '@/components/TypingIndicator';
 
 export default function ChatPage() {
   const { id: chatId } = useParams<{ id: string }>();
@@ -25,16 +26,16 @@ export default function ChatPage() {
   const [loading, setLoading] = useState(true);
   const [partnerName, setPartnerName] = useState('');
   const [partnerInitials, setPartnerInitials] = useState('');
+  const [partnerStatus, setPartnerStatus] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
   const [sending, setSending] = useState(false);
 
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  /* ── Scroll to bottom ───────────────────────────────────────── */
   const scrollToBottom = useCallback((smooth = false) => {
     bottomRef.current?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto' });
   }, []);
 
-  /* ── Load chat metadata + messages ─────────────────────────── */
   useEffect(() => {
     if (!isLoaded || !user || !chatId) return;
 
@@ -50,12 +51,13 @@ export default function ChatPage() {
         if (partnerId) {
           const { data: profile } = await supabase
             .from('profiles')
-            .select('full_name')
+            .select('full_name, status')
             .eq('id', partnerId)
             .single();
           const name = profile?.full_name ?? 'User';
           setPartnerName(name);
           setPartnerInitials(getInitials(name));
+          setPartnerStatus(profile?.status ?? '');
         }
       }
 
@@ -70,11 +72,12 @@ export default function ChatPage() {
     })();
   }, [isLoaded, user, chatId, scrollToBottom]);
 
-  /* ── Real-time subscription ─────────────────────────────────── */
   useEffect(() => {
     if (!chatId || !user) return;
 
-    const unsubscribe = subscribeToMessages(chatId, (newMsg) => {
+    const channel = supabase.channel(`chat:${chatId}`);
+
+    const messageSub = subscribeToMessages(chatId, (newMsg) => {
       setMessages((prev) => {
         if (prev.some((m) => m.id === newMsg.id)) return prev;
         return [...prev, newMsg];
@@ -85,10 +88,20 @@ export default function ChatPage() {
       setTimeout(() => scrollToBottom(true), 60);
     });
 
-    return unsubscribe;
+    const typingSub = channel
+      .on('broadcast', { event: 'typing' }, ({ payload }) => {
+        if (payload.userId !== user.id) {
+          setIsTyping(payload.isTyping);
+        }
+      })
+      .subscribe();
+
+    return () => {
+      messageSub();
+      supabase.removeChannel(channel);
+    };
   }, [chatId, user, scrollToBottom]);
 
-  /* ── Send handler ───────────────────────────────────────────── */
   const handleSend = async (content: string) => {
     if (!user || !chatId || sending) return;
     setSending(true);
@@ -115,25 +128,10 @@ export default function ChatPage() {
     }
   };
 
-  /* ── Skeleton ─────────────────────────────────────────────── */
   if (loading) {
     return (
       <main style={{ background: '#06000c', minHeight: '100vh' }}>
-        <div
-          style={{
-            position: 'sticky',
-            top: 0,
-            zIndex: 20,
-            background: 'rgba(6,0,12,0.94)',
-            backdropFilter: 'blur(28px)',
-            WebkitBackdropFilter: 'blur(28px)',
-            borderBottom: '1px solid rgba(255,255,255,0.06)',
-            padding: '12px 16px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 12,
-          }}
-        >
+        <div style={{ position: 'sticky', top: 0, zIndex: 20, background: 'rgba(6,0,12,0.94)', backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
           <div className="skeleton" style={{ width: 40, height: 40, borderRadius: '50%' }} />
           <div style={{ flex: 1 }}>
             <div className="skeleton" style={{ height: 16, width: 120, marginBottom: 6 }} />
@@ -153,89 +151,30 @@ export default function ChatPage() {
 
   return (
     <main style={{ background: '#06000c', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* ── Header ──────────────────────────────────────────────── */}
-      <div
-        style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 20,
-          background: 'rgba(6,0,12,0.94)',
-          backdropFilter: 'blur(28px)',
-          WebkitBackdropFilter: 'blur(28px)',
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
-          padding: '10px 16px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 12,
-        }}
-      >
-        <button
-          onClick={() => router.back()}
-          style={{ color: '#c6ff33', flexShrink: 0 }}
-          aria-label="Back"
-        >
+      <div style={{ position: 'sticky', top: 0, zIndex: 20, background: 'rgba(6,0,12,0.94)', backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <button onClick={() => router.back()} style={{ color: '#c6ff33', flexShrink: 0 }} aria-label="Back">
           <ArrowLeft style={{ width: 22, height: 22 }} />
         </button>
-
-        <div
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: '50%',
-            background: 'rgba(198,255,51,0.10)',
-            border: '1px solid rgba(198,255,51,0.25)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-            fontSize: 14,
-            fontWeight: 700,
-            color: '#c6ff33',
-          }}
-        >
+        <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(198,255,51,0.10)', border: '1px solid rgba(198,255,51,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 14, fontWeight: 700, color: '#c6ff33' }}>
           {partnerInitials}
         </div>
-
         <div style={{ flex: 1, minWidth: 0 }}>
           <p style={{ color: '#fff', fontWeight: 700, fontSize: 15, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {partnerName}
           </p>
           <p style={{ color: 'rgba(255,255,255,0.38)', fontSize: 11, fontWeight: 500, marginTop: 2 }}>
-            MONiA user
+            {partnerStatus === 'sleep' ? '🌙 Sleep Mode' : 'MONiA user'}
           </p>
         </div>
-
         <button style={{ color: 'rgba(255,255,255,0.4)' }} aria-label="More options">
           <MoreVertical style={{ width: 20, height: 20 }} />
         </button>
       </div>
-
-      {/* ── Messages ────────────────────────────────────────────── */}
-      <div
-        style={{
-          flex: 1,
-          padding: '16px 16px 160px',
-          overflowY: 'auto',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
+      <div style={{ flex: 1, padding: '16px 16px 160px', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
         {messages.length === 0 ? (
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div style={{ textAlign: 'center' }}>
-              <div
-                style={{
-                  width: 56,
-                  height: 56,
-                  borderRadius: 16,
-                  background: 'rgba(198,255,51,0.08)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  margin: '0 auto 12px',
-                  fontSize: 26,
-                }}
-              >
+              <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(198,255,51,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontSize: 26 }}>
                 💬
               </div>
               <p style={{ color: '#fff', fontWeight: 700, marginBottom: 6 }}>Start the conversation</p>
@@ -253,10 +192,9 @@ export default function ChatPage() {
             />
           ))
         )}
+        {isTyping && <TypingIndicator />} 
         <div ref={bottomRef} />
       </div>
-
-      {/* ── Input ───────────────────────────────────────────────── */}
       <ChatInput onSend={handleSend} disabled={sending} />
     </main>
   );
