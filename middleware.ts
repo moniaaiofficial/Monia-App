@@ -6,6 +6,19 @@ interface CustomPublicMetadata {
   profile_complete?: boolean;
 }
 
+interface Verification {
+  strategy: string;
+}
+
+interface EmailAddress {
+  verification: Verification;
+}
+
+interface CustomSessionClaims {
+  publicMetadata?: CustomPublicMetadata;
+  email_addresses?: EmailAddress[];
+}
+
 export default authMiddleware({
   publicRoutes: [
     "/",
@@ -21,10 +34,15 @@ export default authMiddleware({
   ],
 
   async afterAuth(auth, req) {
-    const { userId, sessionClaims } = auth;
+    const { userId, sessionClaims: rawSessionClaims } = auth;
+    const sessionClaims = rawSessionClaims as CustomSessionClaims | null;
     const { pathname } = req.nextUrl;
-    const publicMetadata = sessionClaims?.publicMetadata as CustomPublicMetadata | undefined;
-    const isGoogleUser = auth.sessionClaims?.email_addresses?.[0]?.verification?.strategy === 'oauth_google';
+    const publicMetadata = sessionClaims?.publicMetadata;
+
+    const isGoogleUser = sessionClaims &&
+      Array.isArray(sessionClaims?.email_addresses) &&
+      sessionClaims.email_addresses.length > 0 &&
+      sessionClaims.email_addresses[0]?.verification?.strategy === "oauth_google";
 
     // If the user is logged in, and they are on a public-only page,
     // redirect them to the dashboard.
@@ -58,5 +76,5 @@ export default authMiddleware({
 });
 
 export const config = {
-  matcher: ['/((?!.+\.[\w]+$|_next).*)', '/', '/(api|trpc)(.*)'],
+  matcher: ["/((?!.+\.[\w]+$|_next).*)" , "/", "/(api|trpc)(.*)"],
 };
