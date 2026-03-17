@@ -89,11 +89,11 @@ export default function ChatPage() {
         const partnerPresence = Object.values(newState).flat().find((p: any) => p.user_id !== user.id);
         setIsTyping(partnerPresence ? (partnerPresence as any).is_typing : false);
       })
-      .on('presence', { event: 'join' }, ({ newPresences }) => {
+      .on('presence', { event: 'join' }, ({ newPresences }: { newPresences: any[] }) => {
          // Handle user join if needed
       })
-      .on('presence', { event: 'leave' }, ({ leftPresences }) => {
-        const partnerPresence = leftPresences.find(p => p.user_id !== user.id);
+      .on('presence', { event: 'leave' }, ({ leftPresences }: { leftPresences: any[] }) => {
+        const partnerPresence = leftPresences.find((p: any) => p.user_id !== user.id);
         if(partnerPresence) setIsTyping(false);
       })
       .subscribe(async (status) => {
