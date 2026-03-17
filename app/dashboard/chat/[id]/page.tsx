@@ -91,7 +91,7 @@ export default function ChatPage() {
 
     presenceChannel
       .on('presence', { event: 'sync' }, () => {
-        const newState = presenceChannel.presenceState<PresenceState>();
+        const newState = presenceChannel.presenceState() as Record<string, PresenceState[]>;
         const partnerPresence = Object.values(newState).flat().find((p) => p.user_id !== user.id);
         setIsTyping(partnerPresence ? partnerPresence.is_typing : false);
       })
@@ -175,13 +175,13 @@ export default function ChatPage() {
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
         {messages.map((msg) => (
-          <ChatBubble key={msg.id} {...msg} isSent={msg.sender_id === user?.id} />
+          <ChatBubble key={msg.id} {...msg} timestamp={msg.created_at} isSent={msg.sender_id === user?.id} />
         ))}
         {isTyping && !partnerInSleep && <TypingIndicator />} 
         <div ref={bottomRef} />
       </div>
 
-      <ChatInput onSend={handleSend} onTyping={handleTyping} disabled={sending || partnerInSleep} />
+      <ChatInput onSend={handleSend} disabled={sending || partnerInSleep} />
     </main>
   );
 }
