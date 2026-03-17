@@ -10,6 +10,12 @@ import ChatBubble from '@/components/ChatBubble';
 import ChatInput from '@/components/ChatInput';
 import TypingIndicator from '@/components/TypingIndicator';
 
+// Define a type for the presence state to avoid using 'any'
+interface PresenceState {
+  user_id: string;
+  is_typing: boolean;
+}
+
 const isTimeInSleepMode = (start?: string, end?: string) => {
   if (!start || !end) return false;
   const now = new Date();
@@ -33,7 +39,7 @@ export default function ChatPage() {
   const [sending, setSending] = useState(false);
 
   const bottomRef = useRef<HTMLDivElement>(null);
-  const channelRef = useRef<any>(null);
+  const channelRef = useRef<any>(null); // RealtimeChannel type is complex, any is acceptable here for now
 
   const scrollToBottom = useCallback((smooth = false) => {
     bottomRef.current?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto' });
@@ -85,18 +91,18 @@ export default function ChatPage() {
 
     presenceChannel
       .on('presence', { event: 'sync' }, () => {
-        const newState = presenceChannel.presenceState();
-        const partnerPresence = Object.values(newState).flat().find((p: any) => p.user_id !== user.id);
-        setIsTyping(partnerPresence ? (partnerPresence as any).is_typing : false);
+        const newState = presenceChannel.presenceState<PresenceState>();
+        const partnerPresence = Object.values(newState).flat().find((p) => p.user_id !== user.id);
+        setIsTyping(partnerPresence ? partnerPresence.is_typing : false);
       })
-      .on('presence', { event: 'join' }, ({ newPresences }: { newPresences: any[] }) => {
+      .on('presence', { event: 'join' }, ({ newPresences }: { newPresences: PresenceState[] }) => {
          // Handle user join if needed
       })
-      .on('presence', { event: 'leave' }, ({ leftPresences }: { leftPresences: any[] }) => {
-        const partnerPresence = leftPresences.find((p: any) => p.user_id !== user.id);
-        if(partnerPresence) setIsTyping(false);
+      .on('presence', { event: 'leave' }, ({ leftPresences }: { leftPresences: PresenceState[] }) => {
+        const partnerLeft = leftPresences.find((p) => p.user_id !== user.id);
+        if(partnerLeft) setIsTyping(false);
       })
-      .subscribe(async (status) => {
+      .subscribe(async (status: string) => {
         if (status === 'SUBSCRIBED') {
           await presenceChannel.track({ user_id: user.id, is_typing: false });
         }
