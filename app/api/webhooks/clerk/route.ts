@@ -48,42 +48,43 @@ export async function POST(req: Request) {
   }
 
   if (evt.type === 'user.created' || evt.type === 'user.updated') {
-    const { id: userId, email_addresses, first_name, last_name, image_url, public_metadata } = evt.data;
+    const { id, email_addresses, first_name, last_name, image_url, public_metadata } = evt.data;
     const userEmail = email_addresses[0]?.email_address;
-    const userFullName = `${first_name || ''} ${last_name || ''}`.trim();
 
-    if (!userId || !userEmail) {
+    if (!id || !userEmail) {
       return new Response('Missing user ID or email', { status: 400 });
     }
 
-    const { error } = await supabaseAdmin.rpc('sync_user_profile', {
-      user_id: userId,
-      user_email: userEmail,
-      user_full_name: userFullName,
-      user_avatar_url: image_url,
-      user_raw_metadata: public_metadata,
-    });
+    const { data, error } = await supabaseAdmin.from('profiles').upsert([
+      {
+        id: id,
+        email: userEmail,
+        full_name: `${first_name || ''} ${last_name || ''}`.trim(),
+        avatar_url: image_url,
+        raw_metadata: public_metadata,
+      },
+    ]);
 
     if (error) {
-      console.error(`[Webhook] Error syncing user ${userId}:`, error);
-      return new Response(`Error syncing user: ${error.message}`, { status: 500 });
+      console.error(`[Webhook] Error upserting user ${id}:`, error);
+      return new Response(`Error upserting user: ${error.message}`, { status: 500 });
     }
 
-    console.log(`[Webhook] Successfully synced user ${userId}`);
+    console.log(`[Webhook] Successfully upserted user ${id}`);
   } else if (evt.type === 'user.deleted') {
-    const { id: userId } = evt.data;
-    if (!userId) {
+    const { id } = evt.data;
+    if (!id) {
       return new Response('Missing user ID', { status: 400 });
     }
-    
-    const { error } = await supabaseAdmin.from('profiles').delete().eq('id', userId);
+
+    const { error } = await supabaseAdmin.from('profiles').delete().eq('id', id);
 
     if (error) {
-      console.error(`[Webhook] Error deleting user ${userId}:`, error);
+      console.error(`[Webhook] Error deleting user ${id}:`, error);
       return new Response(`Error deleting user: ${error.message}`, { status: 500 });
     }
 
-    console.log(`[Webhook] Successfully deleted user ${userId}`);
+    console.log(`[Webhook] Successfully deleted user ${id}`);
   }
 
   return new Response('Webhook processed successfully', { status: 200 });
