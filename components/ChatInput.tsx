@@ -1,21 +1,45 @@
 'use client';
 
-import { useState, useRef, KeyboardEvent } from 'react';
+import { useState, useRef, useCallback, KeyboardEvent } from 'react';
 import { Send } from 'lucide-react';
 
 type Props = {
   onSend: (content: string) => void;
+  onTypingChange?: (isTyping: boolean) => void;
   disabled?: boolean;
   placeholder?: string;
 };
 
-export default function ChatInput({ onSend, disabled, placeholder = 'Type a message…' }: Props) {
+export default function ChatInput({ onSend, onTypingChange, disabled, placeholder = 'Type a message…' }: Props) {
   const [text, setText] = useState('');
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const textareaRef  = useRef<HTMLTextAreaElement>(null);
+  const typingTimer  = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isTypingRef  = useRef(false);
+
+  const startTyping = useCallback(() => {
+    if (!isTypingRef.current) {
+      isTypingRef.current = true;
+      onTypingChange?.(true);
+    }
+    if (typingTimer.current) clearTimeout(typingTimer.current);
+    typingTimer.current = setTimeout(() => {
+      isTypingRef.current = false;
+      onTypingChange?.(false);
+    }, 2000);
+  }, [onTypingChange]);
+
+  const stopTyping = useCallback(() => {
+    if (typingTimer.current) clearTimeout(typingTimer.current);
+    if (isTypingRef.current) {
+      isTypingRef.current = false;
+      onTypingChange?.(false);
+    }
+  }, [onTypingChange]);
 
   const submit = () => {
     const trimmed = text.trim();
     if (!trimmed || disabled) return;
+    stopTyping();
     onSend(trimmed);
     setText('');
     if (textareaRef.current) {
@@ -35,6 +59,15 @@ export default function ChatInput({ onSend, disabled, placeholder = 'Type a mess
     if (!el) return;
     el.style.height = 'auto';
     el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setText(e.target.value);
+    if (e.target.value.trim()) {
+      startTyping();
+    } else {
+      stopTyping();
+    }
   };
 
   const canSend = text.trim().length > 0 && !disabled;
@@ -58,10 +91,10 @@ export default function ChatInput({ onSend, disabled, placeholder = 'Type a mess
         <textarea
           ref={textareaRef}
           value={text}
-          onChange={(e) => setText(e.target.value)}
+          onChange={handleChange}
           onKeyDown={onKeyDown}
           onInput={onInput}
-          placeholder={placeholder}
+          placeholder={disabled ? '🌙 Sleep mode – messaging paused' : placeholder}
           rows={1}
           disabled={disabled}
           style={{
@@ -70,7 +103,7 @@ export default function ChatInput({ onSend, disabled, placeholder = 'Type a mess
             border: '1px solid rgba(255,255,255,0.10)',
             borderRadius: 20,
             padding: '10px 16px',
-            color: '#ffffff',
+            color: disabled ? 'rgba(255,255,255,0.35)' : '#ffffff',
             fontSize: 14,
             fontFamily: 'inherit',
             resize: 'none',
@@ -79,8 +112,8 @@ export default function ChatInput({ onSend, disabled, placeholder = 'Type a mess
             maxHeight: 120,
             transition: 'border-color 0.2s',
           }}
-          onFocus={(e) => { (e.target as HTMLTextAreaElement).style.borderColor = 'rgba(198,255,51,0.45)'; }}
-          onBlur={(e) => { (e.target as HTMLTextAreaElement).style.borderColor = 'rgba(255,255,255,0.10)'; }}
+          onFocus={(e) => { if (!disabled) (e.target as HTMLTextAreaElement).style.borderColor = 'rgba(198,255,51,0.45)'; }}
+          onBlur={(e)  => { (e.target as HTMLTextAreaElement).style.borderColor = 'rgba(255,255,255,0.10)'; stopTyping(); }}
         />
         <button
           onClick={submit}
@@ -103,7 +136,7 @@ export default function ChatInput({ onSend, disabled, placeholder = 'Type a mess
             boxShadow: canSend ? '0 0 16px rgba(198,255,51,0.35)' : 'none',
           }}
           onPointerDown={(e) => { if (canSend) (e.currentTarget as HTMLButtonElement).style.transform = 'scale(0.9)'; }}
-          onPointerUp={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)'; }}
+          onPointerUp={(e)   => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)'; }}
         >
           <Send
             style={{

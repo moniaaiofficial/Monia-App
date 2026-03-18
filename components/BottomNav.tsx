@@ -59,7 +59,7 @@ export default function BottomNav() {
         <div style={{ position: 'fixed', bottom: 88, left: '50%', transform: 'translateX(-50%)', zIndex: 60 }}>
           <button
             aria-label="New chat"
-            onClick={() => { hapticTick(); router.push('/dashboard'); }}
+            onClick={() => { hapticTick(); router.push('/dashboard?newchat=1'); }}
             style={{
               width: 48, height: 48, borderRadius: '50%',
               background: 'linear-gradient(135deg, #c6ff33 0%, #a8e000 100%)',
