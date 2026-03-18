@@ -31,7 +31,7 @@ export default function VerifyEmailPage() {
       if (result.status === 'complete') {
         await setActive({ session: result.createdSessionId });
         sessionStorage.removeItem('signupData');
-        router.push('/app/dashboard');
+        router.push('/dashboard');
       } else {
         setError('Verification incomplete. Please try again.');
       }
@@ -105,6 +105,7 @@ export default function VerifyEmailPage() {
 
           <input
             type="text"
+            inputMode="numeric"
             placeholder="• • • • • •"
             value={code}
             onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import { supabase } from '@/lib/supabase/client';
-import { User, Shield, FileText, ChevronRight } from 'lucide-react';
+import { Shield, FileText, ChevronRight } from 'lucide-react';
 import { getInitials } from '@/lib/chat';
 
 export default function MorePage() {
@@ -36,9 +36,9 @@ export default function MorePage() {
       </div>
 
       <div className="p-5 space-y-4">
-        {/* Profile card — tappable → /app/profile */}
+        {/* Profile card */}
         <button
-          onClick={() => router.push('/app/profile')}
+          onClick={() => router.push('/profile')}
           className="w-full text-left"
           style={{
             display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px',
@@ -73,7 +73,7 @@ export default function MorePage() {
           <ChevronRight style={{ width: 18, height: 18, color: 'rgba(255,255,255,0.25)', flexShrink: 0 }} />
         </button>
 
-        {/* Links */}
+        {/* Legal links */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <button
             onClick={() => router.push('/legal/privacy-policy')}
@@ -99,7 +99,7 @@ export default function MorePage() {
         </div>
 
         <div className="text-center pt-4 space-y-1" style={{ color: 'rgba(255,255,255,0.25)' }}>
-          <p className="font-semibold text-xs">MONiA v1.0.0</p>
+          <p className="font-semibold text-xs">MONiA v1.9.0</p>
           <a href="mailto:moniaaiofficial@gmail.com" style={{ color: '#c6ff33', fontSize: 12 }}>
             moniaaiofficial@gmail.com
           </a>

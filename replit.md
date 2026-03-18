@@ -1,7 +1,24 @@
-# MONiA App
+# MONiA App — v1.9.0
 
 ## Overview
 An AI-powered mobile-first communication platform built with Next.js 14. Features real-time chat, Clerk authentication, Supabase for database and real-time subscriptions, and a PWA-ready design.
+
+## Routing Rules (CRITICAL — no `/app/` prefix)
+- All dashboard routes: `/dashboard`, `/dashboard/chats`, `/dashboard/explore`, `/dashboard/notifications`, `/dashboard/more`
+- Profile page: `/profile` (NOT `/dashboard/profile`)
+- Auth pages: `/auth/login`, `/auth/signup`, `/auth/verify-email`, `/auth/sso-callback`
+- Post-OAuth setup: `/profile-setup` (Google new users only)
+- Legal: `/legal/privacy-policy`, `/legal/terms`
+- NEVER use `/app/...` prefix — this is a historical bug
+
+## Auth Flow
+1. `/` (splash) → checks auth → `/welcome` (unauthenticated) or `/dashboard` (authenticated)
+2. Email signup → `/auth/verify-email` → `/dashboard`
+3. Google OAuth signup → `/auth/sso-callback` → `/profile-setup` (new users)
+4. Google OAuth login → `/auth/sso-callback` → `/dashboard` (returning users)
+
+## Profile API (`/api/profile/update`)
+Accepts POST with any subset of: `userId`, `username`, `mobile`, `city`, `full_name`, `email`, `avatar_url`, `hide_phone`, `hide_city`, `hide_full_name`, `sleep_mode_enabled`, `sleep_start`, `sleep_end`
 
 ## Architecture
 - **Framework**: Next.js 14 (App Router)

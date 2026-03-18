@@ -30,7 +30,7 @@ export default function SignupPage() {
     if (formData.password !== formData.confirmPassword) { setError('Passwords do not match'); return; }
     if (formData.password.length < 8) { setError('Password must be at least 8 characters'); return; }
     if (formData.username.length < 3) { setError('Username must be at least 3 characters'); return; }
-    if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) { setError('Username can only contain letters, numbers, and underscores'); return; }
+    if (!/^[a-zA-Z0-9_.–-]+$/.test(formData.username)) { setError('Username can only contain letters, numbers, underscores, dots or dashes'); return; }
 
     setLoading(true);
     setError('');
@@ -60,7 +60,7 @@ export default function SignupPage() {
       await signUp.authenticateWithRedirect({
         strategy: 'oauth_google',
         redirectUrl: '/auth/sso-callback',
-        redirectUrlComplete: '/app/dashboard',
+        redirectUrlComplete: '/profile-setup',
       });
     } catch (err: any) {
       setError('Failed to sign up with Google. Please try again.');
@@ -110,11 +110,11 @@ export default function SignupPage() {
           </div>
           <div className="relative">
             <Phone className={iconClass} style={iconStyle} />
-            <input type="tel" name="mobile" placeholder="Mobile Number" value={formData.mobile} onChange={handleChange} className={inputClass} required />
+            <input type="tel" name="mobile" placeholder="Mobile Number (mandatory)" value={formData.mobile} onChange={handleChange} className={inputClass} required />
           </div>
           <div className="relative">
             <MapPin className={iconClass} style={iconStyle} />
-            <input type="text" name="city" placeholder="City" value={formData.city} onChange={handleChange} className={inputClass} required />
+            <input type="text" name="city" placeholder="City (mandatory)" value={formData.city} onChange={handleChange} className={inputClass} required />
           </div>
 
           <div className="relative">
@@ -122,7 +122,7 @@ export default function SignupPage() {
             <input
               type={showPassword ? 'text' : 'password'}
               name="password"
-              placeholder="Password"
+              placeholder="Password (min 8 characters)"
               value={formData.password}
               onChange={handleChange}
               className="glass-input pl-11 pr-12 py-3.5 text-sm font-medium"

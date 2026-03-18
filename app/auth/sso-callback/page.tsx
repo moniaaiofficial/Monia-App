@@ -11,8 +11,8 @@ export default function SSOCallbackPage() {
     async function handleCallback() {
       try {
         await handleRedirectCallback({
-          afterSignUpUrl: '/app/profile-setup',
-          afterSignInUrl: '/app/dashboard',
+          afterSignUpUrl: '/profile-setup',
+          afterSignInUrl: '/dashboard',
         });
       } catch (err) {
         console.error('SSO callback error:', err);

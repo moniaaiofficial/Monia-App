@@ -353,7 +353,7 @@ export default function ProfilePage() {
         </button>
 
         <div className="text-center space-y-1 pb-4" style={{ color: 'rgba(255,255,255,0.25)' }}>
-          <p className="text-xs font-semibold">MONiA v1.0.0</p>
+          <p className="text-xs font-semibold">MONiA v1.9.0</p>
           <a href="mailto:moniaaiofficial@gmail.com" style={{ color: '#c6ff33', fontSize: 12 }}>
             moniaaiofficial@gmail.com
           </a>

@@ -6,11 +6,11 @@ import { usePathname, useRouter } from 'next/navigation';
 import { MessageCircle, Sparkles, Bot, Phone, Menu, Plus } from 'lucide-react';
 
 const NAV_ITEMS = [
-  { name: 'Chats',  path: '/app/dashboard',         icon: MessageCircle, middle: false },
-  { name: 'Status', path: '/app/dashboard/status',  icon: Sparkles,      middle: false },
-  { name: 'M+Ai',  path: '/app/dashboard/ai',       icon: Bot,           middle: true  },
-  { name: 'Calls',  path: '/app/dashboard/calls',   icon: Phone,         middle: false },
-  { name: 'More',   path: '/app/dashboard/more',    icon: Menu,          middle: false },
+  { name: 'Chats',  path: '/dashboard',         icon: MessageCircle, middle: false },
+  { name: 'Status', path: '/dashboard/status',  icon: Sparkles,      middle: false },
+  { name: 'M+Ai',  path: '/dashboard/ai',       icon: Bot,           middle: true  },
+  { name: 'Calls',  path: '/dashboard/calls',   icon: Phone,         middle: false },
+  { name: 'More',   path: '/dashboard/more',    icon: Menu,          middle: false },
 ];
 const TAB_PATHS = NAV_ITEMS.map((n) => n.path);
 
@@ -23,9 +23,8 @@ export default function BottomNav() {
   const router   = useRouter();
   const touchX   = useRef<number | null>(null);
 
-  const isInChat = pathname.startsWith('/app/dashboard/chat/');
+  const isInChat = pathname.startsWith('/dashboard/chat/');
 
-  /* ── Swipe on nav bar ────────────────────────────────────── */
   const onTouchStart = useCallback((e: React.TouchEvent) => { touchX.current = e.touches[0].clientX; }, []);
   const onTouchEnd   = useCallback((e: React.TouchEvent) => {
     if (touchX.current === null) return;
@@ -38,7 +37,6 @@ export default function BottomNav() {
     if (next !== cur) { hapticTick(); router.push(TAB_PATHS[next]); }
   }, [pathname, router]);
 
-  /* ── Swipe anywhere on screen ────────────────────────────── */
   useEffect(() => {
     let sx = 0;
     const s = (e: TouchEvent) => { sx = e.touches[0].clientX; };
@@ -57,12 +55,11 @@ export default function BottomNav() {
 
   return (
     <>
-      {/* ── FAB (hidden in chat pages) ────────────────────────── */}
       {!isInChat && (
         <div style={{ position: 'fixed', bottom: 88, left: '50%', transform: 'translateX(-50%)', zIndex: 60 }}>
           <button
             aria-label="New chat"
-            onClick={() => router.push('/app/dashboard')}
+            onClick={() => { hapticTick(); router.push('/dashboard'); }}
             style={{
               width: 48, height: 48, borderRadius: '50%',
               background: 'linear-gradient(135deg, #c6ff33 0%, #a8e000 100%)',
@@ -76,7 +73,6 @@ export default function BottomNav() {
         </div>
       )}
 
-      {/* ── Bottom Nav Bar ────────────────────────────────────── */}
       <nav
         className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-5"
         onTouchStart={onTouchStart}
@@ -85,7 +81,7 @@ export default function BottomNav() {
         <div className="floating-nav flex items-center justify-around h-16 rounded-2xl px-1">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
-            const isActive = pathname === item.path;
+            const isActive = pathname === item.path || (item.path === '/dashboard' && pathname === '/dashboard');
             const isMid = item.middle;
 
             return (
@@ -96,11 +92,9 @@ export default function BottomNav() {
                 className="flex flex-col items-center justify-center flex-1 h-full gap-0.5 relative"
                 style={{ color: isMid ? '#c6ff33' : isActive ? '#c6ff33' : '#ffffff' }}
               >
-                {/* Breathing capsule */}
                 {isActive && !isMid && (
                   <span aria-hidden style={{ position: 'absolute', inset: '8px 6px', background: 'rgba(198,255,51,0.10)', borderRadius: 999, animation: 'breathePulse 3s ease-in-out infinite' }} />
                 )}
-
                 <Icon
                   className={`nav-icon relative z-10 ${isMid ? 'middle-icon' : isActive ? 'icon-active-glow' : ''}`}
                   style={{
