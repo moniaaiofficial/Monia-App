@@ -25,7 +25,7 @@ export default function LoginPage() {
       const result = await signIn.create({ identifier, password });
       if (result.status === 'complete') {
         await setActive({ session: result.createdSessionId });
-        window.location.href = '/app/dashboard';
+        router.push('/dashboard');
       } else {
         setError('Additional verification required. Please try again.');
       }
@@ -42,7 +42,7 @@ export default function LoginPage() {
       await signIn.authenticateWithRedirect({
         strategy: 'oauth_google',
         redirectUrl: '/auth/sso-callback',
-        redirectUrlComplete: '/app/dashboard',
+        redirectUrlComplete: '/dashboard',
       });
     } catch (err: any) {
       setError('Failed to login with Google. Please try again.');

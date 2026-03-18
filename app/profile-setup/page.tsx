@@ -1,99 +1,65 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
-import { AtSign, Phone, MapPin, Loader2 } from 'lucide-react';
-import { supabase } from '@/lib/supabase/client';
+import { AtSign, Loader2 } from 'lucide-react';
 
 export default function ProfileSetupPage() {
   const { user, isLoaded } = useUser();
   const router = useRouter();
 
-  const [formData, setFormData] = useState({ username: '', mobile: '', city: '' });
+  const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(false);
-  const [checking, setChecking] = useState(true);
   const [error, setError] = useState('');
 
-  // Redirect if user already has a username
   useEffect(() => {
-    if (!isLoaded || !user) return;
-    (async () => {
-      const { data } = await supabase
-        .from('profiles')
-        .select('username')
-        .eq('id', user.id)
-        .maybeSingle();
-
-      if (data?.username) {
-        window.location.href = '/dashboard';
-      } else {
-        setChecking(false);
+    if (isLoaded && user) {
+      if (user.publicMetadata?.profile_complete) {
+        router.push('/dashboard');
+      } else if (user.firstName && user.lastName) {
+        const suggestedUsername = `${user.firstName.toLowerCase()}_${user.lastName.toLowerCase()}`;
+        setUsername(suggestedUsername);
       }
-    })();
+    }
   }, [isLoaded, user, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
 
-    setError(''); // Clear error on submission
-
-    const username = formData.username.trim().replace(/^@/, '');
-    const mobile = formData.mobile.trim();
-    const city = formData.city.trim();
-
-    if (username.length < 3) {
-      setError('Username must be at least 3 characters');
-      return;
-    }
-    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-      setError('Username can only contain letters, numbers and underscores');
-      return;
-    }
-    if (!mobile) {
-      setError('Mobile number is required');
-      return;
-    }
-
+    setError('');
     setLoading(true);
 
     try {
-      const res = await fetch('/api/profile/update', {
+      const response = await fetch('/api/profile/update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id, username, mobile, city }),
+        body: JSON.stringify({ username, userId: user.id }),
       });
 
-      if (!res.ok) {
-        const data = await res.json();
+      if (response.ok) {
+        await user.reload(); 
+        router.push('/dashboard');
+      } else {
+        const data = await response.json();
         setError(data.error || 'Failed to update profile');
-        setLoading(false);
-        return;
       }
-
-      // Successful API response, wait 1.5 seconds for DB sync
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // Hard refresh to dashboard
-      window.location.href = '/dashboard';
-
     } catch (error) {
       setError('An unexpected error occurred. Please try again.');
+    } finally {
       setLoading(false);
     }
   };
 
-  if (checking || !isLoaded) {
+  if (!isLoaded) {
     return (
       <main className="min-h-screen flex items-center justify-center" style={{ background: '#06000c' }}>
         <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#c6ff33' }} />
       </main>
     );
   }
-
-  const iconClass = 'absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none';
-  const iconStyle = { color: 'rgba(255,255,255,0.28)' };
 
   return (
     <main className="min-h-screen flex items-center justify-center px-5 py-10 page-enter" style={{ background: '#06000c' }}>
@@ -126,38 +92,15 @@ export default function ProfileSetupPage() {
           )}
 
           <div className="relative">
-            <AtSign className={iconClass} style={iconStyle} />
+            <AtSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: 'rgba(255,255,255,0.28)' }} />
             <input
               type="text"
               placeholder="Username (e.g. john_doe)"
-              value={formData.username}
-              onChange={(e) => setFormData((p) => ({ ...p, username: e.target.value }))}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               className="glass-input pl-11 pr-4 py-3.5 text-sm font-medium"
               required
               autoComplete="off"
-            />
-          </div>
-
-          <div className="relative">
-            <Phone className={iconClass} style={iconStyle} />
-            <input
-              type="tel"
-              placeholder="Mobile Number"
-              value={formData.mobile}
-              onChange={(e) => setFormData((p) => ({ ...p, mobile: e.target.value }))}
-              className="glass-input pl-11 pr-4 py-3.5 text-sm font-medium"
-              required
-            />
-          </div>
-
-          <div className="relative">
-            <MapPin className={iconClass} style={iconStyle} />
-            <input
-              type="text"
-              placeholder="City (optional)"
-              value={formData.city}
-              onChange={(e) => setFormData((p) => ({ ...p, city: e.target.value }))}
-              className="glass-input pl-11 pr-4 py-3.5 text-sm font-medium"
             />
           </div>
 

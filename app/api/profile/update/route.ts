@@ -1,65 +1,50 @@
+
 import { NextResponse } from 'next/server';
 import { clerkClient } from '@clerk/nextjs/server';
 import { createClient } from '@supabase/supabase-js';
 
-// This is a separate admin client for the uniqueness check.
-// The primary database write should happen via the webhook.
-function getSupabaseAdmin() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-  if (!key) throw new Error('SUPABASE_SERVICE_ROLE_KEY not set');
-  return createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl || !supabaseServiceKey) {
+  throw new Error('Supabase credentials are not set in the environment variables');
 }
+
+const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { userId, username, mobile, city } = body;
+    const { userId, username } = await request.json();
 
-    if (!userId) {
-      return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
+    if (!userId || !username) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    const supabase = getSupabaseAdmin();
+    const { data: existingProfile, error: existingProfileError } = await supabaseAdmin
+      .from('profiles')
+      .select('id')
+      .eq('username', username)
+      .single();
 
-    // 1️⃣ Username uniqueness check (this is a good practice to keep)
-    if (username) {
-      const { data: existing, error: checkError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('username', username)
-        .neq('id', userId)
-        .maybeSingle();
-
-      if (checkError) {
-        console.error("Username check error:", checkError.message);
-        throw new Error(`Supabase error: ${checkError.message}`);
-      }
-
-      if (existing) {
-        return NextResponse.json({ error: 'Username already taken' }, { status: 409 });
-      }
+    if (existingProfileError && existingProfileError.code !== 'PGRST116') {
+      console.error('Error checking username uniqueness:', existingProfileError);
+      return NextResponse.json({ error: 'Error checking username uniqueness' }, { status: 500 });
     }
 
-    // 2️⃣ CLERK METADATA UPDATE
-    // This is the single source of truth. The webhook will handle the rest.
+    if (existingProfile) {
+      return NextResponse.json({ error: 'Username is already taken' }, { status: 409 });
+    }
+
     await clerkClient.users.updateUserMetadata(userId, {
       publicMetadata: {
         username,
-        mobile,
-        city,
-      }
+        profile_complete: true,
+      },
     });
 
-    // The Supabase update is now handled by the 'user.updated' webhook.
-    // We no longer write to Supabase directly from here.
-
-    return NextResponse.json({ success: true, message: "Clerk metadata updated. Webhook will sync to Supabase." });
-
-  } catch (err: any) {
-    console.error("API Error in /api/profile/update:", err.message);
-    // Return a more specific error message if available
-    const errorMessage = err.errors?.[0]?.message || err.message || 'An unknown error occurred';
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    return NextResponse.json({ success: true, message: 'Profile updated successfully' });
+  } catch (error) {
+    console.error('Error in profile update endpoint:', error);
+    return NextResponse.json({ error: 'An unexpected error occurred' }, { status: 500 });
   }
 }
