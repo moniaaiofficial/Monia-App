@@ -35,7 +35,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Username is already taken' }, { status: 409 });
     }
 
-    await clerkClient.users.updateUserMetadata(userId, {
+    const client = await clerkClient();
+    await client.users.updateUserMetadata(userId, {
       publicMetadata: {
         username,
         profile_complete: true,

@@ -11,7 +11,6 @@ if (!supabaseUrl || !supabaseServiceKey) {
   throw new Error('Supabase credentials are not set in the environment variables');
 }
 
-// Initialize Supabase admin client
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 export async function POST(req: Request) {
@@ -21,7 +20,7 @@ export async function POST(req: Request) {
     return new Response('Webhook secret not configured', { status: 500 });
   }
 
-  const headersList = headers();
+  const headersList = await headers();
   const svix_id = headersList.get('svix-id');
   const svix_timestamp = headersList.get('svix-timestamp');
   const svix_signature = headersList.get('svix-signature');
@@ -55,13 +54,12 @@ export async function POST(req: Request) {
       return new Response('Missing user ID or email', { status: 400 });
     }
 
-    const { data, error } = await supabaseAdmin.from('profiles').upsert([
+    const { error } = await supabaseAdmin.from('profiles').upsert([
       {
         id: id,
         email: userEmail,
         full_name: `${first_name || ''} ${last_name || ''}`.trim(),
         avatar_url: image_url,
-        raw_metadata: public_metadata,
       },
     ]);
 
