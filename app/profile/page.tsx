@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useUser, useClerk } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, AtSign, Phone, MapPin, User, Moon, LogOut, Loader2, ChevronRight, Check } from 'lucide-react';
+import { ArrowLeft, AtSign, Phone, MapPin, User, Moon, LogOut, Loader2, ChevronRight, Check, Share2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase/client';
 import { getInitials } from '@/lib/chat';
 
@@ -341,6 +341,33 @@ export default function ProfilePage() {
             </div>
           )}
         </div>
+
+        {/* ── Share MONiA ─────────────────────────────────────────── */}
+        <button
+          onClick={() => {
+            const data = {
+              title: 'Join me on MONiA',
+              text:  `Hey, I'm using MONiA — an AI-powered messaging app. Come connect with me! 🤙`,
+              url:   'https://monia.app',
+            };
+            if (typeof navigator.share === 'function') {
+              navigator.share(data).catch(() => {});
+            } else {
+              navigator.clipboard.writeText(`${data.text} ${data.url}`).then(() => {
+                alert('Link copied to clipboard!');
+              });
+            }
+          }}
+          style={{
+            width: '100%', borderRadius: 16, padding: '14px 20px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+            background: 'rgba(198,255,51,0.08)', border: '1px solid rgba(198,255,51,0.25)',
+            color: '#c6ff33', fontWeight: 700, fontSize: 14, cursor: 'pointer',
+          }}
+        >
+          <Share2 style={{ width: 17, height: 17 }} />
+          Invite friends to MONiA
+        </button>
 
         {/* ── Logout ──────────────────────────────────────────────── */}
         <button

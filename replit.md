@@ -32,12 +32,20 @@ Accepts POST with any subset of: `userId`, `username`, `mobile`, `city`, `full_n
 - `app/` — Next.js App Router pages and API routes
 - `app/api/webhooks/clerk/route.ts` — Clerk webhook handler (syncs users to `profiles` table in Supabase)
 - `app/api/profile/update/route.ts` — Server-side profile update API
+- `app/api/upload/route.ts` — File upload endpoint using Supabase service role (uploads to `chat-media` bucket)
 - `middleware.ts` — Clerk auth middleware using v6 `clerkMiddleware` + `createRouteMatcher`
 - `lib/supabase/client.ts` — Supabase browser client
 - `lib/supabase/server.ts` — Supabase server client (SSR)
-- `lib/chat.ts` — Chat logic (getUserChats, sendMessage, subscribeToMessages, etc.)
+- `lib/chat.ts` — Chat logic (getUserChats, sendMessage, subscribeToMessages, formatMsgTime, formatFileSize, etc.)
+- `lib/upload.ts` — Client-side upload helper (uploadChatFile, formatFileSize, getFileIcon)
 - `lib/clerk-session.ts` — Helper to fetch Clerk session/user metadata
 - `components/` — Shared React components
+- `components/AttachmentMenu.tsx` — WhatsApp-style attachment bottom sheet (camera, gallery, document, location, voice, poll, emoji, link)
+- `components/VoiceRecorder.tsx` — Voice note recorder with 15-min limit, live timer, playback before send
+- `components/EmojiPicker.tsx` — Categorized emoji picker with search (Smileys, Hearts, Hands, People, Animals, Food, Sports, Objects, Symbols)
+- `components/ChatBubble.tsx` — Multi-media type bubbles (text, image, video, audio, document, location, poll, emoji)
+- `components/ChatInput.tsx` — Input bar with attachment (📎), emoji (😊), and send (▶) buttons
+- `components/TypingIndicator.tsx` — Animated three-dot typing indicator
 
 ## Database (Supabase)
 Tables managed via migrations in `supabase/migrations/`:

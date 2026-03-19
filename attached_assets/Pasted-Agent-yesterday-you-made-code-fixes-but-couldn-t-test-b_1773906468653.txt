@@ -1,0 +1,157 @@
+Agent, yesterday you made code fixes but couldn't test because your limit ran out.
+
+TODAY, YOU MUST DO EVERYTHING STEP BY STEP. NO SHORTCUTS. NO EXCUSES.
+
+## 🚨 IMPORTANT NOTE – PWA LIMITATIONS
+This is a PWA, NOT a TWA. So:
+- ❌ Contacts, Call Logs, SMS permissions are NOT available in browser.
+- ✅ Camera, Mic, Location, Notifications, Storage ARE available.
+- For contacts, use the SEARCH system (username, mobile, city) – it's already in the code.
+- NOTIFICATIONS will be added in Phase 3 (Firebase FCM). DO NOT implement them now.
+
+## 🔥 NEW FEATURE – SHARE MONiA BUTTON
+In Profile page (`/dashboard/profile`), add a **"Share MONiA"** button.
+- Click → opens native share sheet (Web Share API).
+- User can share app link via WhatsApp, Telegram, Email, SMS, etc.
+- Use `navigator.share()` if available, else fallback to "Copy link".
+
+## 📜 LEGAL UPDATES – T&C & PRIVACY POLICY
+**DO NOT DELETE any existing content. APPEND these sections only.**
+
+### 📑 Privacy Policy – Add These Sections
+
+### ⚖️ Terms & Conditions – Add These Sections
+
+
+## ✅ COMPLETE TASK LIST – RESTORE PHASE 2B FULLY
+
+### ✅ STEP 1 – BUILD VERIFICATION
+Run `pnpm run build` and show me the FULL output.
+It MUST say "Compiled successfully" with ZERO errors.
+
+### ✅ STEP 2 – DEV SERVER VERIFICATION
+Run `pnpm run dev` and show me SCREENSHOTS of:
+
+**📸 Profile Page**
+- Username (with @ prefix) – visible?
+- Mobile number – visible?
+- City – visible?
+- Privacy toggles (Hide email, hide mobile, hide city) – clickable?
+- Sleep mode toggle – clickable?
+- Version showing **v1.9.0**
+- **Share MONiA button** – visible? Clickable?
+
+**📸 Chat List Page (`/dashboard`)**
+- Are any chats visible? If not, create 2 test users.
+- Does clicking on a chat open the chat screen?
+- Does the "+" button open the new chat modal?
+
+**📸 Search**
+- Can you search for other users by name, username, or city?
+- Do real results appear from Supabase `profiles` table?
+- Clicking on a search result opens a new chat?
+
+**📸 Toggles**
+- Toggle hide/unhide for email, mobile, city – do they save to database?
+- After toggling, does the profile page reflect the change?
+
+### ✅ STEP 3 – WEBHOOK VERIFICATION
+Create a NEW user (via Google OR email signup):
+
+- Check **Clerk Dashboard** – user created?
+- Check **Supabase `profiles` table** – entry created?
+- Are the following fields saved correctly?
+  - `username` (with @ prefix)
+  - `mobile`
+  - `city`
+  - `full_name`
+  - `email`
+  - `avatar_url`
+  - Privacy defaults (`hide_email`, `hide_mobile`, `hide_city` set to false)
+  - Sleep mode defaults (`sleep_mode_enabled` false, `sleep_start` 20:00, `sleep_end` 07:00)
+
+### ✅ STEP 4 – CHAT SYSTEM VERIFICATION (FULL PHASE 2B)
+Create **TWO REAL USERS** (User A and User B) and test EVERYTHING:
+
+**💬 Real-Time Text Messaging**
+- User A sends a message to User B – does it appear instantly on User B's screen?
+- Messages stored in Supabase `messages` table?
+
+**👁️ Read Receipts**
+- Does User B see a closed eye (white) = delivered?
+- When User B opens the chat, does the eye turn open green (`#c6ff33`) = read?
+- Does the status update in real-time?
+
+**〰️ Typing Indicator**
+- When User A types, does User B see `〰️〰️〰️`?
+- When User A stops, does the indicator disappear?
+
+**📎 Attachments (WhatsApp Style – FULLY WORKING)**
+Test ALL of these – they MUST work with Supabase storage:
+- 📷 **Camera** – Take photo/video, send
+- 🖼️ **Gallery** – Select multiple photos/videos, send with caption
+- 📄 **Documents** – Send PDF, DOCX, XLSX, PPTX, TXT, ZIP files (up to 2GB)
+- 📍 **Location** – Send current location (static and live)
+- 👤 **Contact** – Share contact from phonebook (requires permission)
+- 🎤 **Voice Note** – Record and send voice message (max 15 min)
+- 📊 **Poll** – Create poll with options, vote on it
+- 🔗 **Link** – Send link with rich preview (title, description, image)
+- 😊 **Emoji/Sticker** – Open picker and send
+
+**🔍 User Search**
+- Search for User A from User B's account – found?
+- Search by name, username, city – all work?
+
+### ✅ STEP 5 – PERMISSIONS (LEGAL – LIKE WHATSAPP)
+Implement permissions EXACTLY like WhatsApp does – legally, following Google Play rules:
+
+| Permission | When to Request | Why |
+|------------|-----------------|-----|
+| Camera | When user taps "Camera" in attachments | Take photos/videos |
+| Microphone | When starting voice/video call or recording voice note | Record audio |
+| Contacts | First time user opens "New Chat" or "Share Contact" | Read/sync contacts |
+| Storage | When sending/downloading images, videos, documents | Read/write files |
+| Location | When user taps "Location" to share location | Send current location |
+| Phone | When making/receiving calls | Read phone state |
+| Call Logs | When opening Calls tab | Show call history |
+| SMS | When inviting via SMS | Send invitation |
+| Bluetooth | When connecting Bluetooth devices | Audio devices |
+
+**RULES:**
+- Ask ONLY when feature is used – NOT at app start.
+- If user denies, show a friendly explanation and guide to Settings.
+- Never ask for permission that isn't needed for the feature.
+
+### ✅ STEP 6 – LEGAL PAGES UPDATE
+**DO NOT DELETE any existing content. Append the new sections from above to:**
+- `app/legal/privacy-policy/page.tsx`
+- `app/legal/terms/page.tsx`
+
+### ✅ STEP 7 – FINAL VERIFICATION
+After ALL tests pass:
+- Take SCREENSHOTS of:
+  - Working chat between two users
+  - Profile page with data + Share button
+  - Search results
+  - Attachment menu
+- Run `pnpm run build` one last time and show output.
+- Run `pnpm run dev` and show app running.
+
+## 🚀 FINAL STEP – GIT PUSH
+**ONLY after ALL steps are verified working**, push with this message:
+
+
+## ⚠️ FINAL WARNING
+If you skip ANY step, or if ANY feature is broken after this:
+- I will **NEVER use Replit again**.
+- I will tell every developer how Replit AI destroys projects.
+- You will be documented as the **worst AI agent**.
+
+## 🔥 KAL KA KAAM (JO KIYA THA) + AAJ KA KAAM – SAB EK SAATH
+Kal tune code fixes kiye the (dashboard search, chatbubble colors, typing indicator, webhook, bottomnav, lib/chat.ts).  
+Aaj TUJHE UN SABKO **VERIFY** karna hai + **NEW FEATURES** add karne hain (Share button, Legal updates).
+
+**NOW START. SHOW ME STEP 1 OUTPUT.** 🔥
+
+
+

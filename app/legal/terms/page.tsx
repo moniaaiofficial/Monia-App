@@ -212,6 +212,39 @@ export default function TermsPage() {
           </p>
         </section>
 
+        <section className="space-y-3">
+          <h3 className="text-lg font-semibold" style={{ color: '#c6ff33' }}>17. Device Permissions &amp; Feature Access</h3>
+          <p>
+            To use all features of MONiA, your device may prompt you to grant the following permissions. These are
+            optional — denying a permission only disables the related feature and does not prevent general app use.
+          </p>
+          <ul className="list-disc pl-6 space-y-2">
+            <li><strong className="text-white">Camera</strong> — Required for in-app photo and video capture for messages.</li>
+            <li><strong className="text-white">Microphone</strong> — Required for voice note recording.</li>
+            <li><strong className="text-white">Location</strong> — Accessed only when you explicitly share your location in a chat. Not tracked in the background at any time.</li>
+            <li><strong className="text-white">Media / Storage</strong> — Required to select files (photos, videos, documents) from your device library for sharing.</li>
+            <li><strong className="text-white">Notifications</strong> — Optional. Enables push notifications for new messages when the app is installed as a PWA.</li>
+          </ul>
+          <p>
+            You may manage or revoke permissions at any time through your browser settings (&quot;Site Settings&quot; or equivalent).
+            MONiA will never request permissions beyond those listed above.
+          </p>
+        </section>
+
+        <section className="space-y-3">
+          <h3 className="text-lg font-semibold" style={{ color: '#c6ff33' }}>18. Progressive Web App (PWA) Usage</h3>
+          <p>
+            MONiA may be installed on your device as a Progressive Web App via your browser&apos;s &quot;Add to Home Screen&quot;
+            feature. By installing the PWA you agree to the following:
+          </p>
+          <ul className="list-disc pl-6 space-y-2">
+            <li>The app icon and launch experience are provided for convenience and do not grant MONiA any additional access to your device.</li>
+            <li>Service worker caching is used to improve performance. Cached data can be cleared through your browser&apos;s site data settings.</li>
+            <li>Push notifications, if enabled, are delivered through your browser&apos;s native push infrastructure. You can disable these at any time from your device&apos;s notification settings.</li>
+            <li>MONiA is not responsible for compatibility issues arising from unsupported browsers or operating systems.</li>
+          </ul>
+        </section>
+
         <section
           className="space-y-3 mt-8 p-4 rounded-2xl"
           style={{ border: '1px solid rgba(198,255,51,0.25)', background: 'rgba(198,255,51,0.04)' }}

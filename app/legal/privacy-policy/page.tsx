@@ -188,6 +188,38 @@ export default function PrivacyPolicyPage() {
             session duration and IP address) may be temporarily logged for performance and security monitoring.
           </p>
         </section>
+
+        <section className="space-y-3">
+          <h3 className="text-lg font-semibold" style={{ color: '#c6ff33' }}>13. Device Permissions</h3>
+          <p>MONiA may request the following device permissions to enable specific features:</p>
+          <ul className="list-disc pl-6 space-y-2">
+            <li><strong className="text-white">Camera</strong> — to take photos or record video and send them as media messages.</li>
+            <li><strong className="text-white">Microphone</strong> — to record voice notes up to 15 minutes in length.</li>
+            <li><strong className="text-white">Location</strong> — to share your current GPS coordinates in a chat. Location is only accessed when you explicitly tap &quot;Share Location&quot; and is never tracked in the background.</li>
+            <li><strong className="text-white">Storage / Media Library</strong> — to select existing images, videos, and documents from your device for sharing.</li>
+            <li><strong className="text-white">Notifications</strong> — to alert you to new messages when the app is in the background (requires installation as a PWA).</li>
+          </ul>
+          <p>
+            Each permission is requested at the moment the relevant feature is first used. You may revoke permissions
+            at any time through your browser or device settings. Revoking a permission disables the related feature
+            but does not affect the rest of the app.
+          </p>
+        </section>
+
+        <section className="space-y-3">
+          <h3 className="text-lg font-semibold" style={{ color: '#c6ff33' }}>14. Progressive Web App (PWA)</h3>
+          <p>
+            MONiA is available as a Progressive Web App that can be installed on your home screen for a near-native
+            experience. When installed:
+          </p>
+          <ul className="list-disc pl-6 space-y-2">
+            <li>The app runs in a standalone window without browser chrome.</li>
+            <li>A service worker caches assets for faster load times and limited offline access to previously viewed content.</li>
+            <li>Push notifications may be delivered via your browser&apos;s push service (e.g. FCM for Chrome). No personal data is shared with push infrastructure providers beyond a device token.</li>
+            <li>Cached data is stored locally on your device and can be cleared at any time through your browser&apos;s site data settings.</li>
+          </ul>
+          <p>MONiA does not use the PWA installation to collect additional data beyond what is described in this policy.</p>
+        </section>
       </div>
     </main>
   );
