@@ -1,9 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useUser, useClerk } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, AtSign, Phone, MapPin, User, Moon, LogOut, Loader2, ChevronRight, Check, Share2 } from 'lucide-react';
+import {
+  ArrowLeft, LogOut, Loader2, Check, Share2, Camera,
+} from 'lucide-react';
 import { supabase } from '@/lib/supabase/client';
 import { getInitials } from '@/lib/chat';
 
@@ -23,11 +25,11 @@ type Profile = {
   sleep_end: string;
 };
 
-function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
+function Toggle({ value, onChange, disabled }: { value: boolean; onChange: (v: boolean) => void; disabled?: boolean }) {
   return (
     <button
       type="button"
-      onClick={() => onChange(!value)}
+      onClick={() => !disabled && onChange(!value)}
       style={{
         width: 44,
         height: 24,
@@ -36,8 +38,9 @@ function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) =>
         position: 'relative',
         transition: 'background 0.2s',
         border: 'none',
-        cursor: 'pointer',
+        cursor: disabled ? 'not-allowed' : 'pointer',
         flexShrink: 0,
+        opacity: disabled ? 0.5 : 1,
       }}
     >
       <span
@@ -60,6 +63,7 @@ export default function ProfilePage() {
   const { user, isLoaded } = useUser();
   const { signOut } = useClerk();
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -69,6 +73,8 @@ export default function ProfilePage() {
 
   const [editUsername, setEditUsername] = useState(false);
   const [newUsername, setNewUsername] = useState('');
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isLoaded || !user) return;
@@ -125,9 +131,59 @@ export default function ProfilePage() {
     setEditUsername(false);
   };
 
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    if (!file.type.startsWith('image/')) {
+      setError('Please select an image file');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image must be under 5 MB');
+      return;
+    }
+
+    setAvatarUploading(true);
+    setError('');
+
+    const localPreview = URL.createObjectURL(file);
+    setAvatarPreview(localPreview);
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const res = await fetch('/api/profile/avatar', { method: 'POST', body: formData });
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.error || 'Avatar upload failed');
+      setAvatarPreview(null);
+    } else {
+      setProfile((p) => p ? { ...p, avatar_url: data.avatarUrl } : p);
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 2000);
+    }
+
+    setAvatarUploading(false);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
   const handleLogout = async () => {
     await signOut();
     router.push('/auth/login');
+  };
+
+  const handleShare = () => {
+    const url = 'https://monia-app.vercel.app/';
+    const text = `Hey, I'm using MONiA — an AI-powered messaging app. Come connect with me! 🤙`;
+    if (typeof navigator.share === 'function') {
+      navigator.share({ title: 'Join me on MONiA', text, url }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(`${text} ${url}`).then(() => {
+        alert('Link copied to clipboard!');
+      });
+    }
   };
 
   if (loading || !isLoaded) {
@@ -139,7 +195,7 @@ export default function ProfilePage() {
   }
 
   const displayName = profile?.full_name || user?.fullName || 'MONiA User';
-  const avatarUrl = profile?.avatar_url || user?.imageUrl;
+  const avatarUrl = avatarPreview || profile?.avatar_url || user?.imageUrl;
   const initials = getInitials(displayName);
 
   const rowStyle: React.CSSProperties = {
@@ -174,32 +230,63 @@ export default function ProfilePage() {
             <ArrowLeft style={{ width: 22, height: 22 }} />
           </button>
           <h1 className="text-lg font-black text-white">Profile</h1>
-          {saving && <Loader2 className="w-4 h-4 animate-spin ml-auto" style={{ color: '#c6ff33' }} />}
-          {saveSuccess && <Check className="w-4 h-4 ml-auto" style={{ color: '#c6ff33' }} />}
+          <div className="ml-auto flex items-center gap-2">
+            {saving && <Loader2 className="w-4 h-4 animate-spin" style={{ color: '#c6ff33' }} />}
+            {saveSuccess && <Check className="w-4 h-4" style={{ color: '#c6ff33' }} />}
+          </div>
         </div>
       </div>
 
       <div className="px-5 pt-6 space-y-6">
         {/* ── Avatar + Name ──────────────────────────────────────── */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-          {avatarUrl ? (
-            <img
-              src={avatarUrl}
-              alt={displayName}
-              style={{ width: 84, height: 84, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(198,255,51,0.35)' }}
-            />
-          ) : (
-            <div
+          <div style={{ position: 'relative' }}>
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt={displayName}
+                style={{ width: 84, height: 84, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(198,255,51,0.35)' }}
+              />
+            ) : (
+              <div
+                style={{
+                  width: 84, height: 84, borderRadius: '50%',
+                  background: 'rgba(198,255,51,0.10)', border: '2px solid rgba(198,255,51,0.25)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 28, fontWeight: 700, color: '#c6ff33',
+                }}
+              >
+                {initials}
+              </div>
+            )}
+
+            {/* Camera button */}
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={avatarUploading}
               style={{
-                width: 84, height: 84, borderRadius: '50%',
-                background: 'rgba(198,255,51,0.10)', border: '2px solid rgba(198,255,51,0.25)',
+                position: 'absolute', bottom: 0, right: 0,
+                width: 28, height: 28, borderRadius: '50%',
+                background: '#c6ff33', border: '2px solid #06000c',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 28, fontWeight: 700, color: '#c6ff33',
+                cursor: 'pointer',
               }}
             >
-              {initials}
-            </div>
-          )}
+              {avatarUploading
+                ? <Loader2 style={{ width: 13, height: 13, color: '#06000c', animation: 'spin 1s linear infinite' }} />
+                : <Camera style={{ width: 13, height: 13, color: '#06000c' }} />
+              }
+            </button>
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={handleAvatarChange}
+            />
+          </div>
+
           <div style={{ textAlign: 'center' }}>
             <p className="text-xl font-black text-white">{displayName}</p>
             <p style={{ color: '#c6ff33', fontSize: 14, fontWeight: 600, marginTop: 2 }}>
@@ -233,15 +320,15 @@ export default function ProfilePage() {
                       borderRadius: 10, padding: '6px 10px', color: '#fff', fontSize: 14, outline: 'none', width: 140,
                     }}
                   />
-                  <button onClick={handleSaveUsername} style={{ color: '#c6ff33', fontWeight: 700, fontSize: 13 }}>Save</button>
-                  <button onClick={() => { setEditUsername(false); setNewUsername(profile?.username || ''); }} style={{ color: 'rgba(255,255,255,0.35)', fontSize: 13 }}>Cancel</button>
+                  <button onClick={handleSaveUsername} style={{ color: '#c6ff33', fontWeight: 700, fontSize: 13, background: 'none', border: 'none', cursor: 'pointer' }}>Save</button>
+                  <button onClick={() => { setEditUsername(false); setNewUsername(profile?.username || ''); }} style={{ color: 'rgba(255,255,255,0.35)', fontSize: 13, background: 'none', border: 'none', cursor: 'pointer' }}>Cancel</button>
                 </div>
               ) : (
                 <p style={valueStyle}>@{profile?.username || '—'}</p>
               )}
             </div>
             {!editUsername && (
-              <button onClick={() => setEditUsername(true)} style={{ color: '#c6ff33', fontSize: 13, fontWeight: 600 }}>Edit</button>
+              <button onClick={() => setEditUsername(true)} style={{ color: '#c6ff33', fontSize: 13, fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer' }}>Edit</button>
             )}
           </div>
 
@@ -288,6 +375,7 @@ export default function ProfilePage() {
               <Toggle
                 value={profile?.[key] ?? false}
                 onChange={(v) => saveProfile({ [key]: v })}
+                disabled={saving}
               />
             </div>
           ))}
@@ -307,6 +395,7 @@ export default function ProfilePage() {
             <Toggle
               value={profile?.sleep_mode_enabled ?? false}
               onChange={(v) => saveProfile({ sleep_mode_enabled: v })}
+              disabled={saving}
             />
           </div>
 
@@ -344,20 +433,7 @@ export default function ProfilePage() {
 
         {/* ── Share MONiA ─────────────────────────────────────────── */}
         <button
-          onClick={() => {
-            const data = {
-              title: 'Join me on MONiA',
-              text:  `Hey, I'm using MONiA — an AI-powered messaging app. Come connect with me! 🤙`,
-              url:   'https://monia.app',
-            };
-            if (typeof navigator.share === 'function') {
-              navigator.share(data).catch(() => {});
-            } else {
-              navigator.clipboard.writeText(`${data.text} ${data.url}`).then(() => {
-                alert('Link copied to clipboard!');
-              });
-            }
-          }}
+          onClick={handleShare}
           style={{
             width: '100%', borderRadius: 16, padding: '14px 20px',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
