@@ -20,7 +20,7 @@ function avatarBg(name: string | undefined) {
   return p[(name?.charCodeAt(0) ?? 0) % p.length];
 }
 
-export default function ChatsPage() {
+function ChatsPageInner() {
   const { user, isLoaded } = useUser();
   const router = useRouter();
   const params = useSearchParams();
@@ -302,5 +302,13 @@ export default function ChatsPage() {
         )}
       </div>
     </main>
+  );
+}
+
+export default function ChatsPage() {
+  return (
+    <Suspense fallback={<div style={{ background: '#06000c', minHeight: '100vh' }} />}>
+      <ChatsPageInner />
+    </Suspense>
   );
 }
