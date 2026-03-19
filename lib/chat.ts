@@ -41,7 +41,20 @@ export async function getUserChats(userId: string): Promise<Chat[]> {
     .contains('participants', [userId])
     .order('last_message_time', { ascending: false });
 
-  if (error || !chats) return [];
+  if (error) {
+    console.error('❌ getUserChats() error:', {
+      message: error.message,
+      code: error.code,
+      details: error.details,
+      hint: error.hint,
+      userId,
+    });
+    return [];
+  }
+  if (!chats) {
+    console.warn('⚠️ getUserChats() returned null chats');
+    return [];
+  }
 
   const partnerIds = [
     ...new Set(
@@ -170,9 +183,15 @@ export async function searchProfiles(query: string, excludeId: string): Promise<
     .limit(20);
 
   if (error) {
-    console.error('searchProfiles error:', error);
+    console.error('❌ searchProfiles() error:', {
+      message: error.message,
+      code: error.code,
+      query,
+      excludeId,
+    });
     return [];
   }
+  console.log(`✅ searchProfiles() found ${(data ?? []).length} results for "${query}"`);
   return (data ?? []) as Profile[];
 }
 

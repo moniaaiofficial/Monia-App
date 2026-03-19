@@ -50,7 +50,9 @@ function ChatsPageInner() {
   const loadChats = useCallback(async () => {
     if (!user) return;
     setChatsLoading(true);
+    console.log(`📲 Loading chats for user: ${user.id}`);
     const data = await getUserChats(user.id);
+    console.log(`✅ Chats loaded: ${data.length} conversations`);
     setChats(data);
     setChatsLoading(false);
   }, [user]);

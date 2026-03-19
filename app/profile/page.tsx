@@ -79,13 +79,34 @@ export default function ProfilePage() {
   useEffect(() => {
     if (!isLoaded || !user) return;
     (async () => {
-      const { data } = await supabase
+      console.log(`👤 Fetching profile for user: ${user.id}`);
+      
+      const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
         .maybeSingle();
 
+      if (error) {
+        console.error('❌ Profile fetch error:', {
+          message: error.message,
+          code: error.code,
+          details: error.details,
+          hint: error.hint,
+          userId: user.id,
+        });
+      }
+
       if (data) {
+        console.log('✅ Profile loaded:', { 
+          id: data.id, 
+          username: data.username, 
+          mobile: data.mobile, 
+          city: data.city,
+          hide_phone: data.hide_phone,
+          hide_city: data.hide_city,
+          hide_full_name: data.hide_full_name,
+        });
         setProfile({
           ...data,
           sleep_start: data.sleep_start || '20:00',
@@ -96,6 +117,8 @@ export default function ProfilePage() {
           sleep_mode_enabled: data.sleep_mode_enabled ?? false,
         });
         setNewUsername(data.username || '');
+      } else if (!error) {
+        console.warn('⚠️ Profile not found in Supabase for user:', user.id);
       }
       setLoading(false);
     })();
@@ -106,21 +129,34 @@ export default function ProfilePage() {
     setSaving(true);
     setError('');
 
-    const res = await fetch('/api/profile/update', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: user.id, ...patch }),
-    });
-    const data = await res.json();
+    try {
+      console.log(`📝 Saving profile for user ${user.id}:`, patch);
+      
+      const res = await fetch('/api/profile/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.id, ...patch }),
+      });
+      
+      const data = await res.json();
 
-    if (!res.ok) {
-      setError(data.error || 'Failed to save');
-    } else {
-      setProfile((p) => p ? { ...p, ...patch } : p);
-      setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 2000);
+      if (!res.ok) {
+        const errorMsg = data.error || 'Failed to save';
+        console.error(`❌ Profile update failed (${res.status}):`, errorMsg);
+        setError(errorMsg);
+      } else {
+        console.log('✅ Profile updated successfully:', data);
+        setProfile((p) => p ? { ...p, ...patch } : p);
+        setSaveSuccess(true);
+        setTimeout(() => setSaveSuccess(false), 2000);
+      }
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Network error';
+      console.error('❌ Save failed:', errorMsg);
+      setError(errorMsg);
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
   };
 
   const handleSaveUsername = async () => {
