@@ -4,15 +4,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import { ArrowLeft, MoreVertical } from 'lucide-react';
-import {
-  getChatMessages,
-  sendMessage as sendMsg,
-  subscribeToMessages,
-  updateMessageStatus,
-  getInitials,
-  type Message,
-  type Profile,
-} from '@/lib/chat';
+import { getInitials, type Message, type Profile } from '@/lib/chat';
 import { uploadChatFile } from '@/lib/upload';
 import { supabase } from '@/lib/supabase/client';
 import ChatBubble from '@/components/ChatBubble';
@@ -30,6 +22,41 @@ const isTimeInSleepMode = (start?: string, end?: string) => {
   if (endTime < startTime) endTime.setDate(endTime.getDate() + 1);
   return now >= startTime && now <= endTime;
 };
+
+async function apiGetMessages(chatId: string): Promise<Message[]> {
+  const res = await fetch(`/api/messages?chatId=${chatId}&limit=100`);
+  if (!res.ok) return [];
+  const json = await res.json();
+  return json.data ?? [];
+}
+
+async function apiSendMessage(chatId: string, content: string, type: string): Promise<Message | null> {
+  const res = await fetch('/api/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chatId, content, type }),
+  });
+  if (!res.ok) return null;
+  const json = await res.json();
+  return json.data ?? null;
+}
+
+async function apiMarkRead(messageId: string) {
+  await fetch('/api/messages', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ messageId, status: 'read' }),
+  });
+}
+
+async function apiGetChatPartner(chatId: string, userId: string): Promise<{ chat: any; partner: Profile | null }> {
+  const res = await fetch(`/api/chats`);
+  if (!res.ok) return { chat: null, partner: null };
+  const json = await res.json();
+  const chat = (json.data ?? []).find((c: any) => c.id === chatId);
+  if (!chat) return { chat: null, partner: null };
+  return { chat, partner: chat.partner ?? null };
+}
 
 function PollCreatorModal({ onSend, onClose }: { onSend: (q: string, opts: string[]) => void; onClose: () => void }) {
   const [question, setQuestion] = useState('');
@@ -81,6 +108,7 @@ export default function ChatPage() {
   const [isTyping,       setIsTyping]       = useState(false);
   const [sending,        setSending]        = useState(false);
   const [uploading,      setUploading]      = useState(false);
+  const [notFound,       setNotFound]       = useState(false);
 
   const [showAttach,     setShowAttach]     = useState(false);
   const [showVoice,      setShowVoice]      = useState(false);
@@ -94,47 +122,48 @@ export default function ChatPage() {
     bottomRef.current?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto' });
   }, []);
 
+  const loadMessages = useCallback(async () => {
+    if (!chatId) return;
+    const msgs = await apiGetMessages(chatId);
+    setMessages(msgs);
+    setTimeout(() => scrollToBottom(false), 80);
+
+    if (user) {
+      const unread = msgs.filter((m) => m.sender_id !== user.id && m.status !== 'read');
+      for (const m of unread) await apiMarkRead(m.id);
+    }
+  }, [chatId, user, scrollToBottom]);
+
   useEffect(() => {
     if (!isLoaded || !user || !chatId) return;
 
-    const setupChat = async () => {
-      const { data: chat } = await supabase
-        .from('chats').select('participants').eq('id', chatId).single();
-      if (!chat) { setLoading(false); return; }
+    const init = async () => {
+      const { chat, partner: p } = await apiGetChatPartner(chatId, user.id);
+      if (!chat) { setNotFound(true); setLoading(false); return; }
+      setPartner(p);
 
-      const partnerId = (chat.participants as string[]).find((id) => id !== user.id);
-      if (partnerId) {
-        const { data: prof } = await supabase
-          .from('profiles').select('*').eq('id', partnerId).single();
-        setPartner(prof as Profile);
-      }
-
-      const msgs = await getChatMessages(chatId);
-      setMessages(msgs);
+      await loadMessages();
       setLoading(false);
-
-      const unread = msgs.filter((m) => m.sender_id !== user.id && m.status !== 'read');
-      for (const m of unread) await updateMessageStatus(m.id, 'read');
-      setTimeout(() => scrollToBottom(false), 100);
     };
 
-    setupChat();
+    init();
 
-    const unsub = subscribeToMessages(
-      chatId,
-      (newMsg) => {
-        setMessages((prev) => {
-          if (prev.some((m) => m.id === newMsg.id)) return prev;
-          return [...prev, newMsg];
-        });
-        if (newMsg.sender_id !== user.id) updateMessageStatus(newMsg.id, 'read');
-        setTimeout(() => scrollToBottom(true), 100);
-      },
-      (updatedMsg) => {
-        setMessages((prev) => prev.map((m) => (m.id === updatedMsg.id ? updatedMsg : m)));
-      },
-    );
+    // Real-time: new/updated messages trigger a re-fetch
+    const msgChannel = supabase
+      .channel(`messages-rt-${chatId}`)
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` },
+        () => loadMessages(),
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` },
+        () => loadMessages(),
+      )
+      .subscribe();
 
+    // Presence (typing indicator)
     const presence = supabase.channel(`presence:${chatId}`);
     presenceRef.current = presence;
 
@@ -152,10 +181,10 @@ export default function ChatPage() {
       });
 
     return () => {
-      unsub();
+      supabase.removeChannel(msgChannel);
       if (presenceRef.current) { supabase.removeChannel(presenceRef.current); presenceRef.current = null; }
     };
-  }, [isLoaded, user, chatId, scrollToBottom]);
+  }, [isLoaded, user, chatId, loadMessages, scrollToBottom]);
 
   const handleTypingChange = useCallback(async (typing: boolean) => {
     if (presenceRef.current && user) {
@@ -167,7 +196,7 @@ export default function ChatPage() {
     const optId = `opt-${Date.now()}`;
     const opt: Message = { id: optId, chat_id: chatId, sender_id: user!.id, content, type, status: 'sent', created_at: new Date().toISOString() };
     setMessages((prev) => [...prev, opt]);
-    setTimeout(() => scrollToBottom(true), 100);
+    setTimeout(() => scrollToBottom(true), 80);
     return optId;
   };
 
@@ -176,7 +205,7 @@ export default function ChatPage() {
     setSending(true);
 
     const optId = addOptimistic(content, type);
-    const sentMsg = await sendMsg(chatId, user.id, content, type);
+    const sentMsg = await apiSendMessage(chatId, content, type);
     setSending(false);
 
     if (sentMsg) {
@@ -186,7 +215,6 @@ export default function ChatPage() {
     }
   };
 
-  // ── File upload handler (images, videos, documents) ──────────────
   const handleFiles = async (files: FileList, type?: string) => {
     if (!user || !chatId || uploading) return;
     setUploading(true);
@@ -199,14 +227,8 @@ export default function ChatPage() {
 
       const result = await uploadChatFile(file, chatId);
       if (result) {
-        let content: string;
-        if (msgType === 'image' || msgType === 'video') {
-          content = JSON.stringify({ url: result.url, fileName: result.fileName, size: result.size });
-        } else {
-          content = JSON.stringify({ url: result.url, fileName: result.fileName, size: result.size, mimeType: result.mimeType });
-        }
-
-        const sentMsg = await sendMsg(chatId, user.id, content, msgType);
+        const content = JSON.stringify({ url: result.url, fileName: result.fileName, size: result.size, ...(msgType === 'document' ? { mimeType: result.mimeType } : {}) });
+        const sentMsg = await apiSendMessage(chatId, content, msgType);
         if (sentMsg) {
           setMessages((prev) => prev.map((m) => (m.id === optId ? sentMsg : m)));
         } else {
@@ -219,7 +241,6 @@ export default function ChatPage() {
     setUploading(false);
   };
 
-  // ── Location ─────────────────────────────────────────────────────
   const handleLocation = () => {
     if (!navigator.geolocation) { alert('Geolocation is not supported by your browser'); return; }
     navigator.geolocation.getCurrentPosition(
@@ -235,7 +256,6 @@ export default function ChatPage() {
     );
   };
 
-  // ── Voice note ───────────────────────────────────────────────────
   const handleVoiceSend = async (blob: Blob, duration: number) => {
     setShowVoice(false);
     if (!user || !chatId) return;
@@ -247,7 +267,7 @@ export default function ChatPage() {
 
     if (result) {
       const content = JSON.stringify({ url: result.url, duration });
-      const sentMsg = await sendMsg(chatId, user.id, content, 'audio');
+      const sentMsg = await apiSendMessage(chatId, content, 'audio');
       if (sentMsg) {
         setMessages((prev) => prev.map((m) => (m.id === optId ? sentMsg : m)));
       } else {
@@ -259,7 +279,6 @@ export default function ChatPage() {
     setUploading(false);
   };
 
-  // ── Poll ─────────────────────────────────────────────────────────
   const handlePoll = async (question: string, options: string[]) => {
     const content = JSON.stringify({ question, options: options.map((text) => ({ text, votes: 0 })) });
     await handleSend(content, 'poll');
@@ -277,7 +296,7 @@ export default function ChatPage() {
     );
   }
 
-  if (!partner) {
+  if (notFound || !partner) {
     return (
       <div style={{ background: '#06000c', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
         <p style={{ color: 'rgba(255,255,255,0.5)' }}>Chat not found</p>
@@ -296,7 +315,7 @@ export default function ChatPage() {
           <ArrowLeft size={22} />
         </button>
         {partner.avatar_url ? (
-          <img src={partner.avatar_url} alt={partner.full_name} style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(198,255,51,0.30)', flexShrink: 0 }} />
+          <img src={partner.avatar_url} alt={partner.full_name ?? ''} style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(198,255,51,0.30)', flexShrink: 0 }} />
         ) : (
           <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(198,255,51,0.10)', border: '1px solid rgba(198,255,51,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c6ff33', fontWeight: 700, fontSize: 14, flexShrink: 0 }}>
             {getInitials(partner.full_name)}

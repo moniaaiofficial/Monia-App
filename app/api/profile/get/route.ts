@@ -2,12 +2,12 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { auth } from '@clerk/nextjs/server';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+);
 
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const { userId } = await auth();
 
@@ -15,29 +15,24 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('profiles')
       .select('*')
       .eq('id', userId)
       .single();
 
-    if (error) {
-      console.error('Profile fetch error:', error);
-      return NextResponse.json({ error: error.message }, { status: 404 });
+    if (error && error.code !== 'PGRST116') {
+      console.error('[Profile GET] Fetch error:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     if (!data) {
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
 
-    console.log('✅ Profile fetched:', { id: data.id, username: data.username });
-
-    return NextResponse.json({ 
-      success: true, 
-      data 
-    });
-  } catch (error) {
-    console.error('Error in profile get endpoint:', error);
+    return NextResponse.json({ success: true, data });
+  } catch (err) {
+    console.error('[Profile GET] Unexpected error:', err);
     return NextResponse.json({ error: 'An unexpected error occurred' }, { status: 500 });
   }
 }

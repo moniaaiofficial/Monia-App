@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import {
   ArrowLeft, LogOut, Loader2, Check, Share2, Camera,
 } from 'lucide-react';
-import { supabase } from '@/lib/supabase/client';
 import { getInitials } from '@/lib/chat';
 
 type Profile = {
@@ -74,144 +73,71 @@ export default function ProfilePage() {
   const [editUsername, setEditUsername] = useState(false);
   const [newUsername, setNewUsername] = useState('');
   const [avatarUploading, setAvatarUploading] = useState(false);
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isLoaded || !user) return;
+
     (async () => {
-      const userId = user.id;
-      console.log('👤 USER ID:', userId);
-      console.log('📦 USER DATA FROM CLERK:', {
-        fullName: user.fullName,
-        email: user.primaryEmailAddress?.emailAddress,
-        imageUrl: user.imageUrl,
-        publicMetadata: user.publicMetadata,
-      });
-      
+      setLoading(true);
+      setError('');
+
       try {
-        // STEP 1: Try to fetch existing profile using .single()
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', userId)
-          .single();
+        const res = await fetch('/api/profile/get');
+        const json = await res.json();
 
-        console.log('📊 PROFILE RESPONSE:', data);
-        console.log('⚠️ PROFILE ERROR:', error?.code, error?.message);
-
-        // STEP 2: Handle "no row found" error (PGRST116) - auto create profile
-        if (error && error.code === 'PGRST116') {
-          console.warn('⚠️ No profile found. Creating new profile with Clerk metadata...');
-          
-          const username = 
-            (user.username as string) ||
-            (user.publicMetadata as any)?.username ||
-            `user_${userId.slice(-6)}`;
-          
-          const { data: newProfile, error: insertError } = await supabase
-            .from('profiles')
-            .insert({
-              id: userId,
-              email: user.primaryEmailAddress?.emailAddress || '',
-              full_name: user.fullName || '',
-              username: username,
-              avatar_url: user.imageUrl || '',
-              mobile: (user.publicMetadata as any)?.mobile || null,
-              city: (user.publicMetadata as any)?.city || null,
-              hide_phone: false,
-              hide_city: false,
-              hide_full_name: false,
-              sleep_mode_enabled: false,
-              sleep_start: '20:00',
-              sleep_end: '07:00',
-            })
-            .select()
-            .single();
-
-          console.log('✅ NEW PROFILE CREATED:', newProfile);
-          console.log('❌ INSERT ERROR:', insertError);
-
-          if (insertError) {
-            console.error('❌ Profile creation failed:', {
-              message: insertError.message,
-              code: insertError.code,
-              details: insertError.details,
-              hint: insertError.hint,
-            });
-            setError('Failed to create profile');
-            setLoading(false);
-            return;
-          }
-
-          if (newProfile) {
-            console.log('✅ Profile created successfully:', { 
-              id: newProfile.id, 
-              email: newProfile.email, 
-              full_name: newProfile.full_name,
-              username: newProfile.username,
-              mobile: newProfile.mobile,
-              city: newProfile.city,
-            });
-            setProfile({
-              ...newProfile,
-              sleep_start: newProfile.sleep_start || '20:00',
-              sleep_end: newProfile.sleep_end || '07:00',
-              hide_phone: newProfile.hide_phone ?? false,
-              hide_city: newProfile.hide_city ?? false,
-              hide_full_name: newProfile.hide_full_name ?? false,
-              sleep_mode_enabled: newProfile.sleep_mode_enabled ?? false,
-            });
-            setNewUsername(newProfile.username || '');
-          }
-          setLoading(false);
-          return;
-        }
-
-        // STEP 3: Handle other real errors
-        if (error && error.code !== 'PGRST116') {
-          console.error('❌ Profile fetch error:', {
-            message: error.message,
-            code: error.code,
-            details: error.details,
-            hint: error.hint,
-            userId,
-          });
-          // Don't show generic error message for most cases - just log it
-          console.warn('⚠️ Profile fetch failed, but continuing...');
-          setLoading(false);
-          return;
-        }
-
-        // STEP 4: If profile exists, use it
-        if (data) {
-          console.log('✅ Profile loaded successfully:', { 
-            id: data.id, 
-            username: data.username, 
-            email: data.email,
-            full_name: data.full_name,
-            mobile: data.mobile, 
-            city: data.city,
-            avatar_url: data.avatar_url,
-            hide_phone: data.hide_phone,
-            hide_city: data.hide_city,
-            hide_full_name: data.hide_full_name,
-            sleep_mode_enabled: data.sleep_mode_enabled,
-          });
-          setProfile({
+        if (res.ok && json.data) {
+          const data = json.data;
+          console.log('[Profile] Loaded from server:', { id: data.id, username: data.username, mobile: data.mobile, city: data.city });
+          const p: Profile = {
             ...data,
-            sleep_start: data.sleep_start || '20:00',
-            sleep_end: data.sleep_end || '07:00',
             hide_phone: data.hide_phone ?? false,
             hide_city: data.hide_city ?? false,
             hide_full_name: data.hide_full_name ?? false,
             sleep_mode_enabled: data.sleep_mode_enabled ?? false,
+            sleep_start: data.sleep_start || '20:00',
+            sleep_end: data.sleep_end || '07:00',
+          };
+          setProfile(p);
+          setNewUsername(p.username || '');
+        } else if (res.status === 404) {
+          console.warn('[Profile] No profile found — creating from Clerk metadata');
+          const createRes = await fetch('/api/profile/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId: user.id,
+              email: user.primaryEmailAddress?.emailAddress || '',
+              full_name: user.fullName || '',
+              username: (user.username as string) || (user.publicMetadata as any)?.username || `user_${user.id.slice(-6)}`,
+              avatar_url: user.imageUrl || '',
+              mobile: (user.publicMetadata as any)?.mobile || null,
+              city: (user.publicMetadata as any)?.city || null,
+            }),
           });
-          setNewUsername(data.username || '');
+          const createJson = await createRes.json();
+          if (createRes.ok && createJson.data) {
+            const data = createJson.data;
+            const p: Profile = {
+              ...data,
+              hide_phone: data.hide_phone ?? false,
+              hide_city: data.hide_city ?? false,
+              hide_full_name: data.hide_full_name ?? false,
+              sleep_mode_enabled: data.sleep_mode_enabled ?? false,
+              sleep_start: data.sleep_start || '20:00',
+              sleep_end: data.sleep_end || '07:00',
+            };
+            setProfile(p);
+            setNewUsername(p.username || '');
+          } else {
+            setError('Could not load profile. Please try again.');
+          }
+        } else {
+          console.error('[Profile] Server error:', json.error);
+          setError(json.error || 'Failed to load profile');
         }
       } catch (err) {
-        const errorMsg = err instanceof Error ? err.message : 'Failed to load/create profile';
-        console.error('❌ Profile exception:', errorMsg);
-        setError(errorMsg);
+        console.error('[Profile] Exception:', err);
+        setError('Network error — please refresh');
       } finally {
         setLoading(false);
       }
@@ -223,46 +149,27 @@ export default function ProfilePage() {
     setSaving(true);
     setError('');
 
-    // Optimistic update - update UI immediately
-    const updatedProfile = { ...profile, ...patch };
-    setProfile(updatedProfile);
-    console.log('💾 OPTIMISTIC UPDATE - Local state updated:', patch);
-    console.log('📱 UPDATED PROFILE STATE:', updatedProfile);
+    const optimistic = { ...profile, ...patch };
+    setProfile(optimistic);
 
     try {
-      console.log(`📝 Saving profile for user ${user.id}:`, patch);
-      
       const res = await fetch('/api/profile/update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: user.id, ...patch }),
       });
-      
       const data = await res.json();
-      console.log(`📤 Server response (status ${res.status}):`, data);
 
       if (!res.ok) {
-        const errorMsg = data.error || 'Failed to save';
-        console.error(`❌ Profile update failed (${res.status}):`, errorMsg);
-        setError(errorMsg);
-        // Revert on error
-        console.log('⏮️  Reverting optimistic update due to error');
+        setError(data.error || 'Failed to save');
         setProfile({ ...profile });
       } else {
-        console.log('✅ Profile updated successfully on server');
-        if (data.data) {
-          setProfile(data.data);
-          console.log('📦 CONFIRMED FROM SERVER - Updated profile state:', data.data);
-        }
+        if (data.data) setProfile(data.data);
         setSaveSuccess(true);
         setTimeout(() => setSaveSuccess(false), 2000);
       }
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Network error';
-      console.error('❌ Save failed:', errorMsg);
-      setError(errorMsg);
-      // Revert on error
-      console.log('⏮️  Reverting optimistic update due to exception');
+    } catch {
+      setError('Network error');
       setProfile({ ...profile });
     } finally {
       setSaving(false);
@@ -281,20 +188,11 @@ export default function ProfilePage() {
     const file = e.target.files?.[0];
     if (!file || !user) return;
 
-    if (!file.type.startsWith('image/')) {
-      setError('Please select an image file');
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      setError('Image must be under 5 MB');
-      return;
-    }
+    if (!file.type.startsWith('image/')) { setError('Please select an image file'); return; }
+    if (file.size > 5 * 1024 * 1024) { setError('Image must be under 5 MB'); return; }
 
     setAvatarUploading(true);
     setError('');
-
-    const localPreview = URL.createObjectURL(file);
-    setAvatarPreview(localPreview);
 
     const formData = new FormData();
     formData.append('file', file);
@@ -304,7 +202,6 @@ export default function ProfilePage() {
 
     if (!res.ok) {
       setError(data.error || 'Avatar upload failed');
-      setAvatarPreview(null);
     } else {
       setProfile((p) => p ? { ...p, avatar_url: data.avatarUrl } : p);
       setSaveSuccess(true);
@@ -326,9 +223,7 @@ export default function ProfilePage() {
     if (typeof navigator.share === 'function') {
       navigator.share({ title: 'Join me on MONiA', text, url }).catch(() => {});
     } else {
-      navigator.clipboard.writeText(`${text} ${url}`).then(() => {
-        alert('Link copied to clipboard!');
-      });
+      navigator.clipboard.writeText(`${text} ${url}`).then(() => alert('Link copied to clipboard!'));
     }
   };
 
@@ -341,7 +236,7 @@ export default function ProfilePage() {
   }
 
   const displayName = profile?.full_name || user?.fullName || 'MONiA User';
-  const avatarUrl = avatarPreview || profile?.avatar_url || user?.imageUrl;
+  const avatarUrl = profile?.avatar_url || user?.imageUrl;
   const initials = getInitials(displayName);
 
   const rowStyle: React.CSSProperties = {
@@ -406,7 +301,6 @@ export default function ProfilePage() {
               </div>
             )}
 
-            {/* Camera button */}
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={avatarUploading}
@@ -436,7 +330,7 @@ export default function ProfilePage() {
           <div style={{ textAlign: 'center' }}>
             <p className="text-xl font-black text-white">{displayName}</p>
             <p style={{ color: '#c6ff33', fontSize: 14, fontWeight: 600, marginTop: 2 }}>
-              @{profile?.username}
+              @{profile?.username || '—'}
             </p>
           </div>
         </div>
@@ -514,14 +408,14 @@ export default function ProfilePage() {
           {[
             { key: 'hide_full_name' as const, label: 'Hide full name from others' },
             { key: 'hide_phone'     as const, label: 'Hide mobile number' },
-            { key: 'hide_city'     as const, label: 'Hide city' },
+            { key: 'hide_city'      as const, label: 'Hide city' },
           ].map(({ key, label }) => (
             <div key={key} style={rowStyle}>
               <p style={{ color: '#ffffff', fontSize: 14 }}>{label}</p>
               <Toggle
                 value={profile?.[key] ?? false}
                 onChange={(v) => saveProfile({ [key]: v })}
-                disabled={saving}
+                disabled={saving || !profile}
               />
             </div>
           ))}
@@ -541,7 +435,7 @@ export default function ProfilePage() {
             <Toggle
               value={profile?.sleep_mode_enabled ?? false}
               onChange={(v) => saveProfile({ sleep_mode_enabled: v })}
-              disabled={saving}
+              disabled={saving || !profile}
             />
           </div>
 
@@ -587,26 +481,23 @@ export default function ProfilePage() {
             color: '#c6ff33', fontWeight: 700, fontSize: 14, cursor: 'pointer',
           }}
         >
-          <Share2 style={{ width: 17, height: 17 }} />
-          Invite friends to MONiA
+          <Share2 style={{ width: 18, height: 18 }} />
+          Share MONiA
         </button>
 
         {/* ── Logout ──────────────────────────────────────────────── */}
         <button
           onClick={handleLogout}
-          className="btn-neon w-full rounded-2xl py-4 flex items-center justify-center gap-3 font-bold text-sm"
-          style={{ color: '#06000c' }}
+          style={{
+            width: '100%', borderRadius: 16, padding: '14px 20px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+            background: 'rgba(255,59,48,0.08)', border: '1px solid rgba(255,59,48,0.25)',
+            color: '#ff3b30', fontWeight: 700, fontSize: 14, cursor: 'pointer',
+          }}
         >
           <LogOut style={{ width: 18, height: 18 }} />
-          Logout
+          Log Out
         </button>
-
-        <div className="text-center space-y-1 pb-4" style={{ color: 'rgba(255,255,255,0.25)' }}>
-          <p className="text-xs font-semibold">MONiA v1.9.0</p>
-          <a href="mailto:moniaaiofficial@gmail.com" style={{ color: '#c6ff33', fontSize: 12 }}>
-            moniaaiofficial@gmail.com
-          </a>
-        </div>
       </div>
     </main>
   );

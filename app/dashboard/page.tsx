@@ -4,20 +4,38 @@ import { Suspense, useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import { Search, ArrowLeft, X, UserPlus } from 'lucide-react';
-import {
-  getUserChats,
-  createOrGetChat,
-  searchProfiles,
-  getInitials,
-  formatMsgTime,
-  type Chat,
-  type Profile,
-} from '@/lib/chat';
+import { getInitials, formatMsgTime, type Chat, type Profile } from '@/lib/chat';
 import { supabase } from '@/lib/supabase/client';
 
 function avatarBg(name: string | undefined) {
   const p = ['rgba(198,255,51,0.14)', 'rgba(0,229,255,0.11)', 'rgba(255,0,255,0.10)', 'rgba(168,85,247,0.12)'];
   return p[(name?.charCodeAt(0) ?? 0) % p.length];
+}
+
+async function apiGetChats(): Promise<Chat[]> {
+  const res = await fetch('/api/chats');
+  if (!res.ok) return [];
+  const json = await res.json();
+  return json.data ?? [];
+}
+
+async function apiSearchProfiles(q: string): Promise<Profile[]> {
+  if (!q.trim()) return [];
+  const res = await fetch(`/api/profiles/search?q=${encodeURIComponent(q.trim())}`);
+  if (!res.ok) return [];
+  const json = await res.json();
+  return json.data ?? [];
+}
+
+async function apiCreateOrGetChat(partnerId: string): Promise<Chat | null> {
+  const res = await fetch('/api/chats', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ partnerId }),
+  });
+  if (!res.ok) return null;
+  const json = await res.json();
+  return json.data ?? null;
 }
 
 function ChatsPageInner() {
@@ -30,16 +48,15 @@ function ChatsPageInner() {
   const [chats,            setChats]             = useState<Chat[]>([]);
   const [chatsLoading,     setChatsLoading]      = useState(true);
 
-  // New-chat modal
   const [newChatOpen,      setNewChatOpen]       = useState(false);
   const [newChatQuery,     setNewChatQuery]       = useState('');
   const [newChatResults,   setNewChatResults]     = useState<Profile[]>([]);
   const [newChatSearching, setNewChatSearching]   = useState(false);
+  const [startingChat,     setStartingChat]       = useState<string | null>(null);
 
   const searchInputRef  = useRef<HTMLInputElement>(null);
   const newChatInputRef = useRef<HTMLInputElement>(null);
 
-  // Open new-chat modal if ?newchat=1
   useEffect(() => {
     if (params.get('newchat') === '1') {
       setNewChatOpen(true);
@@ -50,10 +67,7 @@ function ChatsPageInner() {
   const loadChats = useCallback(async () => {
     if (!user) return;
     setChatsLoading(true);
-    console.log(`📲 Loading chats for user: ${user.id}`);
-    const data = await getUserChats(user.id);
-    console.log(`✅ Chats loaded: ${data.length} conversations`);
-    console.log('DEBUG - Loaded chats data:', data);
+    const data = await apiGetChats();
     setChats(data);
     setChatsLoading(false);
   }, [user]);
@@ -62,30 +76,32 @@ function ChatsPageInner() {
     if (!isLoaded || !user) return;
     loadChats();
 
-    // Real-time: refresh chat list when a new message arrives
     const channel = supabase
       .channel('chats-list-realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'chats' }, loadChats)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'chats' }, () => loadChats())
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () => loadChats())
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
   }, [isLoaded, user, loadChats]);
 
-  // New-chat user search (debounced)
+  // New-chat search — debounced, searches all 5 fields via API
   useEffect(() => {
-    if (!newChatQuery.trim() || !user) { setNewChatResults([]); return; }
+    if (!newChatQuery.trim()) { setNewChatResults([]); return; }
     const t = setTimeout(async () => {
       setNewChatSearching(true);
-      const results = await searchProfiles(newChatQuery.trim(), user.id);
+      const results = await apiSearchProfiles(newChatQuery);
       setNewChatResults(results);
       setNewChatSearching(false);
     }, 300);
     return () => clearTimeout(t);
-  }, [newChatQuery, user]);
+  }, [newChatQuery]);
 
   const startChat = async (partnerId: string) => {
-    if (!user) return;
-    const chat = await createOrGetChat(user.id, partnerId);
+    if (!user || startingChat) return;
+    setStartingChat(partnerId);
+    const chat = await apiCreateOrGetChat(partnerId);
+    setStartingChat(null);
     if (chat) {
       setNewChatOpen(false);
       setNewChatQuery('');
@@ -94,10 +110,9 @@ function ChatsPageInner() {
     }
   };
 
-  const openSearch = () => { setSearchOpen(true); setTimeout(() => searchInputRef.current?.focus(), 60); };
+  const openSearch  = () => { setSearchOpen(true); setTimeout(() => searchInputRef.current?.focus(), 60); };
   const closeSearch = () => { setSearchOpen(false); setSearchQuery(''); };
-
-  const openNewChat = () => { setNewChatOpen(true); setNewChatQuery(''); setNewChatResults([]); setTimeout(() => newChatInputRef.current?.focus(), 80); };
+  const openNewChat  = () => { setNewChatOpen(true); setNewChatQuery(''); setNewChatResults([]); setTimeout(() => newChatInputRef.current?.focus(), 80); };
   const closeNewChat = () => { setNewChatOpen(false); setNewChatQuery(''); setNewChatResults([]); };
 
   const displayedChats = searchQuery
@@ -108,7 +123,7 @@ function ChatsPageInner() {
       )
     : chats;
 
-  const avatarUrl   = user?.imageUrl;
+  const avatarUrl    = user?.imageUrl;
   const userInitials = getInitials(user?.fullName || user?.firstName || '');
 
   return (
@@ -137,6 +152,11 @@ function ChatsPageInner() {
                   autoFocus
                 />
               </div>
+              {searchQuery && (
+                <button onClick={() => setSearchQuery('')} style={{ color: 'rgba(255,255,255,0.4)', flexShrink: 0 }}>
+                  <X className="w-4 h-4" />
+                </button>
+              )}
             </div>
           ) : (
             <div className="flex items-center justify-between">
@@ -145,15 +165,12 @@ function ChatsPageInner() {
               </button>
 
               <div className="flex items-center gap-3">
-                {/* New chat */}
-                <button aria-label="New chat" onClick={openNewChat} style={{ color: '#ffffff' }}>
+                <button aria-label="Find people" onClick={openNewChat} style={{ color: '#ffffff' }}>
                   <UserPlus className="w-5 h-5" />
                 </button>
-                {/* Search */}
-                <button aria-label="Search" onClick={openSearch} style={{ color: '#ffffff' }}>
+                <button aria-label="Search chats" onClick={openSearch} style={{ color: '#ffffff' }}>
                   <Search className="w-5 h-5" />
                 </button>
-                {/* Avatar */}
                 <button aria-label="Profile" onClick={() => router.push('/profile')} style={{ flexShrink: 0 }}>
                   {avatarUrl ? (
                     <img src={avatarUrl} alt="Me" style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(198,255,51,0.45)' }} />
@@ -169,12 +186,9 @@ function ChatsPageInner() {
         </div>
       </div>
 
-      {/* ── New Chat Modal ───────────────────────────────────────────── */}
+      {/* ── New Chat / Find People Modal ─────────────────────────────── */}
       {newChatOpen && (
-        <div
-          style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'flex', flexDirection: 'column', background: '#06000c' }}
-        >
-          {/* Modal header */}
+        <div style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'flex', flexDirection: 'column', background: '#06000c' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(6,0,12,0.96)' }}>
             <button onClick={closeNewChat} style={{ color: '#c6ff33', flexShrink: 0 }}>
               <ArrowLeft className="w-5 h-5" />
@@ -186,7 +200,7 @@ function ChatsPageInner() {
                 type="text"
                 value={newChatQuery}
                 onChange={(e) => setNewChatQuery(e.target.value)}
-                placeholder="Search by name, username or city…"
+                placeholder="Search by name, username, email, mobile or city…"
                 className="glass-input pl-10 pr-4 py-2.5 text-sm font-medium"
                 style={{ borderRadius: '0.875rem' }}
               />
@@ -198,7 +212,6 @@ function ChatsPageInner() {
             )}
           </div>
 
-          {/* Results */}
           <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px' }}>
             {newChatSearching && [...Array(4)].map((_, i) => (
               <div key={i} className="skeleton" style={{ height: 60, borderRadius: 16, marginBottom: 8 }} />
@@ -208,14 +221,21 @@ function ChatsPageInner() {
               <button
                 key={p.id}
                 onClick={() => startChat(p.id)}
-                style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 14, padding: '12px 14px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', marginBottom: 8, cursor: 'pointer', textAlign: 'left', border: 'none' }}
+                disabled={startingChat === p.id}
+                style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 14, padding: '12px 14px', borderRadius: 16, background: startingChat === p.id ? 'rgba(198,255,51,0.08)' : 'rgba(255,255,255,0.04)', marginBottom: 8, cursor: startingChat === p.id ? 'wait' : 'pointer', textAlign: 'left', border: 'none' }}
               >
-                <div style={{ width: 46, height: 46, borderRadius: '50%', background: avatarBg(p.full_name), display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 15, color: '#c6ff33', flexShrink: 0 }}>
-                  {getInitials(p.full_name)}
-                </div>
+                {p.avatar_url ? (
+                  <img src={p.avatar_url} alt={p.full_name ?? ''} style={{ width: 46, height: 46, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+                ) : (
+                  <div style={{ width: 46, height: 46, borderRadius: '50%', background: avatarBg(p.full_name ?? undefined), display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 15, color: '#c6ff33', flexShrink: 0 }}>
+                    {getInitials(p.full_name)}
+                  </div>
+                )}
                 <div style={{ minWidth: 0 }}>
                   <p style={{ color: '#fff', fontWeight: 600, fontSize: 14, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.full_name}</p>
-                  <p style={{ color: 'rgba(255,255,255,0.38)', fontSize: 12 }}>@{p.username}{p.city ? ` · ${p.city}` : ''}</p>
+                  <p style={{ color: 'rgba(255,255,255,0.38)', fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    @{p.username}{p.city ? ` · ${p.city}` : ''}{p.mobile ? ` · ${p.mobile}` : ''}
+                  </p>
                 </div>
               </button>
             ))}
@@ -229,7 +249,7 @@ function ChatsPageInner() {
             {!newChatQuery.trim() && (
               <div style={{ textAlign: 'center', paddingTop: 60 }}>
                 <Search style={{ width: 36, height: 36, color: 'rgba(198,255,51,0.25)', margin: '0 auto 12px' }} />
-                <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: 14 }}>Search for a MONiA user to start chatting</p>
+                <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: 14 }}>Search by name, username, email, mobile or city</p>
               </div>
             )}
           </div>
@@ -280,16 +300,16 @@ function ChatsPageInner() {
                 onPointerLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = 'transparent')}
               >
                 {chat.partner?.avatar_url ? (
-                  <img src={chat.partner.avatar_url} alt={chat.partner.full_name} style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, border: '1px solid rgba(255,255,255,0.08)' }} />
+                  <img src={chat.partner.avatar_url} alt={chat.partner.full_name ?? ''} style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, border: '1px solid rgba(255,255,255,0.08)' }} />
                 ) : (
-                  <div style={{ width: 52, height: 52, borderRadius: '50%', background: avatarBg(chat.partner?.full_name), display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 17, color: '#c6ff33', flexShrink: 0 }}>
+                  <div style={{ width: 52, height: 52, borderRadius: '50%', background: avatarBg(chat.partner?.full_name ?? undefined), display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 17, color: '#c6ff33', flexShrink: 0 }}>
                     {getInitials(chat.partner?.full_name)}
                   </div>
                 )}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 3 }}>
                     <span style={{ color: '#fff', fontWeight: 700, fontSize: 15, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '68%' }}>
-                      {chat.partner?.full_name ?? 'User'}
+                      {chat.partner?.full_name ?? 'MONiA User'}
                     </span>
                     <span style={{ color: 'rgba(255,255,255,0.30)', fontSize: 11, fontWeight: 500, flexShrink: 0 }}>
                       {chat.last_message_time ? formatMsgTime(chat.last_message_time) : ''}

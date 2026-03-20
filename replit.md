@@ -1,4 +1,4 @@
-# MONiA App — v1.9.0
+# MONiA App — v2.0.0
 
 ## Overview
 An AI-powered mobile-first communication platform built with Next.js 14. Features real-time chat, Clerk authentication, Supabase for database and real-time subscriptions, and a PWA-ready design.
@@ -17,8 +17,19 @@ An AI-powered mobile-first communication platform built with Next.js 14. Feature
 3. Google OAuth signup → `/auth/sso-callback` → `/profile-setup` (new users)
 4. Google OAuth login → `/auth/sso-callback` → `/dashboard` (returning users)
 
-## Profile API (`/api/profile/update`)
-Accepts POST with any subset of: `userId`, `username`, `mobile`, `city`, `full_name`, `email`, `avatar_url`, `hide_phone`, `hide_city`, `hide_full_name`, `sleep_mode_enabled`, `sleep_start`, `sleep_end`
+## Server API Routes (ALL use service role key — bypasses Supabase RLS)
+- `GET /api/profile/get` — Fetch current user's profile
+- `POST /api/profile/update` — Upsert profile fields (userId + any subset of username, mobile, city, full_name, email, avatar_url, hide_phone, hide_city, hide_full_name, sleep_mode_enabled, sleep_start, sleep_end)
+- `POST /api/profile/avatar` — Upload avatar to Supabase storage
+- `GET /api/profiles/search?q=<query>` — Search all users by name, username, email, mobile, or city
+- `GET /api/chats` — List current user's chats with partner profiles embedded
+- `POST /api/chats` — Create or fetch an existing 1:1 chat (`{ partnerId }`)
+- `GET /api/messages?chatId=<id>` — List messages for a chat
+- `POST /api/messages` — Send a message (`{ chatId, content, type }`)
+- `PATCH /api/messages` — Update message status (`{ messageId, status }`)
+
+## CRITICAL: RLS Architecture
+The app uses Clerk auth (NOT Supabase Auth), so `auth.uid()` is always null on the client. All database reads/writes are routed through Next.js API routes that use `SUPABASE_SERVICE_ROLE_KEY`, which bypasses RLS. The anon Supabase client is used ONLY for realtime subscriptions (channel events), NOT for data queries.
 
 ## Architecture
 - **Framework**: Next.js 14 (App Router)
