@@ -256,6 +256,12 @@ export default function ProfilePage() {
 
   return (
     <main className="min-h-screen page-enter pb-10" style={{ background: '#06000c' }}>
+      {/* 🔥 DEBUG PANEL */}
+<div style={{ color: 'red', fontSize: 12, background: 'black', padding: 10 }}>
+  <p>USER ID: {user?.id}</p>
+  <p>USERNAME: {profile?.username}</p>
+  <p>CITY: {profile?.city}</p>
+</div>
       {/* ── Header ──────────────────────────────────────────────── */}
       <div
         className="sticky top-0 z-10"
