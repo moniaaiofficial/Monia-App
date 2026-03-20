@@ -53,6 +53,7 @@ function ChatsPageInner() {
     console.log(`📲 Loading chats for user: ${user.id}`);
     const data = await getUserChats(user.id);
     console.log(`✅ Chats loaded: ${data.length} conversations`);
+    console.log('DEBUG - Loaded chats data:', data);
     setChats(data);
     setChatsLoading(false);
   }, [user]);

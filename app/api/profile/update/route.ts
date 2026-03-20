@@ -62,9 +62,11 @@ export async function POST(request: Request) {
     if (sleep_end         !== undefined) supabasePatch.sleep_end         = sleep_end;
 
     // Upsert into Supabase profiles
-    const { error: supabaseError } = await supabaseAdmin
+    const { error: supabaseError, data: updatedProfile } = await supabaseAdmin
       .from('profiles')
-      .upsert([supabasePatch], { onConflict: 'id' });
+      .upsert([supabasePatch], { onConflict: 'id' })
+      .select('*')
+      .single();
 
     if (supabaseError) {
       console.error('Supabase upsert error:', supabaseError);
@@ -88,7 +90,10 @@ export async function POST(request: Request) {
       }
     }
 
-    return NextResponse.json({ success: true, message: 'Profile updated successfully' });
+    return NextResponse.json({ 
+      success: true, 
+      data: updatedProfile 
+    });
   } catch (error) {
     console.error('Error in profile update endpoint:', error);
     return NextResponse.json({ error: 'An unexpected error occurred' }, { status: 500 });

@@ -35,6 +35,8 @@ export type Chat = {
 };
 
 export async function getUserChats(userId: string): Promise<Chat[]> {
+  console.log('CHAT FETCH USER ID:', userId, 'typeof:', typeof userId);
+  
   const { data: chats, error } = await supabase
     .from('chats')
     .select('*')
@@ -51,9 +53,16 @@ export async function getUserChats(userId: string): Promise<Chat[]> {
     });
     return [];
   }
+  
+  console.log('RAW CHATS:', chats);
+  
   if (!chats) {
     console.warn('⚠️ getUserChats() returned null chats');
     return [];
+  }
+
+  if (chats.length === 0) {
+    console.warn('⚠️ NO CHATS FOUND BUT SHOULD EXIST - userId:', userId, 'chats array:', chats);
   }
 
   const partnerIds = [

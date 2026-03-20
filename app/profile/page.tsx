@@ -79,48 +79,114 @@ export default function ProfilePage() {
   useEffect(() => {
     if (!isLoaded || !user) return;
     (async () => {
-      console.log(`👤 Fetching profile for user: ${user.id}`);
+      const userId = user.id;
+      console.log('USER ID:', userId);
       
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .maybeSingle();
+      try {
+        // STEP 1: Try to fetch existing profile
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
+          .maybeSingle();
 
-      if (error) {
-        console.error('❌ Profile fetch error:', {
-          message: error.message,
-          code: error.code,
-          details: error.details,
-          hint: error.hint,
-          userId: user.id,
-        });
-      }
+        console.log('PROFILE RESPONSE:', data);
+        console.log('PROFILE ERROR:', error);
 
-      if (data) {
-        console.log('✅ Profile loaded:', { 
-          id: data.id, 
-          username: data.username, 
-          mobile: data.mobile, 
-          city: data.city,
-          hide_phone: data.hide_phone,
-          hide_city: data.hide_city,
-          hide_full_name: data.hide_full_name,
-        });
-        setProfile({
-          ...data,
-          sleep_start: data.sleep_start || '20:00',
-          sleep_end: data.sleep_end || '07:00',
-          hide_phone: data.hide_phone ?? false,
-          hide_city: data.hide_city ?? false,
-          hide_full_name: data.hide_full_name ?? false,
-          sleep_mode_enabled: data.sleep_mode_enabled ?? false,
-        });
-        setNewUsername(data.username || '');
-      } else if (!error) {
-        console.warn('⚠️ Profile not found in Supabase for user:', user.id);
+        // STEP 2: Check for actual errors (not "no rows" case)
+        if (error) {
+          console.error('❌ Profile fetch error:', {
+            message: error.message,
+            code: error.code,
+            details: error.details,
+            hint: error.hint,
+            userId,
+          });
+          setError('Failed to fetch profile from database');
+          setLoading(false);
+          return;
+        }
+
+        // STEP 3: If profile exists, use it
+        if (data) {
+          console.log('✅ Profile loaded:', { 
+            id: data.id, 
+            username: data.username, 
+            mobile: data.mobile, 
+            city: data.city,
+            hide_phone: data.hide_phone,
+            hide_city: data.hide_city,
+            hide_full_name: data.hide_full_name,
+          });
+          setProfile({
+            ...data,
+            sleep_start: data.sleep_start || '20:00',
+            sleep_end: data.sleep_end || '07:00',
+            hide_phone: data.hide_phone ?? false,
+            hide_city: data.hide_city ?? false,
+            hide_full_name: data.hide_full_name ?? false,
+            sleep_mode_enabled: data.sleep_mode_enabled ?? false,
+          });
+          setNewUsername(data.username || '');
+          setLoading(false);
+          return;
+        }
+
+        // STEP 4: Profile doesn't exist - create one automatically
+        if (data === null) {
+          console.warn('⚠️ No profile found. Creating new profile...');
+          
+          const { data: newProfile, error: insertError } = await supabase
+            .from('profiles')
+            .insert({
+              id: userId,
+              email: user.primaryEmailAddress?.emailAddress || '',
+              full_name: user.fullName || '',
+            })
+            .select()
+            .single();
+
+          console.log('NEW PROFILE:', newProfile);
+          console.log('INSERT ERROR:', insertError);
+
+          // STEP 5: Handle creation result
+          if (insertError) {
+            console.error('❌ Profile creation failed:', {
+              message: insertError.message,
+              code: insertError.code,
+              details: insertError.details,
+              hint: insertError.hint,
+            });
+            setError('Failed to create profile');
+            setLoading(false);
+            return;
+          }
+
+          if (newProfile) {
+            console.log('✅ Profile created successfully:', { 
+              id: newProfile.id, 
+              email: newProfile.email, 
+              full_name: newProfile.full_name,
+            });
+            setProfile({
+              ...newProfile,
+              sleep_start: newProfile.sleep_start || '20:00',
+              sleep_end: newProfile.sleep_end || '07:00',
+              hide_phone: newProfile.hide_phone ?? false,
+              hide_city: newProfile.hide_city ?? false,
+              hide_full_name: newProfile.hide_full_name ?? false,
+              sleep_mode_enabled: newProfile.sleep_mode_enabled ?? false,
+            });
+            setNewUsername(newProfile.username || '');
+          }
+        }
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : 'Failed to load/create profile';
+        console.error('❌ Profile exception:', errorMsg);
+        setError(errorMsg);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     })();
   }, [isLoaded, user]);
 
@@ -128,6 +194,11 @@ export default function ProfilePage() {
     if (!user || !profile) return;
     setSaving(true);
     setError('');
+
+    // Optimistic update - update UI immediately
+    const updatedProfile = { ...profile, ...patch };
+    setProfile(updatedProfile);
+    console.log('OPTIMISTIC UPDATE - UPDATED PROFILE STATE:', updatedProfile);
 
     try {
       console.log(`📝 Saving profile for user ${user.id}:`, patch);
@@ -144,9 +215,14 @@ export default function ProfilePage() {
         const errorMsg = data.error || 'Failed to save';
         console.error(`❌ Profile update failed (${res.status}):`, errorMsg);
         setError(errorMsg);
+        // Revert on error
+        setProfile({ ...profile });
       } else {
         console.log('✅ Profile updated successfully:', data);
-        setProfile((p) => p ? { ...p, ...patch } : p);
+        if (data.data) {
+          setProfile(data.data);
+          console.log('CONFIRMED FROM SERVER - UPDATED PROFILE STATE:', data.data);
+        }
         setSaveSuccess(true);
         setTimeout(() => setSaveSuccess(false), 2000);
       }
@@ -154,6 +230,8 @@ export default function ProfilePage() {
       const errorMsg = err instanceof Error ? err.message : 'Network error';
       console.error('❌ Save failed:', errorMsg);
       setError(errorMsg);
+      // Revert on error
+      setProfile({ ...profile });
     } finally {
       setSaving(false);
     }
