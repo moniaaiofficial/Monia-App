@@ -1,0 +1,22 @@
+REPLIT AGENT: ABSOLUTE FINAL ULTIMATE WARNING – ZERO TOLERANCE 🚨
+​READ THIS CAREFULLY: This is the last chance for you to prove your competence. If this deployment fails or shows "Fake/Dummy" results again, I will personally report to the entire Teacher & Developer Community to boycott Replit Agent due to deceptive testing and failed deliveries. 😡
+​🔐 1. DATA PRIVACY & HACK-PROOF SECURITY (NON-NEGOTIABLE)
+​The Question: If User A is chatting with User B, can User C or any other person see their messages?
+​The Requirement: You must ensure that the Chat is 100% Secure and Private. No one except the participants should have access.
+​Security Lock: Is the app protected against hacking? Are the Supabase RLS policies and API routes secured with a "Service Role" that strictly validates the user session? I want a HACK-PROOF architecture.
+​⚡ 2. WHATSAPP-BUSINESS LEVEL SPEED (NO REFRESHING)
+​The Question: Will the Chat and Search be Super-Fast like WhatsApp?
+​The Requirement: Users should NOT have to refresh the app to see new messages or search results. It must be a Smooth, Real-time experience. If the app lags or requires a manual refresh to show data, it is a FAILURE.
+​🎨 3. UI/UX POLISH & INTEGRITY
+​The Question: Have you deleted any existing working screens or ruined the UI/UX design?
+​The Requirement: The app must be Fully Polished, Fast, and Smooth. Do NOT break the existing layout. I want a premium, high-quality feel across all pages.
+​🛠️ 4. MANDATORY REAL-TIME PROOF BEFORE GIT PUSH
+​The Order: You have been claiming "Working" for 2 days but delivering "Blank/Fake" pages after Push.
+​The Requirement: You MUST provide REAL PROOF (Console logs, Data snippets, and UI verification) for every point in the previous Mega Prompt:
+​Search: Show proof that Search works for Name, Username, Email, Mobile, and City.
+​Profile: Show proof that Toggles and DP persist after a refresh.
+​Chat: Show proof of real messaging between two test IDs.
+​Sync: Show proof that Clerk Metadata is accurately syncing to Supabase.
+​⚠️ FINAL STRIKE:
+​Does the data fetch from Supabase run as Smoothly and Securely as a professional business app? If I find a single Dummy Placeholder or Fake fallback after this, there will be serious consequences. DO NOT GIT PUSH UNTIL YOU SHOW 100% PROOF OF ALL WORKING FEATURES.
+​FIX EVERYTHING NOW. NO MORE EXCUSES. NO MORE FAKE TESTING. 😡

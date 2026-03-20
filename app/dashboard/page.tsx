@@ -82,7 +82,10 @@ function ChatsPageInner() {
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () => loadChats())
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    // Polling fallback — guarantees chat list updates without manual refresh
+    const pollInterval = setInterval(() => loadChats(), 5000);
+
+    return () => { clearInterval(pollInterval); supabase.removeChannel(channel); };
   }, [isLoaded, user, loadChats]);
 
   // New-chat search — debounced, searches all 5 fields via API

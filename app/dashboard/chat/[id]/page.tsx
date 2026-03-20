@@ -148,7 +148,7 @@ export default function ChatPage() {
 
     init();
 
-    // Real-time: new/updated messages trigger a re-fetch
+    // Real-time: Supabase channel subscription (fires if anon RLS allows SELECT)
     const msgChannel = supabase
       .channel(`messages-rt-${chatId}`)
       .on(
@@ -162,6 +162,9 @@ export default function ChatPage() {
         () => loadMessages(),
       )
       .subscribe();
+
+    // Polling fallback — guarantees WhatsApp-speed updates regardless of RLS config
+    const pollInterval = setInterval(() => loadMessages(), 3000);
 
     // Presence (typing indicator)
     const presence = supabase.channel(`presence:${chatId}`);
@@ -181,6 +184,7 @@ export default function ChatPage() {
       });
 
     return () => {
+      clearInterval(pollInterval);
       supabase.removeChannel(msgChannel);
       if (presenceRef.current) { supabase.removeChannel(presenceRef.current); presenceRef.current = null; }
     };
