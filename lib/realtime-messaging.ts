@@ -42,7 +42,8 @@ export function subscribeToMessagesWithDuplicateCheck(
         onUpdate(msg);
       },
     )
-    .subscribe((status) => {
+    .subscribe((status: any) => {
+      
       if (status === 'SUBSCRIBED') {
         console.log(`✅ Subscribed to realtime messages for chat: ${chatId}`);
       } else if (status === 'CHANNEL_ERROR') {
