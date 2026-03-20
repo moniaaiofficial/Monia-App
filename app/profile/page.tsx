@@ -83,57 +83,18 @@ export default function ProfilePage() {
       console.log('USER ID:', userId);
       
       try {
-        // STEP 1: Try to fetch existing profile
+        // STEP 1: Try to fetch existing profile using .single()
         const { data, error } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', userId)
-          .maybeSingle();
+          .single();
 
         console.log('PROFILE RESPONSE:', data);
         console.log('PROFILE ERROR:', error);
 
-        // STEP 2: Check for actual errors (not "no rows" case)
-        if (error) {
-          console.error('❌ Profile fetch error:', {
-            message: error.message,
-            code: error.code,
-            details: error.details,
-            hint: error.hint,
-            userId,
-          });
-          setError('Failed to fetch profile from database');
-          setLoading(false);
-          return;
-        }
-
-        // STEP 3: If profile exists, use it
-        if (data) {
-          console.log('✅ Profile loaded:', { 
-            id: data.id, 
-            username: data.username, 
-            mobile: data.mobile, 
-            city: data.city,
-            hide_phone: data.hide_phone,
-            hide_city: data.hide_city,
-            hide_full_name: data.hide_full_name,
-          });
-          setProfile({
-            ...data,
-            sleep_start: data.sleep_start || '20:00',
-            sleep_end: data.sleep_end || '07:00',
-            hide_phone: data.hide_phone ?? false,
-            hide_city: data.hide_city ?? false,
-            hide_full_name: data.hide_full_name ?? false,
-            sleep_mode_enabled: data.sleep_mode_enabled ?? false,
-          });
-          setNewUsername(data.username || '');
-          setLoading(false);
-          return;
-        }
-
-        // STEP 4: Profile doesn't exist - create one automatically
-        if (data === null) {
+        // STEP 2: Handle "no row found" error (PGRST116) - auto create profile
+        if (error && error.code === 'PGRST116') {
           console.warn('⚠️ No profile found. Creating new profile...');
           
           const { data: newProfile, error: insertError } = await supabase
@@ -149,7 +110,6 @@ export default function ProfilePage() {
           console.log('NEW PROFILE:', newProfile);
           console.log('INSERT ERROR:', insertError);
 
-          // STEP 5: Handle creation result
           if (insertError) {
             console.error('❌ Profile creation failed:', {
               message: insertError.message,
@@ -179,6 +139,45 @@ export default function ProfilePage() {
             });
             setNewUsername(newProfile.username || '');
           }
+          setLoading(false);
+          return;
+        }
+
+        // STEP 3: Handle other real errors
+        if (error) {
+          console.error('❌ Profile fetch error:', {
+            message: error.message,
+            code: error.code,
+            details: error.details,
+            hint: error.hint,
+            userId,
+          });
+          setError('Failed to fetch profile from database');
+          setLoading(false);
+          return;
+        }
+
+        // STEP 4: If profile exists, use it
+        if (data) {
+          console.log('✅ Profile loaded:', { 
+            id: data.id, 
+            username: data.username, 
+            mobile: data.mobile, 
+            city: data.city,
+            hide_phone: data.hide_phone,
+            hide_city: data.hide_city,
+            hide_full_name: data.hide_full_name,
+          });
+          setProfile({
+            ...data,
+            sleep_start: data.sleep_start || '20:00',
+            sleep_end: data.sleep_end || '07:00',
+            hide_phone: data.hide_phone ?? false,
+            hide_city: data.hide_city ?? false,
+            hide_full_name: data.hide_full_name ?? false,
+            sleep_mode_enabled: data.sleep_mode_enabled ?? false,
+          });
+          setNewUsername(data.username || '');
         }
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : 'Failed to load/create profile';
@@ -334,12 +333,6 @@ export default function ProfilePage() {
 
   return (
     <main className="min-h-screen page-enter pb-10" style={{ background: '#06000c' }}>
-      {/* 🔥 DEBUG PANEL */}
-<div style={{ color: 'red', fontSize: 12, background: 'black', padding: 10 }}>
-  <p>USER ID: {user?.id}</p>
-  <p>USERNAME: {profile?.username}</p>
-  <p>CITY: {profile?.city}</p>
-</div>
       {/* ── Header ──────────────────────────────────────────────── */}
       <div
         className="sticky top-0 z-10"
@@ -410,7 +403,7 @@ export default function ProfilePage() {
           <div style={{ textAlign: 'center' }}>
             <p className="text-xl font-black text-white">{displayName}</p>
             <p style={{ color: '#c6ff33', fontSize: 14, fontWeight: 600, marginTop: 2 }}>
-              @{profile?.username || ''}
+              @{profile?.username}
             </p>
           </div>
         </div>
