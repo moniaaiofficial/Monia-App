@@ -88,9 +88,9 @@ export async function POST(request: Request) {
         console.log(`📝 Updating Clerk metadata for user ${userId}...`);
         await client.users.updateUserMetadata(userId, {
           publicMetadata: {
-            username: supabasePatch.username,
-            mobile:   supabasePatch.mobile,
-            city:     supabasePatch.city,
+            username: supabasePatch.username || undefined,
+            mobile:   supabasePatch.mobile || undefined,
+            city:     supabasePatch.city || undefined,
             profile_complete: true,
           },
         });

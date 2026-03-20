@@ -31,7 +31,8 @@ export default function VerifyEmailPage() {
       if (result.status === 'complete') {
         await setActive({ session: result.createdSessionId });
         sessionStorage.removeItem('signupData');
-        router.push('/dashboard');
+        // Redirect to profile-setup for email signup (not Google OAuth)
+        router.push('/profile-setup');
       } else {
         setError('Verification incomplete. Please try again.');
       }

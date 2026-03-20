@@ -42,7 +42,12 @@ export default function SignupPage() {
         firstName: nameParts[0] || '',
         lastName: nameParts.slice(1).join(' ') || '',
         username: formData.username,
-        unsafeMetadata: { mobile: formData.mobile, city: formData.city },
+        // Store in unsafeMetadata during signup — will be moved to publicMetadata via profile-setup
+        unsafeMetadata: { 
+          mobile: formData.mobile, 
+          city: formData.city,
+          profile_complete: false,
+        },
       });
       await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
       sessionStorage.setItem('signupData', JSON.stringify({ email: formData.email, username: formData.username }));

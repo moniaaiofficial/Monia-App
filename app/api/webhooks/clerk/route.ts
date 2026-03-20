@@ -63,12 +63,17 @@ export async function POST(req: Request) {
 
     const userEmail  = email_addresses?.[0]?.email_address ?? '';
     const fullName   = `${first_name ?? ''} ${last_name ?? ''}`.trim();
-    const meta       = (public_metadata as Record<string, any>) ?? {};
+    const publicMeta = (public_metadata as Record<string, any>) ?? {};
+    const unsafeMeta = (evt.data as any)?.unsafe_metadata as Record<string, any> ?? {};
 
-    // Resolve username (priority: clerk username → public_metadata → email-derived)
+    // Merge metadata from both sources (priority: public_metadata → unsafe_metadata)
+    const meta = { ...unsafeMeta, ...publicMeta };
+
+    // Resolve username (priority: clerk username → public_metadata → unsafe metadata → email-derived)
     const username =
       (clerkUsername as string | null) ||
-      (meta.username as string | null) ||
+      (publicMeta.username as string | null) ||
+      (unsafeMeta.username as string | null) ||
       generateUsernameFromEmail(userEmail);
 
     console.log(`[Webhook] Processing ${evt.type} for user ${id}:`, {
@@ -76,8 +81,15 @@ export async function POST(req: Request) {
       fullName,
       username,
       imageUrl: image_url,
-      metadata: meta,
+      mobile: meta.mobile,
+      city: meta.city,
+      publicMetadata: publicMeta,
+      unsafeMetadata: unsafeMeta,
     });
+
+    // Ensure mobile and city are strings or null
+    const mobile = meta.mobile ? String(meta.mobile).trim() || null : null;
+    const city = meta.city ? String(meta.city).trim() || null : null;
 
     const row: Record<string, any> = {
       id,
@@ -85,8 +97,8 @@ export async function POST(req: Request) {
       full_name:  fullName || null,
       username,
       avatar_url: image_url || null,
-      mobile:     meta.mobile || null,
-      city:       meta.city   || null,
+      mobile,
+      city,
       updated_at: new Date().toISOString(),
     };
 
@@ -107,12 +119,19 @@ export async function POST(req: Request) {
 
     console.log(`[Webhook] Upserting profile row:`, row);
 
-    const { error } = await supabaseAdmin
+    const { error, data } = await supabaseAdmin
       .from('profiles')
-      .upsert([row], { onConflict: 'id' });
+      .upsert([row], { onConflict: 'id' })
+      .select();
 
     if (error) {
       console.error(`[Webhook] Error upserting user ${id}:`, error);
+      console.error(`[Webhook] Full error details:`, {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+      });
       return new Response(`DB error: ${error.message}`, { status: 500 });
     }
 
@@ -123,8 +142,9 @@ export async function POST(req: Request) {
       full_name: fullName,
       username,
       avatar_url: image_url,
-      mobile: meta.mobile,
-      city: meta.city,
+      mobile,
+      city,
+      data_received: data,
     });
   }
 

@@ -23,10 +23,15 @@ export default function ProfileSetupPage() {
         router.push('/dashboard');
         return;
       }
-      // Pre-fill suggestion from name
+      // Pre-fill username from name
       const first = user.firstName?.toLowerCase() || '';
       const last  = user.lastName?.toLowerCase()  || '';
       if (first) setUsername(first + (last ? `_${last}` : ''));
+      
+      // Pre-fill mobile and city from Clerk metadata (set during email signup)
+      const publicMeta = (user.publicMetadata as any) ?? {};
+      if (publicMeta.mobile) setMobile(publicMeta.mobile);
+      if (publicMeta.city) setCity(publicMeta.city);
     }
   }, [isLoaded, user, router]);
 
