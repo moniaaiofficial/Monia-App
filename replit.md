@@ -26,7 +26,7 @@ Accepts POST with any subset of: `userId`, `username`, `mobile`, `city`, `full_n
 - **Database**: Supabase (PostgreSQL with Realtime)
 - **Styling**: Tailwind CSS
 - **PWA**: next-pwa (disabled in development)
-- **Package Manager**: pnpm
+- **Package Manager**: npm
 
 ## Key Files
 - `app/` — Next.js App Router pages and API routes
@@ -76,12 +76,14 @@ Tables managed via migrations in `supabase/migrations/`:
 - `CLERK_WEBHOOK_SECRET` — Clerk webhook signing secret
 - `SUPABASE_SERVICE_ROLE_KEY` — Supabase service role key (bypasses RLS)
 
-### Replit Shared Env Vars (non-sensitive)
+### Replit Secrets (public/frontend keys — also stored as secrets for safety)
 - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` — Clerk publishable key
-- `NEXT_PUBLIC_CLERK_SIGN_IN_URL` — `/auth/login`
-- `NEXT_PUBLIC_CLERK_SIGN_UP_URL` — `/auth/signup`
 - `NEXT_PUBLIC_SUPABASE_URL` — Supabase project URL
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` — Supabase anon key (safe for client)
+
+### Replit Shared Env Vars (non-sensitive config)
+- `NEXT_PUBLIC_CLERK_SIGN_IN_URL` — `/auth/login`
+- `NEXT_PUBLIC_CLERK_SIGN_UP_URL` — `/auth/signup`
 
 ## Design System
 Global design tokens in `app/globals.css` and `tailwind.config.ts`:
@@ -96,11 +98,12 @@ Providers in `app/layout.tsx`:
 - `components/TiltLayer.tsx` — DeviceOrientation parallax for `.tilt-target` elements
 
 ## Running the App
-- **Dev**: `pnpm run dev` (port 5000)
-- **Build**: `pnpm run build`
-- **Start**: `pnpm run start` (port 5000)
+- **Dev**: `npm run dev` (port 5000)
+- **Build**: `npm run build`
+- **Start**: `npm run start` (port 5000)
 
 ## Replit Configuration
-- Workflow: "Start application" runs `pnpm run dev` on port 5000
+- Workflow: "Start application" runs `npm run dev` on port 5000
 - Host binding: `0.0.0.0` for Replit proxy compatibility
 - Port 5000 maps to external port 80
+- All secrets stored in Replit Secrets vault (not in .env file)
