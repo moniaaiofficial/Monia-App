@@ -31,6 +31,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
     }
 
+    console.log(`📝 [API] Profile update requested for user ${userId}:`, body);
+
     // Build the Supabase update payload — only include defined fields
     const supabasePatch: Record<string, any> = { id: userId, updated_at: new Date().toISOString() };
 
@@ -44,22 +46,26 @@ export async function POST(request: Request) {
         .neq('id', userId)
         .maybeSingle();
       if (existing) {
+        console.warn(`⚠️ Username "${cleanUsername}" already taken`);
         return NextResponse.json({ error: 'Username is already taken' }, { status: 409 });
       }
       supabasePatch.username = cleanUsername;
+      console.log(`✅ Username updated: ${cleanUsername}`);
     }
-    if (mobile      !== undefined) supabasePatch.mobile      = mobile;
-    if (city        !== undefined) supabasePatch.city        = city;
-    if (full_name   !== undefined) supabasePatch.full_name   = full_name;
-    if (email       !== undefined) supabasePatch.email       = email;
-    if (avatar_url  !== undefined) supabasePatch.avatar_url  = avatar_url;
+    if (mobile      !== undefined) { supabasePatch.mobile      = mobile; console.log(`✅ Mobile updated: ${mobile}`); }
+    if (city        !== undefined) { supabasePatch.city        = city; console.log(`✅ City updated: ${city}`); }
+    if (full_name   !== undefined) { supabasePatch.full_name   = full_name; console.log(`✅ Full name updated: ${full_name}`); }
+    if (email       !== undefined) { supabasePatch.email       = email; console.log(`✅ Email updated: ${email}`); }
+    if (avatar_url  !== undefined) { supabasePatch.avatar_url  = avatar_url; console.log(`✅ Avatar updated`); }
 
-    if (hide_phone        !== undefined) supabasePatch.hide_phone        = hide_phone;
-    if (hide_city         !== undefined) supabasePatch.hide_city         = hide_city;
-    if (hide_full_name    !== undefined) supabasePatch.hide_full_name    = hide_full_name;
-    if (sleep_mode_enabled !== undefined) supabasePatch.sleep_mode_enabled = sleep_mode_enabled;
-    if (sleep_start       !== undefined) supabasePatch.sleep_start       = sleep_start;
-    if (sleep_end         !== undefined) supabasePatch.sleep_end         = sleep_end;
+    if (hide_phone        !== undefined) { supabasePatch.hide_phone        = hide_phone; console.log(`✅ Hide phone: ${hide_phone}`); }
+    if (hide_city         !== undefined) { supabasePatch.hide_city         = hide_city; console.log(`✅ Hide city: ${hide_city}`); }
+    if (hide_full_name    !== undefined) { supabasePatch.hide_full_name    = hide_full_name; console.log(`✅ Hide full name: ${hide_full_name}`); }
+    if (sleep_mode_enabled !== undefined) { supabasePatch.sleep_mode_enabled = sleep_mode_enabled; console.log(`✅ Sleep mode enabled: ${sleep_mode_enabled}`); }
+    if (sleep_start       !== undefined) { supabasePatch.sleep_start       = sleep_start; console.log(`✅ Sleep start: ${sleep_start}`); }
+    if (sleep_end         !== undefined) { supabasePatch.sleep_end         = sleep_end; console.log(`✅ Sleep end: ${sleep_end}`); }
+
+    console.log(`📤 Upserting to Supabase:`, supabasePatch);
 
     // Upsert into Supabase profiles
     const { error: supabaseError, data: updatedProfile } = await supabaseAdmin
@@ -69,14 +75,17 @@ export async function POST(request: Request) {
       .single();
 
     if (supabaseError) {
-      console.error('Supabase upsert error:', supabaseError);
+      console.error('❌ Supabase upsert error:', supabaseError);
       return NextResponse.json({ error: supabaseError.message }, { status: 500 });
     }
+
+    console.log(`✅ Profile upserted successfully:`, updatedProfile);
 
     // If username is being set, also update Clerk metadata
     if (username !== undefined || mobile !== undefined || city !== undefined) {
       try {
         const client = await clerkClient();
+        console.log(`📝 Updating Clerk metadata for user ${userId}...`);
         await client.users.updateUserMetadata(userId, {
           publicMetadata: {
             username: supabasePatch.username,
@@ -85,8 +94,9 @@ export async function POST(request: Request) {
             profile_complete: true,
           },
         });
+        console.log(`✅ Clerk metadata updated with profile_complete: true`);
       } catch (clerkErr) {
-        console.error('Clerk metadata update error (non-fatal):', clerkErr);
+        console.error('⚠️ Clerk metadata update error (non-fatal):', clerkErr);
       }
     }
 
@@ -95,7 +105,7 @@ export async function POST(request: Request) {
       data: updatedProfile 
     });
   } catch (error) {
-    console.error('Error in profile update endpoint:', error);
+    console.error('❌ Error in profile update endpoint:', error);
     return NextResponse.json({ error: 'An unexpected error occurred' }, { status: 500 });
   }
 }

@@ -48,6 +48,14 @@ export default function ProfileSetupPage() {
     setError('');
     setLoading(true);
 
+    console.log(`📝 [Profile Setup] Submitting profile for user ${user.id}:`, {
+      username: cleanUsername,
+      mobile: mobile.trim(),
+      city: city.trim(),
+      full_name: user.fullName,
+      email: user.primaryEmailAddress?.emailAddress,
+    });
+
     try {
       const response = await fetch('/api/profile/update', {
         method: 'POST',
@@ -63,15 +71,24 @@ export default function ProfileSetupPage() {
         }),
       });
 
+      console.log(`📤 [Profile Setup] Server response: ${response.status}`);
+      const data = await response.json();
+      console.log(`📤 [Profile Setup] Response data:`, data);
+
       if (response.ok) {
+        console.log(`✅ [Profile Setup] Profile saved successfully`);
         await user.reload();
+        console.log(`✅ [Profile Setup] Clerk user reloaded`);
         router.push('/dashboard');
       } else {
-        const data = await response.json();
-        setError(data.error || 'Failed to save profile');
+        const errorMsg = data.error || 'Failed to save profile';
+        console.error(`❌ [Profile Setup] Save failed:`, errorMsg);
+        setError(errorMsg);
       }
-    } catch {
-      setError('An unexpected error occurred. Please try again.');
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'An unexpected error occurred. Please try again.';
+      console.error('❌ [Profile Setup] Exception:', errorMsg);
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }

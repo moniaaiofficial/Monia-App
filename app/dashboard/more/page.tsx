@@ -11,15 +11,38 @@ export default function MorePage() {
   const router = useRouter();
   const { user, isLoaded } = useUser();
   const [profile, setProfile] = useState<any>(null);
+  const [profileError, setProfileError] = useState('');
 
   useEffect(() => {
     if (!isLoaded || !user) return;
     (async () => {
-      const { data } = await supabase
+      console.log(`📱 [More Page] Loading profile for user ${user.id}...`);
+      const { data, error } = await supabase
         .from('profiles')
-        .select('full_name, email, mobile, username, avatar_url')
+        .select('full_name, email, mobile, username, avatar_url, city')
         .eq('id', user.id)
         .maybeSingle();
+      
+      if (error) {
+        console.error('❌ [More Page] Profile fetch error:', error);
+        setProfileError('Failed to load profile');
+        return;
+      }
+
+      if (!data) {
+        console.warn('⚠️ [More Page] No profile found');
+        setProfile(null);
+        return;
+      }
+
+      console.log('✅ [More Page] Profile loaded:', {
+        full_name: data.full_name,
+        email: data.email,
+        mobile: data.mobile,
+        username: data.username,
+        city: data.city,
+        avatar_url: data.avatar_url ? '(set)' : '(not set)',
+      });
       setProfile(data);
     })();
   }, [isLoaded, user]);

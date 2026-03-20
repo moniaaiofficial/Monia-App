@@ -2,24 +2,31 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 
 export default function Splash() {
   const router = useRouter();
-  const { userId, isLoaded } = useAuth();
+  const { user, isLoaded } = useUser();
 
   useEffect(() => {
     if (!isLoaded) return;
     const timer = setTimeout(() => {
-      if (userId) {
-        router.push("/dashboard");
+      if (user?.id) {
+        const isProfileComplete = (user.publicMetadata as any)?.profile_complete === true;
+        console.log(`[Splash] User logged in — profile_complete: ${isProfileComplete}`);
+        if (isProfileComplete) {
+          router.push("/dashboard");
+        } else {
+          console.log('[Splash] Redirecting to profile-setup (incomplete profile)');
+          router.push("/profile-setup");
+        }
       } else {
         router.push("/welcome");
       }
     }, 1500);
 
     return () => clearTimeout(timer);
-  }, [router, userId, isLoaded]);
+  }, [router, user, isLoaded]);
 
   return (
     <div

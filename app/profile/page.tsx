@@ -80,7 +80,13 @@ export default function ProfilePage() {
     if (!isLoaded || !user) return;
     (async () => {
       const userId = user.id;
-      console.log('USER ID:', userId);
+      console.log('👤 USER ID:', userId);
+      console.log('📦 USER DATA FROM CLERK:', {
+        fullName: user.fullName,
+        email: user.primaryEmailAddress?.emailAddress,
+        imageUrl: user.imageUrl,
+        publicMetadata: user.publicMetadata,
+      });
       
       try {
         // STEP 1: Try to fetch existing profile using .single()
@@ -90,12 +96,17 @@ export default function ProfilePage() {
           .eq('id', userId)
           .single();
 
-        console.log('PROFILE RESPONSE:', data);
-        console.log('PROFILE ERROR:', error);
+        console.log('📊 PROFILE RESPONSE:', data);
+        console.log('⚠️ PROFILE ERROR:', error?.code, error?.message);
 
         // STEP 2: Handle "no row found" error (PGRST116) - auto create profile
         if (error && error.code === 'PGRST116') {
-          console.warn('⚠️ No profile found. Creating new profile...');
+          console.warn('⚠️ No profile found. Creating new profile with Clerk metadata...');
+          
+          const username = 
+            (user.username as string) ||
+            (user.publicMetadata as any)?.username ||
+            `user_${userId.slice(-6)}`;
           
           const { data: newProfile, error: insertError } = await supabase
             .from('profiles')
@@ -103,12 +114,22 @@ export default function ProfilePage() {
               id: userId,
               email: user.primaryEmailAddress?.emailAddress || '',
               full_name: user.fullName || '',
+              username: username,
+              avatar_url: user.imageUrl || '',
+              mobile: (user.publicMetadata as any)?.mobile || null,
+              city: (user.publicMetadata as any)?.city || null,
+              hide_phone: false,
+              hide_city: false,
+              hide_full_name: false,
+              sleep_mode_enabled: false,
+              sleep_start: '20:00',
+              sleep_end: '07:00',
             })
             .select()
             .single();
 
-          console.log('NEW PROFILE:', newProfile);
-          console.log('INSERT ERROR:', insertError);
+          console.log('✅ NEW PROFILE CREATED:', newProfile);
+          console.log('❌ INSERT ERROR:', insertError);
 
           if (insertError) {
             console.error('❌ Profile creation failed:', {
@@ -127,6 +148,9 @@ export default function ProfilePage() {
               id: newProfile.id, 
               email: newProfile.email, 
               full_name: newProfile.full_name,
+              username: newProfile.username,
+              mobile: newProfile.mobile,
+              city: newProfile.city,
             });
             setProfile({
               ...newProfile,
@@ -144,7 +168,7 @@ export default function ProfilePage() {
         }
 
         // STEP 3: Handle other real errors
-        if (error) {
+        if (error && error.code !== 'PGRST116') {
           console.error('❌ Profile fetch error:', {
             message: error.message,
             code: error.code,
@@ -152,21 +176,26 @@ export default function ProfilePage() {
             hint: error.hint,
             userId,
           });
-          setError('Failed to fetch profile from database');
+          // Don't show generic error message for most cases - just log it
+          console.warn('⚠️ Profile fetch failed, but continuing...');
           setLoading(false);
           return;
         }
 
         // STEP 4: If profile exists, use it
         if (data) {
-          console.log('✅ Profile loaded:', { 
+          console.log('✅ Profile loaded successfully:', { 
             id: data.id, 
             username: data.username, 
+            email: data.email,
+            full_name: data.full_name,
             mobile: data.mobile, 
             city: data.city,
+            avatar_url: data.avatar_url,
             hide_phone: data.hide_phone,
             hide_city: data.hide_city,
             hide_full_name: data.hide_full_name,
+            sleep_mode_enabled: data.sleep_mode_enabled,
           });
           setProfile({
             ...data,
@@ -197,7 +226,8 @@ export default function ProfilePage() {
     // Optimistic update - update UI immediately
     const updatedProfile = { ...profile, ...patch };
     setProfile(updatedProfile);
-    console.log('OPTIMISTIC UPDATE - UPDATED PROFILE STATE:', updatedProfile);
+    console.log('💾 OPTIMISTIC UPDATE - Local state updated:', patch);
+    console.log('📱 UPDATED PROFILE STATE:', updatedProfile);
 
     try {
       console.log(`📝 Saving profile for user ${user.id}:`, patch);
@@ -209,18 +239,20 @@ export default function ProfilePage() {
       });
       
       const data = await res.json();
+      console.log(`📤 Server response (status ${res.status}):`, data);
 
       if (!res.ok) {
         const errorMsg = data.error || 'Failed to save';
         console.error(`❌ Profile update failed (${res.status}):`, errorMsg);
         setError(errorMsg);
         // Revert on error
+        console.log('⏮️  Reverting optimistic update due to error');
         setProfile({ ...profile });
       } else {
-        console.log('✅ Profile updated successfully:', data);
+        console.log('✅ Profile updated successfully on server');
         if (data.data) {
           setProfile(data.data);
-          console.log('CONFIRMED FROM SERVER - UPDATED PROFILE STATE:', data.data);
+          console.log('📦 CONFIRMED FROM SERVER - Updated profile state:', data.data);
         }
         setSaveSuccess(true);
         setTimeout(() => setSaveSuccess(false), 2000);
@@ -230,6 +262,7 @@ export default function ProfilePage() {
       console.error('❌ Save failed:', errorMsg);
       setError(errorMsg);
       // Revert on error
+      console.log('⏮️  Reverting optimistic update due to exception');
       setProfile({ ...profile });
     } finally {
       setSaving(false);

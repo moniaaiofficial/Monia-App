@@ -71,6 +71,14 @@ export async function POST(req: Request) {
       (meta.username as string | null) ||
       generateUsernameFromEmail(userEmail);
 
+    console.log(`[Webhook] Processing ${evt.type} for user ${id}:`, {
+      email: userEmail,
+      fullName,
+      username,
+      imageUrl: image_url,
+      metadata: meta,
+    });
+
     const row: Record<string, any> = {
       id,
       email:      userEmail,
@@ -84,14 +92,20 @@ export async function POST(req: Request) {
 
     // Set defaults only on CREATE (don't overwrite existing values on update)
     if (evt.type === 'user.created') {
-      row.hide_phone        = false;
-      row.hide_city         = false;
-      row.hide_full_name    = false;
-      row.sleep_mode_enabled = false;
-      row.sleep_start       = '20:00';
-      row.sleep_end         = '07:00';
+      row.hide_phone        = meta.hide_phone ?? false;
+      row.hide_city         = meta.hide_city ?? false;
+      row.hide_full_name    = meta.hide_full_name ?? false;
+      row.sleep_mode_enabled = meta.sleep_mode_enabled ?? false;
+      row.sleep_start       = meta.sleep_start ?? '20:00';
+      row.sleep_end         = meta.sleep_end ?? '07:00';
       row.created_at        = new Date().toISOString();
+      console.log(`[Webhook] Creating new profile with defaults`);
+    } else {
+      // On update, preserve existing toggle values if not provided in metadata
+      console.log(`[Webhook] Updating existing profile`);
     }
+
+    console.log(`[Webhook] Upserting profile row:`, row);
 
     const { error } = await supabaseAdmin
       .from('profiles')
@@ -102,7 +116,16 @@ export async function POST(req: Request) {
       return new Response(`DB error: ${error.message}`, { status: 500 });
     }
 
-    console.log(`[Webhook] ✅ ${evt.type} — upserted user ${id} (${userEmail})`);
+    console.log(`[Webhook] ✅ ${evt.type} — Successfully upserted user ${id} to Supabase`);
+    console.log(`[Webhook] Profile data stored:`, {
+      id,
+      email: userEmail,
+      full_name: fullName,
+      username,
+      avatar_url: image_url,
+      mobile: meta.mobile,
+      city: meta.city,
+    });
   }
 
   // ── user.deleted ────────────────────────────────────────────────────
