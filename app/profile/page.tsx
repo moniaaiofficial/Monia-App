@@ -332,7 +332,7 @@ export default function ProfilePage() {
           <div style={{ textAlign: 'center' }}>
             <p className="text-xl font-black text-white">{displayName}</p>
             <p style={{ color: '#c6ff33', fontSize: 14, fontWeight: 600, marginTop: 2 }}>
-              @{profile?.username || 'no-username'}
+              @{profile?.username || ''}
             </p>
           </div>
         </div>
