@@ -1,22 +1,32 @@
 'use client';
 
 import { useState, useRef, useCallback, KeyboardEvent } from 'react';
-import { Send, Paperclip, Smile } from 'lucide-react';
+import { Send, Paperclip, Smile, X, CornerUpLeft } from 'lucide-react';
+
+type ReplyTo = {
+  id: string;
+  content: string;
+  type: string;
+  senderName: string;
+  isSelf: boolean;
+};
 
 type Props = {
-  onSend:           (content: string, type?: string) => void;
+  onSend:           (content: string, type?: string, replyToId?: string) => void;
   onTypingChange?:  (isTyping: boolean) => void;
   onAttachment?:    () => void;
   onEmojiToggle?:   () => void;
   disabled?:        boolean;
   placeholder?:     string;
+  replyTo?:         ReplyTo | null;
+  onCancelReply?:   () => void;
 };
 
 export default function ChatInput({
   onSend, onTypingChange, onAttachment, onEmojiToggle, disabled,
-  placeholder = 'Type a message…',
+  placeholder = 'Type a message…', replyTo, onCancelReply,
 }: Props) {
-  const [text,     setText]    = useState('');
+  const [text, setText] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const typingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isTypingRef = useRef(false);
@@ -38,8 +48,9 @@ export default function ChatInput({
     const trimmed = text.trim();
     if (!trimmed || disabled) return;
     stopTyping();
-    onSend(trimmed, 'text');
+    onSend(trimmed, 'text', replyTo?.id);
     setText('');
+    onCancelReply?.();
     if (textareaRef.current) textareaRef.current.style.height = 'auto';
   };
 
@@ -61,6 +72,18 @@ export default function ChatInput({
 
   const canSend = text.trim().length > 0 && !disabled;
 
+  const previewText = (content: string, type: string) => {
+    if (type === 'image') return '📷 Photo';
+    if (type === 'video') return '🎥 Video';
+    if (type === 'audio') return '🎤 Voice note';
+    if (type === 'document') return '📎 Document';
+    if (type === 'location') return '📍 Location';
+    if (type === 'poll') {
+      try { return `📊 ${JSON.parse(content).question}`; } catch { return '📊 Poll'; }
+    }
+    return content.length > 60 ? content.slice(0, 60) + '…' : content;
+  };
+
   const btnStyle = {
     width: 34, height: 34, borderRadius: '50%', background: 'none', border: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -71,14 +94,40 @@ export default function ChatInput({
     <div
       style={{
         position: 'fixed', bottom: 88, left: 0, right: 0, zIndex: 40,
-        padding: '8px 12px',
         background: 'rgba(6,0,12,0.92)',
         backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
         borderTop: '1px solid rgba(255,255,255,0.06)',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6 }}>
-        {/* Attachment */}
+      {/* Reply preview bar */}
+      {replyTo && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 10,
+          padding: '8px 14px 4px',
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
+        }}>
+          <CornerUpLeft size={14} style={{ color: '#c6ff33', flexShrink: 0 }} />
+          <div style={{
+            flex: 1, borderLeft: '2px solid #c6ff33', paddingLeft: 8,
+            minWidth: 0,
+          }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: '#c6ff33', marginBottom: 1 }}>
+              {replyTo.isSelf ? 'You' : replyTo.senderName}
+            </p>
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {previewText(replyTo.content, replyTo.type)}
+            </p>
+          </div>
+          <button
+            onClick={onCancelReply}
+            style={{ color: 'rgba(255,255,255,0.4)', background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0 }}
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
+
+      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, padding: '8px 12px' }}>
         <button
           onClick={onAttachment}
           disabled={disabled}
@@ -88,7 +137,6 @@ export default function ChatInput({
           <Paperclip size={20} style={{ color: 'rgba(255,255,255,0.45)' }} />
         </button>
 
-        {/* Textarea */}
         <textarea
           ref={textareaRef}
           value={text}
@@ -111,10 +159,9 @@ export default function ChatInput({
             transition: 'border-color 0.2s',
           }}
           onFocus={(e) => { if (!disabled) (e.target as HTMLTextAreaElement).style.borderColor = 'rgba(198,255,51,0.45)'; }}
-          onBlur={(e)  => { (e.target as HTMLTextAreaElement).style.borderColor = 'rgba(255,255,255,0.10)'; stopTyping(); }}
+          onBlur={(e) => { (e.target as HTMLTextAreaElement).style.borderColor = 'rgba(255,255,255,0.10)'; stopTyping(); }}
         />
 
-        {/* Emoji */}
         <button
           onClick={onEmojiToggle}
           disabled={disabled}
@@ -124,7 +171,6 @@ export default function ChatInput({
           <Smile size={20} style={{ color: 'rgba(255,255,255,0.45)' }} />
         </button>
 
-        {/* Send */}
         <button
           onClick={submit}
           disabled={!canSend}
@@ -138,7 +184,7 @@ export default function ChatInput({
             boxShadow: canSend ? '0 0 16px rgba(198,255,51,0.35)' : 'none',
           }}
           onPointerDown={(e) => { if (canSend) (e.currentTarget as HTMLButtonElement).style.transform = 'scale(0.9)'; }}
-          onPointerUp={(e)   => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)'; }}
+          onPointerUp={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)'; }}
         >
           <Send size={18} style={{ color: canSend ? '#06000c' : 'rgba(255,255,255,0.25)', strokeWidth: 2.5, marginLeft: 2 }} />
         </button>

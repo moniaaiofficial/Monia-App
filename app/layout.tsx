@@ -3,6 +3,7 @@ import './globals.css';
 import type { Metadata, Viewport } from 'next';
 import UIProvider from '@/components/UIProvider';
 import TiltLayer from '@/components/TiltLayer';
+import { ProfileProvider } from '@/lib/profile-context';
 
 export const viewport: Viewport = {
   themeColor: '#06000c',
@@ -31,15 +32,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider
-      signInUrl="/auth/login"
-      signUpUrl="/auth/signup"
-    >
+    <ClerkProvider signInUrl="/auth/login" signUpUrl="/auth/signup">
       <html lang="en">
         <body>
           <UIProvider>
             <TiltLayer>
-              {children}
+              <ProfileProvider>
+                {children}
+              </ProfileProvider>
             </TiltLayer>
           </UIProvider>
         </body>

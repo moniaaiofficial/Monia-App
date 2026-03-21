@@ -7,6 +7,16 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
 );
 
+function applyPrivacyMask(profile: any, viewerId: string) {
+  if (profile.id === viewerId) return profile;
+  return {
+    ...profile,
+    full_name: profile.hide_full_name ? null : profile.full_name,
+    mobile:    profile.hide_phone     ? null : profile.mobile,
+    city:      profile.hide_city      ? null : profile.city,
+  };
+}
+
 export async function GET(request: Request) {
   try {
     const { userId } = await auth();
@@ -23,7 +33,7 @@ export async function GET(request: Request) {
 
     const { data, error } = await supabaseAdmin
       .from('profiles')
-      .select('id, full_name, email, username, mobile, city, avatar_url, sleep_mode_enabled, sleep_start, sleep_end')
+      .select('id, full_name, email, username, mobile, city, avatar_url, sleep_mode_enabled, sleep_start, sleep_end, hide_phone, hide_city, hide_full_name')
       .neq('id', userId)
       .or(
         `full_name.ilike.%${q}%,username.ilike.%${q}%,email.ilike.%${q}%,mobile.ilike.%${q}%,city.ilike.%${q}%`,
@@ -35,7 +45,9 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ data: data ?? [] });
+    const masked = (data ?? []).map((p) => applyPrivacyMask(p, userId));
+
+    return NextResponse.json({ data: masked });
   } catch (err) {
     console.error('[Profiles Search] Unexpected error:', err);
     return NextResponse.json({ error: 'An unexpected error occurred' }, { status: 500 });

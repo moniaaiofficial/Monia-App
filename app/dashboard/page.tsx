@@ -6,6 +6,7 @@ import { useUser } from '@clerk/nextjs';
 import { Search, ArrowLeft, X, UserPlus } from 'lucide-react';
 import { getInitials, formatMsgTime, type Chat, type Profile } from '@/lib/chat';
 import { supabase } from '@/lib/supabase/client';
+import { useMyProfile } from '@/lib/profile-context';
 
 function avatarBg(name: string | undefined) {
   const p = ['rgba(198,255,51,0.14)', 'rgba(0,229,255,0.11)', 'rgba(255,0,255,0.10)', 'rgba(168,85,247,0.12)'];
@@ -40,6 +41,7 @@ async function apiCreateOrGetChat(partnerId: string): Promise<Chat | null> {
 
 function ChatsPageInner() {
   const { user, isLoaded } = useUser();
+  const { myProfile } = useMyProfile();
   const router = useRouter();
   const params = useSearchParams();
 
@@ -47,7 +49,6 @@ function ChatsPageInner() {
   const [searchQuery,      setSearchQuery]       = useState('');
   const [chats,            setChats]             = useState<Chat[]>([]);
   const [chatsLoading,     setChatsLoading]      = useState(true);
-
   const [newChatOpen,      setNewChatOpen]       = useState(false);
   const [newChatQuery,     setNewChatQuery]       = useState('');
   const [newChatResults,   setNewChatResults]     = useState<Profile[]>([]);
@@ -66,7 +67,6 @@ function ChatsPageInner() {
 
   const loadChats = useCallback(async () => {
     if (!user) return;
-    setChatsLoading(true);
     const data = await apiGetChats();
     setChats(data);
     setChatsLoading(false);
@@ -80,15 +80,12 @@ function ChatsPageInner() {
       .channel('chats-list-realtime')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'chats' }, () => loadChats())
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () => loadChats())
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles' }, () => loadChats())
       .subscribe();
 
-    // Polling fallback — guarantees chat list updates without manual refresh
-    const pollInterval = setInterval(() => loadChats(), 5000);
-
-    return () => { clearInterval(pollInterval); supabase.removeChannel(channel); };
+    return () => { supabase.removeChannel(channel); };
   }, [isLoaded, user, loadChats]);
 
-  // New-chat search — debounced, searches all 5 fields via API
   useEffect(() => {
     if (!newChatQuery.trim()) { setNewChatResults([]); return; }
     const t = setTimeout(async () => {
@@ -126,12 +123,13 @@ function ChatsPageInner() {
       )
     : chats;
 
-  const avatarUrl    = user?.imageUrl;
-  const userInitials = getInitials(user?.fullName || user?.firstName || '');
+  // Use Supabase profile avatar_url first, fallback to Clerk imageUrl
+  const myAvatarUrl = myProfile?.avatar_url || user?.imageUrl;
+  const userInitials = getInitials(myProfile?.full_name || user?.fullName || user?.firstName || '');
 
   return (
     <main className="min-h-screen page-enter" style={{ background: '#06000c' }}>
-      {/* ── Header ───────────────────────────────────────────────────── */}
+      {/* Header */}
       <div
         className="sticky top-0 z-10"
         style={{ background: 'rgba(6,0,12,0.94)', backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)' }}
@@ -175,8 +173,12 @@ function ChatsPageInner() {
                   <Search className="w-5 h-5" />
                 </button>
                 <button aria-label="Profile" onClick={() => router.push('/profile')} style={{ flexShrink: 0 }}>
-                  {avatarUrl ? (
-                    <img src={avatarUrl} alt="Me" style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(198,255,51,0.45)' }} />
+                  {myAvatarUrl ? (
+                    <img
+                      src={myAvatarUrl}
+                      alt="Me"
+                      style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(198,255,51,0.45)' }}
+                    />
                   ) : (
                     <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(198,255,51,0.12)', border: '1.5px solid rgba(198,255,51,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: '#c6ff33' }}>
                       {userInitials}
@@ -189,7 +191,7 @@ function ChatsPageInner() {
         </div>
       </div>
 
-      {/* ── New Chat / Find People Modal ─────────────────────────────── */}
+      {/* New Chat Modal */}
       {newChatOpen && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'flex', flexDirection: 'column', background: '#06000c' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(6,0,12,0.96)' }}>
@@ -235,7 +237,9 @@ function ChatsPageInner() {
                   </div>
                 )}
                 <div style={{ minWidth: 0 }}>
-                  <p style={{ color: '#fff', fontWeight: 600, fontSize: 14, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.full_name}</p>
+                  <p style={{ color: '#fff', fontWeight: 600, fontSize: 14, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {p.full_name || p.username || 'MONiA User'}
+                  </p>
                   <p style={{ color: 'rgba(255,255,255,0.38)', fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     @{p.username}{p.city ? ` · ${p.city}` : ''}{p.mobile ? ` · ${p.mobile}` : ''}
                   </p>
@@ -259,7 +263,7 @@ function ChatsPageInner() {
         </div>
       )}
 
-      {/* ── Chat list ───────────────────────────────────────────────── */}
+      {/* Chat list */}
       <div className="px-4 py-2">
         {chatsLoading ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -283,11 +287,7 @@ function ChatsPageInner() {
               {searchQuery ? 'Try another search term' : 'Start a conversation with someone'}
             </p>
             {!searchQuery && (
-              <button
-                onClick={openNewChat}
-                className="btn-neon px-6 py-3 rounded-2xl font-bold text-sm"
-                style={{ color: '#06000c' }}
-              >
+              <button onClick={openNewChat} className="btn-neon px-6 py-3 rounded-2xl font-bold text-sm" style={{ color: '#06000c' }}>
                 Find People
               </button>
             )}

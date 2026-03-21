@@ -7,6 +7,16 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
 );
 
+function applyPrivacyMask(profile: any, viewerId: string) {
+  if (!profile || profile.id === viewerId) return profile;
+  return {
+    ...profile,
+    full_name: profile.hide_full_name ? null : profile.full_name,
+    mobile:    profile.hide_phone     ? null : profile.mobile,
+    city:      profile.hide_city      ? null : profile.city,
+  };
+}
+
 export async function GET() {
   try {
     const { userId } = await auth();
@@ -41,9 +51,11 @@ export async function GET() {
     if (partnerIds.length > 0) {
       const { data: profiles } = await supabaseAdmin
         .from('profiles')
-        .select('id, full_name, email, username, mobile, city, avatar_url, sleep_mode_enabled, sleep_start, sleep_end')
+        .select('id, full_name, email, username, mobile, city, avatar_url, sleep_mode_enabled, sleep_start, sleep_end, hide_phone, hide_city, hide_full_name')
         .in('id', partnerIds);
-      profileMap = Object.fromEntries((profiles ?? []).map((p: any) => [p.id, p]));
+      profileMap = Object.fromEntries(
+        (profiles ?? []).map((p: any) => [p.id, applyPrivacyMask(p, userId)]),
+      );
     }
 
     const enriched = chats.map((chat: any) => {
