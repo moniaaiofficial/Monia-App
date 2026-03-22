@@ -123,7 +123,6 @@ function ChatsPageInner() {
       )
     : chats;
 
-  // Use Supabase profile avatar_url first, fallback to Clerk imageUrl
   const myAvatarUrl = myProfile?.avatar_url || user?.imageUrl;
   const userInitials = getInitials(myProfile?.full_name || user?.fullName || user?.firstName || '');
 

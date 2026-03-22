@@ -99,6 +99,11 @@ body {
   100% { transform: scale(1.12) translateY(-3px);}
 }
 
+@keyframes typingDot {
+  0%, 80%, 100% { transform: translateY(0);    opacity: 0.4; }
+  40%           { transform: translateY(-6px); opacity: 1;   }
+}
+
 @keyframes logoIdleGlow {
   0%,100% { text-shadow: 0 0 10px rgba(255,255,255,0.15), 0 0 30px rgba(198,255,51,0.08); }
   50%     { text-shadow: 0 0 18px rgba(255,255,255,0.25), 0 0 50px rgba(198,255,51,0.14); }

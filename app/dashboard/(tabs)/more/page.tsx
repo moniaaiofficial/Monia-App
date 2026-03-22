@@ -16,7 +16,6 @@ export default function MorePage() {
   useEffect(() => {
     if (!isLoaded || !user) return;
     (async () => {
-      console.log(`📱 [More Page] Loading profile for user ${user.id}...`);
       const { data, error } = await supabase
         .from('profiles')
         .select('full_name, email, mobile, username, avatar_url, city')
@@ -24,25 +23,15 @@ export default function MorePage() {
         .maybeSingle();
       
       if (error) {
-        console.error('❌ [More Page] Profile fetch error:', error);
         setProfileError('Failed to load profile');
         return;
       }
 
       if (!data) {
-        console.warn('⚠️ [More Page] No profile found');
         setProfile(null);
         return;
       }
 
-      console.log('✅ [More Page] Profile loaded:', {
-        full_name: data.full_name,
-        email: data.email,
-        mobile: data.mobile,
-        username: data.username,
-        city: data.city,
-        avatar_url: data.avatar_url ? '(set)' : '(not set)',
-      });
       setProfile(data);
     })();
   }, [isLoaded, user]);
@@ -59,7 +48,6 @@ export default function MorePage() {
       </div>
 
       <div className="p-5 space-y-4">
-        {/* Profile card */}
         <button
           onClick={() => router.push('/profile')}
           className="w-full text-left"
@@ -96,7 +84,6 @@ export default function MorePage() {
           <ChevronRight style={{ width: 18, height: 18, color: 'rgba(255,255,255,0.25)', flexShrink: 0 }} />
         </button>
 
-        {/* Legal links */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <button
             onClick={() => router.push('/legal/privacy-policy')}
