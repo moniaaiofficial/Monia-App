@@ -33,13 +33,13 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="dark" style={{ backgroundColor: '#06000c' }}>
-      <body style={{ backgroundColor: '#06000c', color: '#ffffff', margin: 0 }}>
-        
-        {/* 🚀 Splash yahan Providers ke upar hai, isliye turant dikhega */}
-        <Splash /> 
+    <ClerkProvider signInUrl="/auth/login" signUpUrl="/auth/signup">
+      <html lang="en" className="dark" style={{ backgroundColor: '#06000c' }}>
+        <body style={{ backgroundColor: '#06000c', color: '#ffffff', margin: 0 }}>
+          
+          {/* ✅ Splash ab Provider ke andar hai, error nahi aayega */}
+          <Splash /> 
 
-        <ClerkProvider signInUrl="/auth/login" signUpUrl="/auth/signup">
           <UIProvider>
             <TiltLayer>
               <ProfileProvider>
@@ -47,8 +47,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </ProfileProvider>
             </TiltLayer>
           </UIProvider>
-        </ClerkProvider>
-      </body>
-    </html>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
