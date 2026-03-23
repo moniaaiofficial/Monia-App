@@ -1,34 +1,36 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 
 export default function Splash() {
   const [isVisible, setIsVisible] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
   const { user, isLoaded } = useUser();
 
+  // Navigation check taaki dusre pages par splash na dikhe
+  if (pathname !== "/" && pathname !== "/dashboard") {
+    if (isVisible) setIsVisible(false);
+  }
+
   useEffect(() => {
-    // 3 second ka timer taaki animation poori ho
     const timer = setTimeout(() => {
       if (isLoaded) {
         if (user?.id) {
           const isProfileComplete = (user.publicMetadata as any)?.profile_complete === true;
-          console.log(`[Splash] User logged in — profile_complete: ${isProfileComplete}`);
           if (isProfileComplete) {
             router.push("/dashboard");
           } else {
-            console.log('[Splash] Redirecting to profile-setup (incomplete profile)');
             router.push("/profile-setup");
           }
         } else {
           router.push("/welcome");
         }
-        // Redirect ke baad hi screen hide hogi
         setIsVisible(false);
       }
-    }, 3000); 
+    }, 3500); // 3.5 sec rakha hai taaki animation poori dikhe
 
     return () => clearTimeout(timer);
   }, [router, user, isLoaded]);
@@ -37,14 +39,19 @@ export default function Splash() {
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex h-screen items-center justify-center"
-      style={{ background: '#06000c' }}
+      className="fixed inset-0 z-[9999] flex h-screen items-center justify-center overflow-hidden"
+      style={{ background: '#06000c' }} // ✅ Tera asli Deep Purple Black color
     >
       <h1
-        className="font-black text-white logo-glow animate-pulse"
-        style={{ fontSize: '4.5rem', letterSpacing: '-0.04em' }}
+        className="font-black text-white logo-glow-premium flex"
+        style={{ fontSize: '4.5rem', letterSpacing: '-0.02em' }}
       >
-        MONiA
+        {/* Letters with delay to match your video animation */}
+        <span className="letter-anim" style={{ animationDelay: '0.1s' }}>M</span>
+        <span className="letter-anim" style={{ animationDelay: '0.2s' }}>O</span>
+        <span className="letter-anim" style={{ animationDelay: '0.3s' }}>N</span>
+        <span className="letter-anim" style={{ animationDelay: '0.4s' }}>i</span>
+        <span className="letter-anim" style={{ animationDelay: '0.5s' }}>A</span>
       </h1>
     </div>
   );
