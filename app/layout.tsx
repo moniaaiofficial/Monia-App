@@ -33,8 +33,8 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider signInUrl="/auth/login" signUpUrl="/auth/signup">
-      <html lang="en">
-        <body>
+      <html lang="en" className="dark" style={{ backgroundColor: '#06000c' }}>
+        <body style={{ backgroundColor: '#06000c', color: '#ffffff', margin: 0 }}>
           <UIProvider>
             <TiltLayer>
               <ProfileProvider>
