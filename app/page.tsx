@@ -1,36 +1,41 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 
 export default function Splash() {
+  const [isVisible, setIsVisible] = useState(true); // Control visibility
   const router = useRouter();
   const { user, isLoaded } = useUser();
 
   useEffect(() => {
-    if (!isLoaded) return;
+    // 3 second ka fixed timer taaki animation poori dikhe
     const timer = setTimeout(() => {
-      if (user?.id) {
-        const isProfileComplete = (user.publicMetadata as any)?.profile_complete === true;
-        console.log(`[Splash] User logged in — profile_complete: ${isProfileComplete}`);
-        if (isProfileComplete) {
-          router.push("/dashboard");
+      setIsVisible(false); // Animation ko hide karo
+      
+      if (isLoaded) {
+        if (user?.id) {
+          const isProfileComplete = (user.publicMetadata as any)?.profile_complete === true;
+          if (isProfileComplete) {
+            router.push("/dashboard");
+          } else {
+            router.push("/profile-setup");
+          }
         } else {
-          console.log('[Splash] Redirecting to profile-setup (incomplete profile)');
-          router.push("/profile-setup");
+          router.push("/welcome");
         }
-      } else {
-        router.push("/welcome");
       }
-    }, 1500);
+    }, 3000); // Tera 3-sec animated splash
 
     return () => clearTimeout(timer);
-  }, [router, user, isLoaded]);
+  }, [isLoaded, user, router]);
+
+  if (!isVisible) return null; // 3 sec baad ye component poora gayab ho jayega
 
   return (
     <div
-      className="flex h-screen items-center justify-center page-enter"
+      className="fixed inset-0 z-[9999] flex items-center justify-center"
       style={{ background: '#06000c' }}
     >
       <h1
