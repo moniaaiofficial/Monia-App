@@ -16,7 +16,7 @@ export default function Splash() {
   }
 
   useEffect(() => {
-    // 4 second ka timer taaki slide-in aur exit dono animation dikhe
+    // 3.5 second ka timer taaki animation sukoon se dikhe
     const timer = setTimeout(() => {
       if (isLoaded) {
         if (user?.id) {
@@ -31,7 +31,7 @@ export default function Splash() {
         }
         setIsVisible(false);
       }
-    }, 4000); 
+    }, 3500); 
 
     return () => clearTimeout(timer);
   }, [router, user, isLoaded]);
@@ -41,30 +41,19 @@ export default function Splash() {
   return (
     <div
       className="fixed inset-0 z-[9999] flex h-screen items-center justify-center overflow-hidden"
-      style={{ background: '#06000c' }} // Tera Primary Background
+      style={{ background: '#06000c' }} // Tera Primary Dark Purple Black Background
     >
-      <div className="monia-logo-wrapper flex items-center justify-center relative scale-[0.4] md:scale-100">
-        
-        {/* PEHLI LAYER (Neon Green Base - Fast Slide) */}
-        <div className="base-neon flex items-center select-none">
-          <span style={{ fontSize: '260px' }}>M</span>
-          <span style={{ fontSize: '260px', marginLeft: '-15px' }}>O</span>
-          <span style={{ fontSize: '260px', marginLeft: '-15px' }}>N</span>
-          <span style={{ fontSize: '260px', marginLeft: '-10px' }}>i</span>
-          <span style={{ fontSize: '260px', marginLeft: '-15px' }}>A</span>
-        </div>
-
-        {/* DOOSRI LAYER (Dark Overlay - Jo background jaisa hai aur slow aata hai) */}
-        <div className="overlay-dark flex items-center select-none">
-          <span style={{ fontSize: '141px', marginLeft: '30px' }}>M</span>
-          <span style={{ fontSize: '145px', marginLeft: '65px' }}>O</span>
-          <span style={{ fontSize: '141px', marginLeft: '65px' }}>N</span>
-          {/* i lowercase wala exact adjustment */}
-          <span style={{ fontSize: '187px', marginLeft: '55px', position: 'relative', top: '15px' }}>i</span>
-          <span style={{ fontSize: '145px', marginLeft: '45px' }}>A</span>
-        </div>
-
-      </div>
+      <h1
+        className="font-black text-white logo-glow-premium flex"
+        style={{ fontSize: '4.5rem', letterSpacing: '-0.02em' }}
+      >
+        {/* Simple & Professional White Letters Animation */}
+        <span className="letter-anim" style={{ animationDelay: '0.1s' }}>M</span>
+        <span className="letter-anim" style={{ animationDelay: '0.2s' }}>O</span>
+        <span className="letter-anim" style={{ animationDelay: '0.3s' }}>N</span>
+        <span className="letter-anim" style={{ animationDelay: '0.4s' }}>i</span>
+        <span className="letter-anim" style={{ animationDelay: '0.5s' }}>A</span>
+      </h1>
     </div>
   );
 }
