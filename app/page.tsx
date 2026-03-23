@@ -5,37 +5,39 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 
 export default function Splash() {
-  const [isVisible, setIsVisible] = useState(true); // Control visibility
+  const [isVisible, setIsVisible] = useState(true);
   const router = useRouter();
   const { user, isLoaded } = useUser();
 
   useEffect(() => {
-    // 3 second ka fixed timer taaki animation poori dikhe
+    // 3 second ka timer taaki animation poori ho
     const timer = setTimeout(() => {
-      setIsVisible(false); // Animation ko hide karo
-      
       if (isLoaded) {
         if (user?.id) {
           const isProfileComplete = (user.publicMetadata as any)?.profile_complete === true;
+          console.log(`[Splash] User logged in — profile_complete: ${isProfileComplete}`);
           if (isProfileComplete) {
             router.push("/dashboard");
           } else {
+            console.log('[Splash] Redirecting to profile-setup (incomplete profile)');
             router.push("/profile-setup");
           }
         } else {
           router.push("/welcome");
         }
+        // Redirect ke baad hi screen hide hogi
+        setIsVisible(false);
       }
-    }, 3000); // Tera 3-sec animated splash
+    }, 3000); 
 
     return () => clearTimeout(timer);
-  }, [isLoaded, user, router]);
+  }, [router, user, isLoaded]);
 
-  if (!isVisible) return null; // 3 sec baad ye component poora gayab ho jayega
+  if (!isVisible) return null;
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center"
+      className="fixed inset-0 z-[9999] flex h-screen items-center justify-center"
       style={{ background: '#06000c' }}
     >
       <h1
