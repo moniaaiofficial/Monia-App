@@ -4,6 +4,7 @@ import type { Metadata, Viewport } from 'next';
 import UIProvider from '@/components/UIProvider';
 import TiltLayer from '@/components/TiltLayer';
 import { ProfileProvider } from '@/lib/profile-context';
+import Splash from './page'; // Tera Splash component (page.tsx)
 
 export const viewport: Viewport = {
   themeColor: '#06000c',
@@ -32,9 +33,13 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider signInUrl="/auth/login" signUpUrl="/auth/signup">
-      <html lang="en" className="dark" style={{ backgroundColor: '#06000c' }}>
-        <body style={{ backgroundColor: '#06000c', color: '#ffffff', margin: 0 }}>
+    <html lang="en" className="dark" style={{ backgroundColor: '#06000c' }}>
+      <body style={{ backgroundColor: '#06000c', color: '#ffffff', margin: 0 }}>
+        
+        {/* 🚀 Splash yahan Providers ke upar hai, isliye turant dikhega */}
+        <Splash /> 
+
+        <ClerkProvider signInUrl="/auth/login" signUpUrl="/auth/signup">
           <UIProvider>
             <TiltLayer>
               <ProfileProvider>
@@ -42,8 +47,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </ProfileProvider>
             </TiltLayer>
           </UIProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+        </ClerkProvider>
+      </body>
+    </html>
   );
 }
