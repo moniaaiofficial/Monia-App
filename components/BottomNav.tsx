@@ -22,15 +22,26 @@ export default function BottomNav() {
   const pathname = usePathname();
   const router   = useRouter();
   const touchX   = useRef<number | null>(null);
+  const touchY   = useRef<number | null>(null); // New: Vertical tracking
 
   const isInChat = pathname.startsWith('/dashboard/chat/');
 
-  const onTouchStart = useCallback((e: React.TouchEvent) => { touchX.current = e.touches[0].clientX; }, []);
+  const onTouchStart = useCallback((e: React.TouchEvent) => { 
+    touchX.current = e.touches[0].clientX; 
+    touchY.current = e.touches[0].clientY; // Store start Y
+  }, []);
+
   const onTouchEnd   = useCallback((e: React.TouchEvent) => {
-    if (touchX.current === null) return;
+    if (touchX.current === null || touchY.current === null) return;
     const dx = e.changedTouches[0].clientX - touchX.current;
+    const dy = e.changedTouches[0].clientY - touchY.current; // Calculate Vertical Delta
     touchX.current = null;
-    if (Math.abs(dx) < 50) return;
+    touchY.current = null;
+
+    // 🔥 ADVANCED FILTER: Ignore if vertical swipe is stronger or > 35px
+    if (Math.abs(dy) > Math.abs(dx) || Math.abs(dy) > 35) return;
+    if (Math.abs(dx) < 65) return; // Increased threshold for stability
+
     const cur = TAB_PATHS.indexOf(pathname);
     if (cur === -1) return;
     const next = dx < 0 ? Math.min(cur + 1, TAB_PATHS.length - 1) : Math.max(cur - 1, 0);
@@ -38,11 +49,16 @@ export default function BottomNav() {
   }, [pathname, router]);
 
   useEffect(() => {
-    let sx = 0;
-    const s = (e: TouchEvent) => { sx = e.touches[0].clientX; };
+    let sx = 0; let sy = 0;
+    const s = (e: TouchEvent) => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; };
     const en = (e: TouchEvent) => {
       const dx = e.changedTouches[0].clientX - sx;
-      if (Math.abs(dx) < 60) return;
+      const dy = e.changedTouches[0].clientY - sy;
+      
+      // 🔥 ADVANCED FILTER: Ignore if vertical swipe is stronger or > 35px
+      if (Math.abs(dy) > Math.abs(dx) || Math.abs(dy) > 35) return;
+      if (Math.abs(dx) < 70) return; // High threshold for document-level swipe
+
       const cur = TAB_PATHS.indexOf(pathname);
       if (cur === -1) return;
       const next = dx < 0 ? Math.min(cur + 1, TAB_PATHS.length - 1) : Math.max(cur - 1, 0);
