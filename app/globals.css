@@ -339,6 +339,32 @@ body {
   100% { filter: drop-shadow(0 0 5px #c6ff33); color: #c6ff33; }
 }
 
+/* globals.css */
+
+@keyframes videoBlurFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(25px) scale(0.8);
+    filter: blur(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+.letter-anim {
+  display: inline-block;
+  opacity: 0;
+  animation: videoBlurFadeIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Glow effect jo tune manga tha */
+.logo-glow-premium {
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.3), 0 0 40px rgba(198, 255, 51, 0.1);
+}
+
 .middle-icon {
   animation: middleIconNeon 8s infinite;
   transform: scale(1.1);
