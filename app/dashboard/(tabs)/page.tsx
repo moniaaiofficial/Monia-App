@@ -53,8 +53,8 @@ function ChatsPageInner() {
   const [newChatQuery,     setNewChatQuery]       = useState('');
   const [newChatResults,   setNewChatResults]     = useState<Profile[]>([]);
   const [newChatSearching, setNewChatSearching]   = useState(false);
-  const [startingChat,     setStartingChat]       = useState<string | null>(null);
-
+  const [startingChat,     setStartingChat]       = useState<string | null>(null);  const [profile, setProfile] = useState<any>(null);
+  const [profileError, setProfileError] = useState('');
   const searchInputRef  = useRef<HTMLInputElement>(null);
   const newChatInputRef = useRef<HTMLInputElement>(null);
 
@@ -64,6 +64,29 @@ function ChatsPageInner() {
       router.replace('/dashboard');
     }
   }, [params, router]);
+
+  useEffect(() => {
+    if (!isLoaded || !user) return;
+    (async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('full_name, email, mobile, username, avatar_url, city')
+        .eq('id', user.id)
+        .maybeSingle();
+      
+      if (error) {
+        setProfileError('Failed to load profile');
+        return;
+      }
+
+      if (!data) {
+        setProfile(null);
+        return;
+      }
+
+      setProfile(data);
+    })();
+  }, [isLoaded, user]);
 
   const loadChats = useCallback(async () => {
     if (!user) return;
@@ -123,7 +146,7 @@ function ChatsPageInner() {
       )
     : chats;
 
-  const myAvatarUrl = myProfile?.avatar_url || user?.imageUrl;
+  const myAvatarUrl = myProfile?.avatar_url || profile?.avatar_url || user?.imageUrl;
   const userInitials = getInitials(myProfile?.full_name || user?.fullName || user?.firstName || '');
 
   return (
