@@ -197,6 +197,7 @@ function ChatsPageInner() {
                 <button aria-label="Profile" onClick={() => router.push('/profile')} style={{ flexShrink: 0 }}>
                   {myAvatarUrl ? (
                     <img
+                      key={myAvatarUrl}
                       src={myAvatarUrl}
                       alt="Me"
                       style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(198,255,51,0.45)' }}
