@@ -21,6 +21,7 @@ type Props = {
   type?:        string;
   status?:      'sent' | 'delivered' | 'read';
   senderName?:  string;
+  senderAvatar?: string;
   onReplyTo?:   (msg: { id: string; content: string; type: string; senderName: string; isSelf: boolean }) => void;
 };
 
@@ -153,7 +154,7 @@ function MediaContent({ type, content, isSent }: { type: string; content: string
 
 export default function ChatBubble({
   messageId, chatId, currentUserId,
-  content, timestamp, isSent, type = 'text', status, senderName, onReplyTo,
+  content, timestamp, isSent, type = 'text', status, senderName, senderAvatar, onReplyTo,
 }: Props) {
   const [reactions, setReactions] = useState<Reaction[]>([]);
   const [showPicker, setShowPicker] = useState(false);
