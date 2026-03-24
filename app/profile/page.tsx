@@ -7,6 +7,7 @@ import {
   ArrowLeft, LogOut, Loader2, Check, Share2, Camera,
 } from 'lucide-react';
 import { getInitials } from '@/lib/chat';
+import { useMyProfile } from '@/lib/profile-context';
 
 type Profile = {
   id: string;
@@ -62,6 +63,7 @@ export default function ProfilePage() {
   const { user, isLoaded } = useUser();
   const { signOut } = useClerk();
   const router = useRouter();
+  const { refreshMyProfile } = useMyProfile();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -204,6 +206,7 @@ export default function ProfilePage() {
       setError(data.error || 'Avatar upload failed');
     } else {
       setProfile((p) => p ? { ...p, avatar_url: data.avatarUrl } : p);
+      await refreshMyProfile();
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 2000);
     }

@@ -6,10 +6,12 @@ import { useUser } from '@clerk/nextjs';
 import { supabase } from '@/lib/supabase/client';
 import { Shield, FileText, ChevronRight } from 'lucide-react';
 import { getInitials } from '@/lib/chat';
+import { useMyProfile } from '@/lib/profile-context';
 
 export default function MorePage() {
   const router = useRouter();
   const { user, isLoaded } = useUser();
+  const { myProfile } = useMyProfile();
   const [profile, setProfile] = useState<any>(null);
   const [profileError, setProfileError] = useState('');
 
@@ -36,7 +38,7 @@ export default function MorePage() {
     })();
   }, [isLoaded, user]);
 
-  const avatarUrl = profile?.avatar_url || user?.imageUrl;
+  const avatarUrl = myProfile?.avatar_url || profile?.avatar_url || user?.imageUrl;
   const displayName = profile?.full_name || user?.fullName || 'MONiA User';
 
   return (
