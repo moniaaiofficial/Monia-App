@@ -34,15 +34,22 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   const { user, isLoaded } = useUser();
   const [myProfile, setMyProfile] = useState<MyProfile | null>(null);
 
+  // ✅ SAFE FETCH (with error handling)
   const fetchProfile = useCallback(async (userId: string) => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', userId)
       .single();
+
+    if (error) {
+      console.error('[ProfileContext] Fetch error:', error.message);
+      return;
+    }
+
     if (data) {
       setMyProfile(data as MyProfile);
-      console.log('[ProfileContext] Loaded from Supabase:', data.id, 'avatar:', data.avatar_url);
+      console.log('[ProfileContext] Loaded:', data.id, 'avatar:', data.avatar_url);
     }
   }, []);
 
@@ -53,21 +60,40 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!isLoaded || !user) return;
 
+    // 🔥 INITIAL LOAD
     fetchProfile(user.id);
 
+    // 🔥 REALTIME SYNC (avatar instant update)
     const channel = supabase
       .channel(`my-profile-${user.id}`)
       .on(
         'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${user.id}` },
-        (payload: { new: MyProfile }) => {
-          console.log('[ProfileContext] ✅ Global avatar sync fired:', payload.new.avatar_url);
-          setMyProfile(payload.new);
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles',
+          filter: `id=eq.${user.id}`,
         },
+        (payload: any) => {
+          console.log('[ProfileContext] ✅ Realtime update:', payload.new.avatar_url);
+
+          // 🔥 ONLY UPDATE IF AVATAR CHANGED (safe)
+          setMyProfile((prev) => {
+            if (!prev) return payload.new;
+
+            if (prev.avatar_url !== payload.new.avatar_url) {
+              return { ...prev, ...payload.new };
+            }
+
+            return prev;
+          });
+        }
       )
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [isLoaded, user, fetchProfile]);
 
   return (
