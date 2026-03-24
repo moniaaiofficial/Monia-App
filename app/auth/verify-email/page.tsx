@@ -1,20 +1,31 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSignUp } from '@clerk/nextjs';
+import { useSignUp, useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
-import { Loader2, Mail, ArrowLeft } from 'lucide-react';
+import { Loader2, Mail, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function VerifyEmailPage() {
   const { signUp, setActive, isLoaded } = useSignUp();
+  const { user, isLoaded: userLoaded } = useUser();
   const router = useRouter();
 
-  const [code,      setCode]      = useState('');
-  const [loading,   setLoading]   = useState(false);
-  const [resending, setResending] = useState(false);
-  const [error,     setError]     = useState('');
-  const [email,     setEmail]     = useState('');
+  const [code,          setCode]          = useState('');
+  const [loading,       setLoading]       = useState(false);
+  const [resending,     setResending]     = useState(false);
+  const [error,         setError]         = useState('');
+  const [resendSuccess, setResendSuccess] = useState(false);
+  const [email,         setEmail]         = useState('');
+
+  // If user is already signed in (ghost login case or returning user), skip OTP screen
+  useEffect(() => {
+    if (!userLoaded) return;
+    if (user) {
+      const isProfileComplete = (user.publicMetadata as any)?.profile_complete === true;
+      router.replace(isProfileComplete ? '/dashboard' : '/profile-setup');
+    }
+  }, [user, userLoaded, router]);
 
   useEffect(() => {
     const signupData = sessionStorage.getItem('signupData');
@@ -23,7 +34,14 @@ export default function VerifyEmailPage() {
 
   const verifyCode = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isLoaded || !signUp) return;
+    if (!isLoaded) return;
+
+    // signUp is null when the session was lost (page refresh, etc.)
+    if (!signUp) {
+      setError('Session expired. Please go back and sign up again.');
+      return;
+    }
+
     setLoading(true);
     setError('');
     try {
@@ -31,24 +49,42 @@ export default function VerifyEmailPage() {
       if (result.status === 'complete') {
         await setActive({ session: result.createdSessionId });
         sessionStorage.removeItem('signupData');
-        // Redirect to profile-setup for email signup (not Google OAuth)
         router.push('/profile-setup');
       } else {
         setError('Verification incomplete. Please try again.');
       }
     } catch (err: any) {
-      setError(err.errors?.[0]?.message || 'Invalid verification code. Please try again.');
+      const msg = err.errors?.[0]?.message || '';
+      // Clerk may say the email is already verified — treat as success
+      if (
+        msg.toLowerCase().includes('already verified') ||
+        msg.toLowerCase().includes('already been verified')
+      ) {
+        sessionStorage.removeItem('signupData');
+        router.push('/profile-setup');
+        return;
+      }
+      setError(msg || 'Invalid verification code. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   const resendCode = async () => {
-    if (!isLoaded || !signUp) return;
+    if (!isLoaded) return;
+
+    if (!signUp) {
+      setError('Session expired. Please go back and sign up again.');
+      return;
+    }
+
     setResending(true);
     setError('');
+    setResendSuccess(false);
     try {
       await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
+      setResendSuccess(true);
+      setTimeout(() => setResendSuccess(false), 4000);
     } catch (err: any) {
       setError(err.errors?.[0]?.message || 'Failed to resend code. Please try again.');
     } finally {
@@ -101,6 +137,16 @@ export default function VerifyEmailPage() {
           {error && (
             <div className="glass-card px-4 py-3 text-sm font-medium" style={{ color: '#ff6b6b' }}>
               {error}
+            </div>
+          )}
+
+          {resendSuccess && (
+            <div
+              className="flex items-center gap-2 px-4 py-3 rounded-2xl text-sm font-medium"
+              style={{ background: 'rgba(198,255,51,0.10)', border: '1px solid rgba(198,255,51,0.25)', color: '#c6ff33' }}
+            >
+              <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+              New code sent! Check your inbox.
             </div>
           )}
 

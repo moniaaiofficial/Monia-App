@@ -10,30 +10,29 @@ export default function Splash() {
   const pathname = usePathname();
   const { user, isLoaded } = useUser();
 
-  // Navigation check taaki dusre pages par splash na dikhe
   if (pathname !== "/" && pathname !== "/dashboard") {
     if (isVisible) setIsVisible(false);
   }
 
   useEffect(() => {
-    // 3.5 second ka timer taaki animation sukoon se dikhe
-    const timer = setTimeout(() => {
-      if (isLoaded) {
-        if (user?.id) {
-          const isProfileComplete = (user.publicMetadata as any)?.profile_complete === true;
-          if (isProfileComplete) {
-            router.push("/dashboard");
-          } else {
-            router.push("/profile-setup");
-          }
-        } else {
-          router.push("/welcome");
-        }
-        setIsVisible(false);
-      }
-    }, 3500); 
+    if (!isLoaded) return;
 
-    return () => clearTimeout(timer);
+    if (user?.id) {
+      // Already logged in → short splash (just enough for animation to feel intentional)
+      const timer = setTimeout(() => {
+        const isProfileComplete = (user.publicMetadata as any)?.profile_complete === true;
+        router.push(isProfileComplete ? "/dashboard" : "/profile-setup");
+        setIsVisible(false);
+      }, 1200);
+      return () => clearTimeout(timer);
+    } else {
+      // Not logged in → full splash animation
+      const timer = setTimeout(() => {
+        router.push("/welcome");
+        setIsVisible(false);
+      }, 3500);
+      return () => clearTimeout(timer);
+    }
   }, [router, user, isLoaded]);
 
   if (!isVisible) return null;
@@ -41,13 +40,12 @@ export default function Splash() {
   return (
     <div
       className="fixed inset-0 z-[9999] flex h-screen items-center justify-center overflow-hidden"
-      style={{ background: '#06000c' }} // Tera Primary Dark Purple Black Background
+      style={{ background: '#06000c' }}
     >
       <h1
         className="font-black text-white logo-glow-premium flex"
         style={{ fontSize: '4.5rem', letterSpacing: '-0.02em' }}
       >
-        {/* Simple & Professional White Letters Animation */}
         <span className="letter-anim" style={{ animationDelay: '0.1s' }}>M</span>
         <span className="letter-anim" style={{ animationDelay: '0.2s' }}>O</span>
         <span className="letter-anim" style={{ animationDelay: '0.3s' }}>N</span>

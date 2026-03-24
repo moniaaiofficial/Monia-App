@@ -153,8 +153,38 @@ export default function ChatPage() {
 
     const msgChannel = supabase
       .channel(`messages-rt-${chatId}`)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` }, () => loadMessages())
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` }, () => loadMessages())
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` },
+        (payload: any) => {
+          const newMsg = payload.new as Message;
+          if (!newMsg?.id) { loadMessages(); return; }
+          setMessages((prev) => {
+            // Already in state (optimistic update replaced by apiSendMessage)
+            if (prev.some((m) => m.id === newMsg.id)) return prev;
+            // Remove any optimistic placeholder from the same sender (race-condition safety)
+            const clean = prev.filter(
+              (m) => !(m.id.startsWith('opt-') && m.sender_id === newMsg.sender_id),
+            );
+            return [...clean, newMsg];
+          });
+          if (newMsg.sender_id !== user!.id) {
+            apiMarkRead(newMsg.id);
+          }
+          setTimeout(() => scrollToBottom(true), 80);
+        },
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` },
+        (payload: any) => {
+          const updatedMsg = payload.new as Message;
+          if (!updatedMsg?.id) { loadMessages(); return; }
+          setMessages((prev) =>
+            prev.map((m) => (m.id === updatedMsg.id ? { ...m, ...updatedMsg } : m)),
+          );
+        },
+      )
       .subscribe();
 
     const presence = supabase.channel(`presence:${chatId}`);
