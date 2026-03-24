@@ -362,6 +362,9 @@ export default function ChatPage() {
             type={msg.type}
             status={msg.status}
             senderName={partner.full_name ?? undefined}
+            senderAvatar={msg.sender_id === user?.id 
+  ? undefined 
+  : partner.avatar_url}
             onReplyTo={setReplyTo}
           />
         ))}
