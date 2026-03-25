@@ -347,7 +347,7 @@ export default function ChatPage() {
   return (
     <main style={{ background: '#14141f', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       {/* Header */}
-      <div style={{ position: 'sticky', top: 0, zIndex: 20, background: '#14141f', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+      <div style={{ position: 'sticky', top: 0, zIndex: 50, background: '#14141f', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
         <button onClick={() => router.push('/dashboard')} style={{ color: '#ffffff', flexShrink: 0 }}>
           <ArrowLeft size={22} />
         </button>
@@ -379,7 +379,7 @@ export default function ChatPage() {
       )}
 
       {/* Messages */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '0', scrollBehavior: 'smooth' }}>
+      <div style={{ flex: 1, overflowY: 'auto', paddingBottom: '88px', scrollBehavior: 'smooth' }}>
         {messages.map((msg) => (
           <ChatBubble
             key={msg.id}
@@ -401,7 +401,7 @@ export default function ChatPage() {
         {isTyping && !partnerInSleep && <TypingIndicator />}
         {uploading && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', marginBottom: 4 }}>
-            <div className="skeleton" style={{ width: 120, height: 80, borderRadius: 12 }} />
+            <div style={{ width: 120, height: 80, borderRadius: 12 }} />
           </div>
         )}
         <div ref={bottomRef} style={{ height: 1 }} />

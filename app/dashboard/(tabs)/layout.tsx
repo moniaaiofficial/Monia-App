@@ -6,7 +6,7 @@ export default function TabsLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen" style={{ background: '#14141f' }}>
+    <div className="h-screen overflow-hidden" style={{ background: '#14141f' }}>
       {children}
       <BottomNav />
     </div>

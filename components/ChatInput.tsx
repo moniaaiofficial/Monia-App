@@ -93,10 +93,8 @@ export default function ChatInput({
   return (
     <div
       style={{
-        position: 'fixed', bottom: 88, left: 0, right: 0, zIndex: 40,
+        position: 'fixed', bottom: '64px', left: 0, right: 0, zIndex: 50,
         background: '#14141f',
-        backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
-        borderTop: '1px solid rgba(255,0,102,0.20)',
       }}
     >
       {/* Reply preview bar */}
@@ -181,7 +179,6 @@ export default function ChatInput({
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             cursor: canSend ? 'pointer' : 'default', flexShrink: 0,
             transition: 'background 0.2s, transform 0.15s',
-            boxShadow: canSend ? '0 0 16px rgba(198,255,51,0.35)' : 'none',
           }}
           onPointerDown={(e) => { if (canSend) (e.currentTarget as HTMLButtonElement).style.transform = 'scale(0.9)'; }}
           onPointerUp={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)'; }}
