@@ -40,7 +40,7 @@ export default function Splash() {
   return (
     <div
       className="fixed inset-0 z-[9999] flex h-screen items-center justify-center overflow-hidden"
-      style={{ background: '#06000c' }}
+      style={{ background: '#1a0d00' }}
     >
       <h1
         className="font-black text-white logo-glow-premium flex"

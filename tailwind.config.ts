@@ -9,30 +9,30 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        neon: '#c6ff33',
-        'neon-dim': 'rgba(198,255,51,0.1)',
-        'app-bg': '#06000c',
+        neon: '#ff471a',
+        'neon-dim': 'rgba(255,71,26,0.1)',
+        'app-bg': '#1a0d00',
         'surface': 'rgba(255,255,255,0.04)',
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
       },
       boxShadow: {
-        'neon-sm': '0 0 10px rgba(198,255,51,0.35)',
-        'neon':    '0 0 20px rgba(198,255,51,0.5)',
-        'neon-lg': '0 0 40px rgba(198,255,51,0.65)',
-        'glow-sm': '0 0 15px rgba(198,255,51,0.35)',
-        glow:      '0 0 25px rgba(198,255,51,0.5)',
-        'glow-lg': '0 0 40px rgba(198,255,51,0.65)',
+        'neon-sm': '0 0 10px rgba(255,71,26,0.35)',
+        'neon':    '0 0 20px rgba(255,71,26,0.5)',
+        'neon-lg': '0 0 40px rgba(255,71,26,0.65)',
+        'glow-sm': '0 0 15px rgba(255,71,26,0.35)',
+        glow:      '0 0 25px rgba(255,71,26,0.5)',
+        'glow-lg': '0 0 40px rgba(255,71,26,0.65)',
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-neon':   'linear-gradient(135deg, #c6ff33 0%, #a8e000 100%)',
+        'gradient-neon':   'linear-gradient(135deg, #ff471a 0%, #a8e000 100%)',
       },
       keyframes: {
         breathePulse: {
-          '0%,100%': { boxShadow: '0 0 0 1px rgba(198,255,51,0.25), inset 0 0 0 1px rgba(198,255,51,0.1)' },
-          '50%':     { boxShadow: '0 0 0 1.5px rgba(198,255,51,0.9), inset 0 0 0 1px rgba(198,255,51,0.2), 0 0 14px rgba(198,255,51,0.25)' },
+          '0%,100%': { boxShadow: '0 0 0 1px rgba(255,71,26,0.25), inset 0 0 0 1px rgba(255,71,26,0.1)' },
+          '50%':     { boxShadow: '0 0 0 1.5px rgba(255,71,26,0.9), inset 0 0 0 1px rgba(255,71,26,0.2), 0 0 14px rgba(255,71,26,0.25)' },
         },
         liquidMetal: {
           '0%':   { backgroundPosition: '-200% center' },

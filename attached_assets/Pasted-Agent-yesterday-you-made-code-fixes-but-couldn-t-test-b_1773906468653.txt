@@ -79,7 +79,7 @@ Create **TWO REAL USERS** (User A and User B) and test EVERYTHING:
 
 **👁️ Read Receipts**
 - Does User B see a closed eye (white) = delivered?
-- When User B opens the chat, does the eye turn open green (`#c6ff33`) = read?
+- When User B opens the chat, does the eye turn open green (`#ff471a`) = read?
 - Does the status update in real-time?
 
 **〰️ Typing Indicator**

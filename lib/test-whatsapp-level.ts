@@ -88,7 +88,7 @@ export async function runWhatsAppLevelTests() {
   logTest(
     '3. CHAT BUBBLE UI (WHATSAPP STYLE)',
     true,
-    'Right side: current user (green #c6ff33), Left side: other user (dark)',
+    'Right side: current user (green #ff471a), Left side: other user (dark)',
   );
   logTest(
     '3.1 Message text',

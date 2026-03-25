@@ -54,7 +54,7 @@ export default function EmojiPicker({ onSelect, onClose }: Props) {
               <button
                 key={cat}
                 onClick={() => setCategory(cat)}
-                style={{ flexShrink: 0, padding: '4px 10px', borderRadius: 20, background: category === cat ? 'rgba(198,255,51,0.15)' : 'transparent', border: category === cat ? '1px solid rgba(198,255,51,0.35)' : '1px solid transparent', color: category === cat ? '#c6ff33' : 'rgba(255,255,255,0.45)', fontSize: 11, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}
+                style={{ flexShrink: 0, padding: '4px 10px', borderRadius: 20, background: category === cat ? 'rgba(198,255,51,0.15)' : 'transparent', border: category === cat ? '1px solid rgba(198,255,51,0.35)' : '1px solid transparent', color: category === cat ? '#ff471a' : 'rgba(255,255,255,0.45)', fontSize: 11, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}
               >
                 {cat}
               </button>

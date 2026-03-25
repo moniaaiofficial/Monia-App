@@ -55,7 +55,7 @@
 **Implementation:**
 ```typescript
 ✅ Left/Right alignment: isSent prop controls alignment
-✅ Color coding: Green (#c6ff33) for sent, dark for received
+✅ Color coding: Green (#ff471a) for sent, dark for received
 ✅ Message content: Proper text wrapping and formatting
 ✅ 8 message types: text, image, video, audio, document, location, poll, emoji
 ✅ Timestamps: formatMsgTime() - "Today HH:MM" or "DD MMM"

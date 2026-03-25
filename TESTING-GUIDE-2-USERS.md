@@ -188,7 +188,7 @@ console.log('[Message] Already seen:', messageId)
 ### Profile Pictures in Bubbles
 
 - [ ] Each message bubble shows correct alignment
-- [ ] Sent messages: Right side, green (#c6ff33)
+- [ ] Sent messages: Right side, green (#ff471a)
 - [ ] Received messages: Left side, dark color
 - [ ] Timestamps are readable and accurate
 

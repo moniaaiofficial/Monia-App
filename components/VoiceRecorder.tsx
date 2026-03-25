@@ -92,7 +92,7 @@ export default function VoiceRecorder({ onSend, onCancel }: Props) {
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#ef4444', flexShrink: 0, animation: 'breathePulse 1s ease-in-out infinite' }} />
             <div style={{ flex: 1, height: 3, borderRadius: 2, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${(elapsed / MAX_SECONDS) * 100}%`, background: '#c6ff33', transition: 'width 1s linear' }} />
+              <div style={{ height: '100%', width: `${(elapsed / MAX_SECONDS) * 100}%`, background: '#ff471a', transition: 'width 1s linear' }} />
             </div>
             <span style={{ color: '#fff', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>{formatDuration(elapsed)}</span>
           </div>
@@ -119,9 +119,9 @@ export default function VoiceRecorder({ onSend, onCancel }: Props) {
 
           <button
             onClick={handleSend}
-            style={{ width: 44, height: 44, borderRadius: '50%', background: 'linear-gradient(135deg,#c6ff33,#a8e000)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', boxShadow: '0 0 16px rgba(198,255,51,0.35)', flexShrink: 0 }}
+            style={{ width: 44, height: 44, borderRadius: '50%', background: 'linear-gradient(135deg,#ff471a,#a8e000)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', boxShadow: '0 0 16px rgba(198,255,51,0.35)', flexShrink: 0 }}
           >
-            <Send size={18} style={{ color: '#06000c', marginLeft: 2 }} />
+            <Send size={18} style={{ color: '#1a0d00', marginLeft: 2 }} />
           </button>
         </div>
       )}

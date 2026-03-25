@@ -29,7 +29,7 @@ function MediaContent({ type, content, isSent }: { type: string; content: string
   let data: any = null;
   try { data = JSON.parse(content); } catch {}
 
-  const textColor = isSent ? '#06000c' : 'rgba(255,255,255,0.92)';
+  const textColor = isSent ? '#1a0d00' : 'rgba(255,255,255,0.92)';
   const subColor  = isSent ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)';
 
   if (type === 'image') {
@@ -76,7 +76,7 @@ function MediaContent({ type, content, isSent }: { type: string; content: string
         style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none', minWidth: 180 }}
       >
         <div style={{ width: 42, height: 42, borderRadius: 10, background: isSent ? 'rgba(0,0,0,0.15)' : 'rgba(198,255,51,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <FileText size={20} style={{ color: isSent ? '#06000c' : '#c6ff33' }} />
+          <FileText size={20} style={{ color: isSent ? '#1a0d00' : '#ff471a' }} />
         </div>
         <div style={{ minWidth: 0 }}>
           <p style={{ color: textColor, fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 160 }}>
@@ -107,7 +107,7 @@ function MediaContent({ type, content, isSent }: { type: string; content: string
             onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
           />
           <div style={{ padding: '8px 10px', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <MapPin size={14} style={{ color: '#c6ff33', flexShrink: 0 }} />
+            <MapPin size={14} style={{ color: '#ff471a', flexShrink: 0 }} />
             <p style={{ color: textColor, fontSize: 12, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</p>
           </div>
         </div>
@@ -130,7 +130,7 @@ function MediaContent({ type, content, isSent }: { type: string; content: string
                   <span style={{ color: subColor, fontSize: 12 }}>{pct}%</span>
                 </div>
                 <div style={{ height: 4, borderRadius: 2, background: isSent ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.10)', overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: `${pct}%`, background: isSent ? 'rgba(0,0,0,0.4)' : '#c6ff33', borderRadius: 2 }} />
+                  <div style={{ height: '100%', width: `${pct}%`, background: isSent ? 'rgba(0,0,0,0.4)' : '#ff471a', borderRadius: 2 }} />
                 </div>
               </div>
             );
@@ -146,7 +146,7 @@ function MediaContent({ type, content, isSent }: { type: string; content: string
   }
 
   return (
-    <p style={{ color: isSent ? '#06000c' : 'rgba(255,255,255,0.92)', fontSize: 14, lineHeight: 1.55, wordBreak: 'break-word', fontWeight: isSent ? 600 : 400 }}>
+    <p style={{ color: isSent ? '#1a0d00' : 'rgba(255,255,255,0.92)', fontSize: 14, lineHeight: 1.55, wordBreak: 'break-word', fontWeight: isSent ? 600 : 400 }}>
       {content}
     </p>
   );
@@ -333,12 +333,12 @@ export default function ChatBubble({
             transition: 'opacity 0.1s',
             pointerEvents: 'none',
           }}>
-            <CornerUpLeft size={18} style={{ color: '#c6ff33' }} />
+            <CornerUpLeft size={18} style={{ color: '#ff471a' }} />
           </div>
         )}
 
         {senderName && !isSent && (
-          <span style={{ fontSize: 11, fontWeight: 600, color: '#c6ff33', marginBottom: 2, paddingLeft: 4 }}>
+          <span style={{ fontSize: 11, fontWeight: 600, color: '#ff471a', marginBottom: 2, paddingLeft: 4 }}>
             {senderName}
           </span>
         )}
@@ -366,7 +366,7 @@ export default function ChatBubble({
               maxWidth: isMediaType ? 280 : '100%',
               padding: isMediaType ? '8px 10px' : '9px 14px',
               borderRadius: isSent ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-              background: isSent ? '#c6ff33' : 'rgba(255,255,255,0.06)',
+              background: isSent ? '#ff471a' : 'rgba(255,255,255,0.06)',
               border: isSent ? 'none' : '1px solid rgba(198,255,51,0.12)',
               overflow: 'hidden',
             }}>
@@ -391,7 +391,7 @@ export default function ChatBubble({
                 }}
               >
                 {r.emoji}
-                <span style={{ fontSize: 11, color: r.userReacted ? '#c6ff33' : 'rgba(255,255,255,0.55)', fontWeight: 600 }}>{r.count}</span>
+                <span style={{ fontSize: 11, color: r.userReacted ? '#ff471a' : 'rgba(255,255,255,0.55)', fontWeight: 600 }}>{r.count}</span>
               </button>
             ))}
           </div>
@@ -402,7 +402,7 @@ export default function ChatBubble({
           <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)', fontWeight: 500 }}>
             {formatMsgTime(timestamp)}
           </span>
-          {isSent && status === 'read'      && <Eye    style={{ width: 12, height: 12, color: '#c6ff33' }} />}
+          {isSent && status === 'read'      && <Eye    style={{ width: 12, height: 12, color: '#ff471a' }} />}
           {isSent && status === 'delivered' && <EyeOff style={{ width: 12, height: 12, color: 'rgba(255,255,255,0.55)' }} />}
           {isSent && status === 'sent'      && <Check  style={{ width: 12, height: 12, color: 'rgba(255,255,255,0.30)' }} />}
         </div>

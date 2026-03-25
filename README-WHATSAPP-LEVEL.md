@@ -84,7 +84,7 @@ User types & hits send →
 Each message renders as:
 ┌─────────────────────────────────────┐
 │  Right-aligned if SENT (green)      │  ← Current user messages
-│  #c6ff33 background, black text     │
+│  #ff471a background, black text     │
 │                              ✓✓📖   │  ← Read receipt icons
 └─────────────────────────────────────┘
 
@@ -105,7 +105,7 @@ Today 14:32                          │  ← Timestamp
 
 **Verified:** ✅ 
 - All 8 message types render correctly
-- Colors match design (green #c6ff33 for sent)
+- Colors match design (green #ff471a for sent)
 - Timestamps format correctly
 - Read receipt icons show proper status
 

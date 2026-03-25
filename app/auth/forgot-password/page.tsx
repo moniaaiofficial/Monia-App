@@ -64,7 +64,7 @@ export default function ForgotPasswordPage() {
   const iconClass = 'absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none';
   const inputClass = 'glass-input pl-11 pr-4 py-3.5 text-sm font-medium';
 
-  const neonIcon = { color: '#c6ff33' };
+  const neonIcon = { color: '#ff471a' };
 
   const renderStep = () => {
     if (step === 'email') return (
@@ -86,7 +86,7 @@ export default function ForgotPasswordPage() {
             <Mail className={iconClass} style={iconStyle} />
             <input type="email" placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass} required />
           </div>
-          <button type="submit" disabled={loading} className="btn-neon w-full py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2" style={{ color: '#06000c' }}>
+          <button type="submit" disabled={loading} className="btn-neon w-full py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2" style={{ color: '#1a0d00' }}>
             {loading ? <><Loader2 className="w-4 h-4 animate-spin" />Sending…</> : 'Send Reset Code'}
           </button>
         </form>
@@ -104,14 +104,14 @@ export default function ForgotPasswordPage() {
           <div>
             <h2 className="text-lg font-bold text-white">Enter Reset Code</h2>
             <p className="text-sm mt-1" style={{ color: 'rgba(255,255,255,0.38)' }}>
-              We sent a code to <span className="font-semibold" style={{ color: '#c6ff33' }}>{email}</span>
+              We sent a code to <span className="font-semibold" style={{ color: '#ff471a' }}>{email}</span>
             </p>
           </div>
         </div>
         <form onSubmit={handleVerifyCode} className="space-y-4">
           {error && <div className="glass-card px-4 py-3 text-sm font-medium" style={{ color: '#ff6b6b' }}>{error}</div>}
           <input type="text" placeholder="• • • • • •" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))} className="glass-input px-4 py-5 text-center text-3xl font-black tracking-[0.5em]" maxLength={6} required />
-          <button type="submit" disabled={loading || code.length !== 6} className="btn-neon w-full py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2" style={{ color: '#06000c' }}>
+          <button type="submit" disabled={loading || code.length !== 6} className="btn-neon w-full py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2" style={{ color: '#1a0d00' }}>
             {loading ? <><Loader2 className="w-4 h-4 animate-spin" />Verifying…</> : 'Verify Code'}
           </button>
           <button type="button" onClick={() => setStep('email')} className="w-full text-sm font-medium py-2 transition-colors" style={{ color: 'rgba(255,255,255,0.32)' }}>
@@ -150,7 +150,7 @@ export default function ForgotPasswordPage() {
               {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
           </div>
-          <button type="submit" disabled={loading} className="btn-neon w-full py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2" style={{ color: '#06000c' }}>
+          <button type="submit" disabled={loading} className="btn-neon w-full py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2" style={{ color: '#1a0d00' }}>
             {loading ? <><Loader2 className="w-4 h-4 animate-spin" />Resetting…</> : 'Reset Password'}
           </button>
         </form>
@@ -161,7 +161,7 @@ export default function ForgotPasswordPage() {
   return (
     <main
       className="min-h-screen flex items-center justify-center px-5 py-10 page-enter"
-      style={{ background: '#06000c' }}
+      style={{ background: '#1a0d00' }}
     >
       <div className="w-full max-w-sm space-y-8">
         <Link href="/auth/login" className="inline-flex items-center gap-2 text-sm font-medium transition-colors hover:text-white"

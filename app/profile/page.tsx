@@ -34,7 +34,7 @@ function Toggle({ value, onChange, disabled }: { value: boolean; onChange: (v: b
         width: 44,
         height: 24,
         borderRadius: 12,
-        background: value ? '#c6ff33' : 'rgba(255,255,255,0.12)',
+        background: value ? '#ff471a' : 'rgba(255,255,255,0.12)',
         position: 'relative',
         transition: 'background 0.2s',
         border: 'none',
@@ -51,7 +51,7 @@ function Toggle({ value, onChange, disabled }: { value: boolean; onChange: (v: b
           width: 20,
           height: 20,
           borderRadius: '50%',
-          background: value ? '#06000c' : 'rgba(255,255,255,0.55)',
+          background: value ? '#1a0d00' : 'rgba(255,255,255,0.55)',
           transition: 'left 0.2s',
         }}
       />
@@ -232,8 +232,8 @@ export default function ProfilePage() {
 
   if (loading || !isLoaded) {
     return (
-      <main className="min-h-screen flex items-center justify-center" style={{ background: '#06000c' }}>
-        <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#c6ff33' }} />
+      <main className="min-h-screen flex items-center justify-center" style={{ background: '#1a0d00' }}>
+        <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#ff471a' }} />
       </main>
     );
   }
@@ -263,20 +263,20 @@ export default function ProfilePage() {
   };
 
   return (
-    <main className="min-h-screen page-enter pb-10" style={{ background: '#06000c' }}>
+    <main className="min-h-screen page-enter pb-10" style={{ background: '#1a0d00' }}>
       {/* ── Header ──────────────────────────────────────────────── */}
       <div
         className="sticky top-0 z-10"
-        style={{ background: 'rgba(6,0,12,0.94)', backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)', borderBottom: '1px solid rgba(198,255,51,0.08)' }}
+        style={{ background: 'rgba(26,13,0,0.94)', backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)', borderBottom: '1px solid rgba(198,255,51,0.08)' }}
       >
         <div className="flex items-center px-5 py-4 gap-3">
-          <button onClick={() => router.back()} style={{ color: '#c6ff33' }}>
+          <button onClick={() => router.back()} style={{ color: '#ff471a' }}>
             <ArrowLeft style={{ width: 22, height: 22 }} />
           </button>
           <h1 className="text-lg font-black text-white">Profile</h1>
           <div className="ml-auto flex items-center gap-2">
-            {saving && <Loader2 className="w-4 h-4 animate-spin" style={{ color: '#c6ff33' }} />}
-            {saveSuccess && <Check className="w-4 h-4" style={{ color: '#c6ff33' }} />}
+            {saving && <Loader2 className="w-4 h-4 animate-spin" style={{ color: '#ff471a' }} />}
+            {saveSuccess && <Check className="w-4 h-4" style={{ color: '#ff471a' }} />}
           </div>
         </div>
       </div>
@@ -297,7 +297,7 @@ export default function ProfilePage() {
                   width: 84, height: 84, borderRadius: '50%',
                   background: 'rgba(198,255,51,0.10)', border: '2px solid rgba(198,255,51,0.25)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 28, fontWeight: 700, color: '#c6ff33',
+                  fontSize: 28, fontWeight: 700, color: '#ff471a',
                 }}
               >
                 {initials}
@@ -310,14 +310,14 @@ export default function ProfilePage() {
               style={{
                 position: 'absolute', bottom: 0, right: 0,
                 width: 28, height: 28, borderRadius: '50%',
-                background: '#c6ff33', border: '2px solid #06000c',
+                background: '#ff471a', border: '2px solid #1a0d00',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 cursor: 'pointer',
               }}
             >
               {avatarUploading
-                ? <Loader2 style={{ width: 13, height: 13, color: '#06000c', animation: 'spin 1s linear infinite' }} />
-                : <Camera style={{ width: 13, height: 13, color: '#06000c' }} />
+                ? <Loader2 style={{ width: 13, height: 13, color: '#1a0d00', animation: 'spin 1s linear infinite' }} />
+                : <Camera style={{ width: 13, height: 13, color: '#1a0d00' }} />
               }
             </button>
 
@@ -332,7 +332,7 @@ export default function ProfilePage() {
 
           <div style={{ textAlign: 'center' }}>
             <p className="text-xl font-black text-white">{displayName}</p>
-            <p style={{ color: '#c6ff33', fontSize: 14, fontWeight: 600, marginTop: 2 }}>
+            <p style={{ color: '#ff471a', fontSize: 14, fontWeight: 600, marginTop: 2 }}>
               @{profile?.username || '—'}
             </p>
           </div>
@@ -353,7 +353,7 @@ export default function ProfilePage() {
               <p style={labelStyle}>Username</p>
               {editUsername ? (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
-                  <span style={{ color: '#c6ff33', fontWeight: 700 }}>@</span>
+                  <span style={{ color: '#ff471a', fontWeight: 700 }}>@</span>
                   <input
                     value={newUsername}
                     onChange={(e) => setNewUsername(e.target.value)}
@@ -363,7 +363,7 @@ export default function ProfilePage() {
                       borderRadius: 10, padding: '6px 10px', color: '#fff', fontSize: 14, outline: 'none', width: 140,
                     }}
                   />
-                  <button onClick={handleSaveUsername} style={{ color: '#c6ff33', fontWeight: 700, fontSize: 13, background: 'none', border: 'none', cursor: 'pointer' }}>Save</button>
+                  <button onClick={handleSaveUsername} style={{ color: '#ff471a', fontWeight: 700, fontSize: 13, background: 'none', border: 'none', cursor: 'pointer' }}>Save</button>
                   <button onClick={() => { setEditUsername(false); setNewUsername(profile?.username || ''); }} style={{ color: 'rgba(255,255,255,0.35)', fontSize: 13, background: 'none', border: 'none', cursor: 'pointer' }}>Cancel</button>
                 </div>
               ) : (
@@ -371,7 +371,7 @@ export default function ProfilePage() {
               )}
             </div>
             {!editUsername && (
-              <button onClick={() => setEditUsername(true)} style={{ color: '#c6ff33', fontSize: 13, fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer' }}>Edit</button>
+              <button onClick={() => setEditUsername(true)} style={{ color: '#ff471a', fontSize: 13, fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer' }}>Edit</button>
             )}
           </div>
 
@@ -481,7 +481,7 @@ export default function ProfilePage() {
             width: '100%', borderRadius: 16, padding: '14px 20px',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
             background: 'rgba(198,255,51,0.08)', border: '1px solid rgba(198,255,51,0.25)',
-            color: '#c6ff33', fontWeight: 700, fontSize: 14, cursor: 'pointer',
+            color: '#ff471a', fontWeight: 700, fontSize: 14, cursor: 'pointer',
           }}
         >
           <Share2 style={{ width: 18, height: 18 }} />

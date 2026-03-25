@@ -7,11 +7,11 @@ export default function PrivacyPolicyPage() {
   const router = useRouter();
 
   return (
-    <main className="min-h-screen text-white" style={{ background: '#06000c' }}>
+    <main className="min-h-screen text-white" style={{ background: '#1a0d00' }}>
       <div
         className="sticky top-0 z-10"
         style={{
-          background: 'rgba(6,0,12,0.94)',
+          background: 'rgba(26,13,0,0.94)',
           backdropFilter: 'blur(28px)',
           WebkitBackdropFilter: 'blur(28px)',
           borderBottom: '1px solid rgba(198,255,51,0.10)',
@@ -21,7 +21,7 @@ export default function PrivacyPolicyPage() {
           <button
             onClick={() => router.back()}
             className="p-2 rounded-full transition-colors"
-            style={{ color: '#c6ff33' }}
+            style={{ color: '#ff471a' }}
           >
             <ArrowLeft className="w-6 h-6" />
           </button>
@@ -38,7 +38,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section className="space-y-3">
-          <h3 className="text-lg font-semibold" style={{ color: '#c6ff33' }}>1. Information We Collect</h3>
+          <h3 className="text-lg font-semibold" style={{ color: '#ff471a' }}>1. Information We Collect</h3>
           <p>When you sign up for MONiA, we collect the following information:</p>
           <ul className="list-disc pl-6 space-y-2">
             <li>Full Name</li>
@@ -50,7 +50,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section className="space-y-3">
-          <h3 className="text-lg font-semibold" style={{ color: '#c6ff33' }}>2. How We Use Your Information</h3>
+          <h3 className="text-lg font-semibold" style={{ color: '#ff471a' }}>2. How We Use Your Information</h3>
           <p>We use your personal information to:</p>
           <ul className="list-disc pl-6 space-y-2">
             <li>Create and manage your account</li>
@@ -62,7 +62,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section className="space-y-3">
-          <h3 className="text-lg font-semibold" style={{ color: '#c6ff33' }}>3. Data Storage and Security</h3>
+          <h3 className="text-lg font-semibold" style={{ color: '#ff471a' }}>3. Data Storage and Security</h3>
           <p>Messages are stored on secure servers. We take reasonable measures to protect your data, but please note:</p>
           <ul className="list-disc pl-6 space-y-2">
             <li><strong className="text-white">MONiA does NOT use end-to-end encryption</strong></li>
@@ -72,7 +72,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section className="space-y-3">
-          <h3 className="text-lg font-semibold" style={{ color: '#c6ff33' }}>4. Media Files Auto-Deletion</h3>
+          <h3 className="text-lg font-semibold" style={{ color: '#ff471a' }}>4. Media Files Auto-Deletion</h3>
           <p className="font-semibold text-white">
             Important: All media files are automatically deleted after 48 hours
           </p>
@@ -87,7 +87,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section className="space-y-3">
-          <h3 className="text-lg font-semibold" style={{ color: '#c6ff33' }}>5. Data Sharing</h3>
+          <h3 className="text-lg font-semibold" style={{ color: '#ff471a' }}>5. Data Sharing</h3>
           <p>We do NOT sell your personal data to third parties. We may share your information only in the following circumstances:</p>
           <ul className="list-disc pl-6 space-y-2">
             <li>With your explicit consent</li>
@@ -97,7 +97,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section className="space-y-3">
-          <h3 className="text-lg font-semibold" style={{ color: '#c6ff33' }}>6. Your Rights</h3>
+          <h3 className="text-lg font-semibold" style={{ color: '#ff471a' }}>6. Your Rights</h3>
           <p>You have the right to:</p>
           <ul className="list-disc pl-6 space-y-2">
             <li>Access your personal data</li>
@@ -108,12 +108,12 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section className="space-y-3">
-          <h3 className="text-lg font-semibold" style={{ color: '#c6ff33' }}>7. Account Deletion</h3>
+          <h3 className="text-lg font-semibold" style={{ color: '#ff471a' }}>7. Account Deletion</h3>
           <p>
             To request account deletion, please email us at:{' '}
             <a
               href="mailto:moniaaiofficial@gmail.com"
-              style={{ color: '#c6ff33' }}
+              style={{ color: '#ff471a' }}
               className="hover:underline font-semibold"
             >
               moniaaiofficial@gmail.com
@@ -122,19 +122,19 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section className="space-y-3">
-          <h3 className="text-lg font-semibold" style={{ color: '#c6ff33' }}>8. Changes to Privacy Policy</h3>
+          <h3 className="text-lg font-semibold" style={{ color: '#ff471a' }}>8. Changes to Privacy Policy</h3>
           <p>
             We may update this Privacy Policy from time to time. We will notify you of any significant changes through the app or via email.
           </p>
         </section>
 
         <section className="space-y-3">
-          <h3 className="text-lg font-semibold" style={{ color: '#c6ff33' }}>9. Contact Us</h3>
+          <h3 className="text-lg font-semibold" style={{ color: '#ff471a' }}>9. Contact Us</h3>
           <p>
             If you have any questions about this Privacy Policy, please contact us at:{' '}
             <a
               href="mailto:moniaaiofficial@gmail.com"
-              style={{ color: '#c6ff33' }}
+              style={{ color: '#ff471a' }}
               className="hover:underline font-semibold"
             >
               moniaaiofficial@gmail.com
@@ -143,7 +143,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section className="space-y-3">
-          <h3 className="text-lg font-semibold" style={{ color: '#c6ff33' }}>10. Messaging &amp; Data Transmission</h3>
+          <h3 className="text-lg font-semibold" style={{ color: '#ff471a' }}>10. Messaging &amp; Data Transmission</h3>
           <p>
             MONiA provides a real-time messaging service. Before using the messaging features, please read the following carefully:
           </p>
@@ -172,7 +172,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section className="space-y-3">
-          <h3 className="text-lg font-semibold" style={{ color: '#c6ff33' }}>11. Message Retention &amp; Deletion</h3>
+          <h3 className="text-lg font-semibold" style={{ color: '#ff471a' }}>11. Message Retention &amp; Deletion</h3>
           <ul className="list-disc pl-6 space-y-2">
             <li>Text messages are retained until you request account deletion.</li>
             <li>Media files (images, videos, documents, voice notes) are automatically deleted after <strong className="text-white">48 hours</strong>.</li>
@@ -181,7 +181,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section className="space-y-3">
-          <h3 className="text-lg font-semibold" style={{ color: '#c6ff33' }}>12. Realtime Data</h3>
+          <h3 className="text-lg font-semibold" style={{ color: '#ff471a' }}>12. Realtime Data</h3>
           <p>
             MONiA uses Supabase Realtime to deliver messages instantly. This involves establishing a persistent
             WebSocket connection between your device and our servers. Metadata about active connections (such as
@@ -190,7 +190,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section className="space-y-3">
-          <h3 className="text-lg font-semibold" style={{ color: '#c6ff33' }}>13. Device Permissions</h3>
+          <h3 className="text-lg font-semibold" style={{ color: '#ff471a' }}>13. Device Permissions</h3>
           <p>MONiA may request the following device permissions to enable specific features:</p>
           <ul className="list-disc pl-6 space-y-2">
             <li><strong className="text-white">Camera</strong> — to take photos or record video and send them as media messages.</li>
@@ -207,7 +207,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section className="space-y-3">
-          <h3 className="text-lg font-semibold" style={{ color: '#c6ff33' }}>14. Progressive Web App (PWA)</h3>
+          <h3 className="text-lg font-semibold" style={{ color: '#ff471a' }}>14. Progressive Web App (PWA)</h3>
           <p>
             MONiA is available as a Progressive Web App that can be installed on your home screen for a near-native
             experience. When installed:
