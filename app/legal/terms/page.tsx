@@ -9,12 +9,12 @@ export default function TermsPage() {
   return (
     <main className="min-h-screen text-white" style={{ background: '#14141f' }}>
       <div
-        className="sticky top-0 z-10"
+        className="sticky top-0 z-10 neon-shining-line"
         style={{
-          background: 'rgba(26,13,0,0.94)',
+          background: '#14141f',
           backdropFilter: 'blur(28px)',
           WebkitBackdropFilter: 'blur(28px)',
-          borderBottom: '1px solid rgba(255,0,102,0.10)',
+          borderBottom: '1px solid rgba(255,0,102,0.20)',
         }}
       >
         <div className="flex items-center px-4 py-4">

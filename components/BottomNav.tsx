@@ -94,7 +94,7 @@ export default function BottomNav() {
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
-        <div className="floating-nav flex items-center justify-around h-16 rounded-2xl px-1">
+        <div className="floating-nav neon-shining-line flex items-center justify-around h-16 rounded-2xl px-1" style={{ background: '#14141f', border: '1px solid rgba(255,0,102,0.2)' }}>
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.path || (item.path === '/dashboard' && pathname === '/dashboard');

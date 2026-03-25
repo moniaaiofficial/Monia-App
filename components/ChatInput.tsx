@@ -94,9 +94,9 @@ export default function ChatInput({
     <div
       style={{
         position: 'fixed', bottom: 88, left: 0, right: 0, zIndex: 40,
-        background: 'rgba(6,0,12,0.92)',
+        background: '#14141f',
         backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
-        borderTop: '1px solid rgba(255,255,255,0.06)',
+        borderTop: '1px solid rgba(255,0,102,0.20)',
       }}
     >
       {/* Reply preview bar */}
