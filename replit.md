@@ -60,8 +60,22 @@ Run `supabase/setup.sql` in your Supabase SQL editor to set up the full schema:
 - `POST /api/webhooks/clerk` — Clerk → Supabase user sync webhook
 - `GET /api/health` — environment and DB health check
 
+## AI Features (lib/aiHandler.ts)
+- **Universal Translation**: Gemini 1.5 Flash — auto-detects source language, translates to any of 60+ target languages
+- **Indian Female Voice (TTS)**: `window.speechSynthesis` with priority: Google Hindi Female → Google English India Female → Microsoft Hemlata
+- **Voice Input**: `webkitSpeechRecognition` scoped to selected language
+- **AI Analysis**: Context-aware conversation insights via Gemini
+
+## ChatInput AI Panel (components/ChatInput.tsx)
+- Language dropdown: 20 Indian + 28 global languages with search
+- "Need MONiA's help?" — neon pink breathing glow, prefills `@monia ` in input
+- (+) slide-up menu: Voice AI, Media Attach, AI Analysis
+- Mic button: toggles voice recognition with pulse animation
+- Send button: auto-translates when target language != English or `@monia ` prefix used
+
 ## Architecture Notes
 - Clerk handles all authentication — no Supabase Auth used
 - `SUPABASE_SERVICE_ROLE_KEY` is only used server-side (in `/api` routes)
 - Supabase Realtime powers live message delivery
 - RLS policies on Supabase tables are set permissively (anon key) since Clerk manages auth
+- Gemini API key used client-side in `lib/aiHandler.ts` for translation & analysis
