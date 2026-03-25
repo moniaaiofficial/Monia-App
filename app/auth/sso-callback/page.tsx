@@ -23,13 +23,13 @@ export default function SSOCallbackPage() {
   }, [handleRedirectCallback]);
 
   return (
-    <main className="min-h-screen flex items-center justify-center" style={{ background: '#1a0d00' }}>
+    <main className="min-h-screen flex items-center justify-center" style={{ background: '#14141f' }}>
       <div className="text-center space-y-4">
         <div
           className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto"
-          style={{ background: 'rgba(198,255,51,0.08)' }}
+          style={{ background: 'rgba(255,0,102,0.08)' }}
         >
-          <Loader2 className="w-8 h-8 animate-spin icon-active-glow" style={{ color: '#ff471a' }} />
+          <Loader2 className="w-8 h-8 animate-spin icon-active-glow" style={{ color: '#ff0066' }} />
         </div>
         <p className="font-bold text-lg text-white">Completing sign in…</p>
         <p className="text-sm" style={{ color: 'rgba(255,255,255,0.38)' }}>Please wait a moment</p>

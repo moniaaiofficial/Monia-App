@@ -78,13 +78,13 @@ export default function BottomNav() {
             onClick={() => { hapticTick(); router.push('/dashboard?newchat=1'); }}
             style={{
               width: 48, height: 48, borderRadius: '50%',
-              background: 'linear-gradient(135deg, #ff471a 0%, #a8e000 100%)',
+              background: 'linear-gradient(135deg, #ff0066 0%, #a8e000 100%)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               boxShadow: '0 0 20px rgba(198,255,51,0.5)', border: 'none', cursor: 'pointer',
               transition: 'transform 0.2s cubic-bezier(0.175,0.885,0.32,1.275)',
             }}
           >
-            <Plus style={{ width: 22, height: 22, color: '#1a0d00', strokeWidth: 2.5 }} />
+            <Plus style={{ width: 22, height: 22, color: '#14141f', strokeWidth: 2.5 }} />
           </button>
         </div>
       )}
@@ -106,7 +106,7 @@ export default function BottomNav() {
                 href={item.path}
                 onClick={hapticTick}
                 className="flex flex-col items-center justify-center flex-1 h-full gap-0.5 relative"
-                style={{ color: isMid ? '#ff471a' : isActive ? '#ff471a' : '#ffffff' }}
+                style={{ color: isMid ? '#ff0066' : isActive ? '#ff0066' : '#ffffff' }}
               >
                 {isActive && !isMid && (
                   <span aria-hidden style={{ position: 'absolute', inset: '8px 6px', background: 'rgba(198,255,51,0.10)', borderRadius: 999, animation: 'breathePulse 3s ease-in-out infinite' }} />
@@ -116,7 +116,7 @@ export default function BottomNav() {
                   style={{
                     width: isMid ? 26 : 22,
                     height: isMid ? 26 : 22,
-                    color: isMid ? '#ff471a' : isActive ? '#ff471a' : '#ffffff',
+                    color: isMid ? '#ff0066' : isActive ? '#ff0066' : '#ffffff',
                     transform: isActive && !isMid ? 'translateY(-5px) scale(1.08)' : 'translateY(0) scale(1)',
                     transition: 'color 0.15s ease, transform 0.3s cubic-bezier(0.175,0.885,0.32,1.275)',
                   }}
@@ -126,7 +126,7 @@ export default function BottomNav() {
                   style={{
                     fontSize: isMid ? 9 : 10, fontWeight: 700, letterSpacing: '0.04em',
                     opacity: isActive ? 1 : 0.65,
-                    color: isMid ? '#ff471a' : isActive ? '#ff471a' : '#ffffff',
+                    color: isMid ? '#ff0066' : isActive ? '#ff0066' : '#ffffff',
                     transition: 'opacity 0.15s ease',
                   }}
                 >

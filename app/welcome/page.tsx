@@ -11,7 +11,7 @@ export default function WelcomePage() {
   return (
     <main
       className="min-h-screen flex flex-col items-center justify-between px-6 py-12 page-enter"
-      style={{ background: '#1a0d00' }}
+      style={{ background: '#14141f' }}
     >
       {/* Top section */}
       <div />
@@ -41,14 +41,14 @@ export default function WelcomePage() {
             style={{
               width: 22, height: 22, borderRadius: 6, flexShrink: 0, marginTop: 1,
               border: agreed ? 'none' : '1.5px solid rgba(255,255,255,0.30)',
-              background: agreed ? '#ff471a' : 'transparent',
+              background: agreed ? '#ff0066' : 'transparent',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               transition: 'all 0.2s', cursor: 'pointer',
             }}
           >
             {agreed && (
               <svg width="13" height="10" viewBox="0 0 13 10" fill="none">
-                <path d="M1.5 5L5 8.5L11.5 1.5" stroke="#1a0d00" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M1.5 5L5 8.5L11.5 1.5" stroke="#14141f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             )}
           </div>
@@ -57,7 +57,7 @@ export default function WelcomePage() {
             <Link
               href="/legal/terms"
               className="font-semibold hover:underline"
-              style={{ color: '#ff471a' }}
+              style={{ color: '#ff0066' }}
               onClick={(e) => e.stopPropagation()}
             >
               Terms & Conditions
@@ -66,7 +66,7 @@ export default function WelcomePage() {
             <Link
               href="/legal/privacy-policy"
               className="font-semibold hover:underline"
-              style={{ color: '#ff471a' }}
+              style={{ color: '#ff0066' }}
               onClick={(e) => e.stopPropagation()}
             >
               Privacy Policy
@@ -80,7 +80,7 @@ export default function WelcomePage() {
           onClick={() => router.push('/auth/login')}
           className="btn-neon w-full py-4 rounded-2xl font-bold text-sm transition-all"
           style={{
-            color: '#1a0d00',
+            color: '#14141f',
             opacity: agreed ? 1 : 0.35,
             cursor: agreed ? 'pointer' : 'not-allowed',
           }}
@@ -94,7 +94,7 @@ export default function WelcomePage() {
           <Link
             href="/auth/signup"
             className="font-bold hover:opacity-80 transition-opacity"
-            style={{ color: '#ff471a' }}
+            style={{ color: '#ff0066' }}
           >
             Create an account
           </Link>

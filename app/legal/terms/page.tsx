@@ -7,21 +7,21 @@ export default function TermsPage() {
   const router = useRouter();
 
   return (
-    <main className="min-h-screen text-white" style={{ background: '#1a0d00' }}>
+    <main className="min-h-screen text-white" style={{ background: '#14141f' }}>
       <div
         className="sticky top-0 z-10"
         style={{
           background: 'rgba(26,13,0,0.94)',
           backdropFilter: 'blur(28px)',
           WebkitBackdropFilter: 'blur(28px)',
-          borderBottom: '1px solid rgba(198,255,51,0.10)',
+          borderBottom: '1px solid rgba(255,0,102,0.10)',
         }}
       >
         <div className="flex items-center px-4 py-4">
           <button
             onClick={() => router.back()}
             className="p-2 rounded-full transition-colors"
-            style={{ color: '#ff471a' }}
+            style={{ color: '#ff0066' }}
           >
             <ArrowLeft className="w-6 h-6" />
           </button>
@@ -38,20 +38,20 @@ export default function TermsPage() {
         </section>
 
         <section className="space-y-3">
-          <h3 className="text-lg font-semibold" style={{ color: '#ff471a' }}>1. Acceptance of Terms</h3>
+          <h3 className="text-lg font-semibold" style={{ color: '#ff0066' }}>1. Acceptance of Terms</h3>
           <p>
             By accessing and using MONiA, you accept and agree to be bound by these Terms and Conditions. If you do not agree to these terms, please do not use our platform.
           </p>
         </section>
 
         <section className="space-y-3">
-          <h3 className="text-lg font-semibold" style={{ color: '#ff471a' }}>2. Age Requirement</h3>
+          <h3 className="text-lg font-semibold" style={{ color: '#ff0066' }}>2. Age Requirement</h3>
           <p className="font-semibold text-white">Users must be 13 years or older to use MONiA.</p>
           <p>If you are under 13 years of age, you are not permitted to use this platform.</p>
         </section>
 
         <section className="space-y-3">
-          <h3 className="text-lg font-semibold" style={{ color: '#ff471a' }}>3. Prohibited Activities</h3>
+          <h3 className="text-lg font-semibold" style={{ color: '#ff0066' }}>3. Prohibited Activities</h3>
           <p>Users must NOT use MONiA for:</p>
           <ul className="list-disc pl-6 space-y-2">
             <li>Any illegal activities</li>
@@ -65,7 +65,7 @@ export default function TermsPage() {
         </section>
 
         <section className="space-y-3">
-          <h3 className="text-lg font-semibold" style={{ color: '#ff471a' }}>4. Account Suspension</h3>
+          <h3 className="text-lg font-semibold" style={{ color: '#ff0066' }}>4. Account Suspension</h3>
           <p>
             MONiA reserves the right to suspend or terminate accounts that violate these terms without prior notice. Violations include but are not limited to:
           </p>
@@ -77,7 +77,7 @@ export default function TermsPage() {
         </section>
 
         <section className="space-y-3">
-          <h3 className="text-lg font-semibold" style={{ color: '#ff471a' }}>5. Media Auto-Deletion Policy</h3>
+          <h3 className="text-lg font-semibold" style={{ color: '#ff0066' }}>5. Media Auto-Deletion Policy</h3>
           <p className="font-semibold text-white">All media files automatically expire and are deleted after 48 hours.</p>
           <p>This includes:</p>
           <ul className="list-disc pl-6 space-y-2">
@@ -92,7 +92,7 @@ export default function TermsPage() {
         </section>
 
         <section className="space-y-3">
-          <h3 className="text-lg font-semibold" style={{ color: '#ff471a' }}>6. User-Generated Content</h3>
+          <h3 className="text-lg font-semibold" style={{ color: '#ff0066' }}>6. User-Generated Content</h3>
           <p>
             MONiA is NOT responsible for user-generated content shared on the platform. Users are solely responsible for the content they share.
           </p>
@@ -102,14 +102,14 @@ export default function TermsPage() {
         </section>
 
         <section className="space-y-3">
-          <h3 className="text-lg font-semibold" style={{ color: '#ff471a' }}>7. Payments and Transactions</h3>
+          <h3 className="text-lg font-semibold" style={{ color: '#ff0066' }}>7. Payments and Transactions</h3>
           <p>
             Any payments or transactions conducted through MONiA follow Indian UPI rules and regulations. We are not responsible for payment failures or disputes arising from third-party payment services.
           </p>
         </section>
 
         <section className="space-y-3">
-          <h3 className="text-lg font-semibold" style={{ color: '#ff471a' }}>8. Limitation of Liability</h3>
+          <h3 className="text-lg font-semibold" style={{ color: '#ff0066' }}>8. Limitation of Liability</h3>
           <p>MONiA is provided &quot;as is&quot; without warranties of any kind. We are not liable for:</p>
           <ul className="list-disc pl-6 space-y-2">
             <li>Loss of data or content</li>
@@ -120,7 +120,7 @@ export default function TermsPage() {
         </section>
 
         <section className="space-y-3">
-          <h3 className="text-lg font-semibold" style={{ color: '#ff471a' }}>9. Privacy and Data Security</h3>
+          <h3 className="text-lg font-semibold" style={{ color: '#ff0066' }}>9. Privacy and Data Security</h3>
           <p>
             Your privacy is important to us. Please review our Privacy Policy to understand how we collect, use, and protect your information.
           </p>
@@ -128,33 +128,33 @@ export default function TermsPage() {
         </section>
 
         <section className="space-y-3">
-          <h3 className="text-lg font-semibold" style={{ color: '#ff471a' }}>10. Modifications to Terms</h3>
+          <h3 className="text-lg font-semibold" style={{ color: '#ff0066' }}>10. Modifications to Terms</h3>
           <p>
             We reserve the right to modify these Terms and Conditions at any time. Changes will be effective immediately upon posting. Continued use of MONiA after changes constitutes acceptance of the modified terms.
           </p>
         </section>
 
         <section className="space-y-3">
-          <h3 className="text-lg font-semibold" style={{ color: '#ff471a' }}>11. Intellectual Property</h3>
+          <h3 className="text-lg font-semibold" style={{ color: '#ff0066' }}>11. Intellectual Property</h3>
           <p>
             All intellectual property rights in MONiA, including but not limited to logos, design, and software, belong to MONiA. You may not copy, modify, or distribute our intellectual property without permission.
           </p>
         </section>
 
         <section className="space-y-3">
-          <h3 className="text-lg font-semibold" style={{ color: '#ff471a' }}>12. Governing Law</h3>
+          <h3 className="text-lg font-semibold" style={{ color: '#ff0066' }}>12. Governing Law</h3>
           <p>
             These Terms and Conditions are governed by the laws of India. Any disputes shall be subject to the exclusive jurisdiction of Indian courts.
           </p>
         </section>
 
         <section className="space-y-3">
-          <h3 className="text-lg font-semibold" style={{ color: '#ff471a' }}>13. Contact Information</h3>
+          <h3 className="text-lg font-semibold" style={{ color: '#ff0066' }}>13. Contact Information</h3>
           <p>
             For questions, concerns, or support, please contact us at:{' '}
             <a
               href="mailto:moniaaiofficial@gmail.com"
-              style={{ color: '#ff471a' }}
+              style={{ color: '#ff0066' }}
               className="hover:underline font-semibold"
             >
               moniaaiofficial@gmail.com
@@ -163,7 +163,7 @@ export default function TermsPage() {
         </section>
 
         <section className="space-y-3">
-          <h3 className="text-lg font-semibold" style={{ color: '#ff471a' }}>14. Messaging Service – Important Disclosure</h3>
+          <h3 className="text-lg font-semibold" style={{ color: '#ff0066' }}>14. Messaging Service – Important Disclosure</h3>
           <p className="font-semibold text-white">
             MONiA messaging is NOT end-to-end encrypted.
           </p>
@@ -190,7 +190,7 @@ export default function TermsPage() {
         </section>
 
         <section className="space-y-3">
-          <h3 className="text-lg font-semibold" style={{ color: '#ff471a' }}>15. Messaging Conduct</h3>
+          <h3 className="text-lg font-semibold" style={{ color: '#ff0066' }}>15. Messaging Conduct</h3>
           <p>When using MONiA messaging you must NOT:</p>
           <ul className="list-disc pl-6 space-y-2">
             <li>Send unsolicited bulk messages (spam).</li>
@@ -204,7 +204,7 @@ export default function TermsPage() {
         </section>
 
         <section className="space-y-3">
-          <h3 className="text-lg font-semibold" style={{ color: '#ff471a' }}>16. Data Security Disclaimer</h3>
+          <h3 className="text-lg font-semibold" style={{ color: '#ff0066' }}>16. Data Security Disclaimer</h3>
           <p>
             While MONiA implements industry-standard security measures (TLS, RLS, secure key storage), no
             system is completely secure. MONiA is not liable for unauthorised access to messages resulting from
@@ -213,7 +213,7 @@ export default function TermsPage() {
         </section>
 
         <section className="space-y-3">
-          <h3 className="text-lg font-semibold" style={{ color: '#ff471a' }}>17. Device Permissions &amp; Feature Access</h3>
+          <h3 className="text-lg font-semibold" style={{ color: '#ff0066' }}>17. Device Permissions &amp; Feature Access</h3>
           <p>
             To use all features of MONiA, your device may prompt you to grant the following permissions. These are
             optional — denying a permission only disables the related feature and does not prevent general app use.
@@ -232,7 +232,7 @@ export default function TermsPage() {
         </section>
 
         <section className="space-y-3">
-          <h3 className="text-lg font-semibold" style={{ color: '#ff471a' }}>18. Progressive Web App (PWA) Usage</h3>
+          <h3 className="text-lg font-semibold" style={{ color: '#ff0066' }}>18. Progressive Web App (PWA) Usage</h3>
           <p>
             MONiA may be installed on your device as a Progressive Web App via your browser&apos;s &quot;Add to Home Screen&quot;
             feature. By installing the PWA you agree to the following:
@@ -247,7 +247,7 @@ export default function TermsPage() {
 
         <section
           className="space-y-3 mt-8 p-4 rounded-2xl"
-          style={{ border: '1px solid rgba(198,255,51,0.25)', background: 'rgba(198,255,51,0.04)' }}
+          style={{ border: '1px solid rgba(255,0,102,0.25)', background: 'rgba(255,0,102,0.04)' }}
         >
           <p className="text-sm" style={{ color: 'rgba(255,255,255,0.70)' }}>
             By using MONiA, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions.

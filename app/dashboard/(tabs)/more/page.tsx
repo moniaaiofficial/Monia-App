@@ -42,7 +42,7 @@ export default function MorePage() {
   const displayName = profile?.full_name || user?.fullName || 'MONiA User';
 
   return (
-    <main className="min-h-screen page-enter" style={{ background: '#1a0d00' }}>
+    <main className="min-h-screen page-enter" style={{ background: '#14141f' }}>
       <div className="sticky top-0 section-header z-10">
         <div className="px-5 py-5">
           <h1 className="text-2xl font-black text-white">More</h1>
@@ -60,9 +60,9 @@ export default function MorePage() {
           }}
         >
           {avatarUrl ? (
-            <img src={avatarUrl} alt={displayName} style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(198,255,51,0.30)', flexShrink: 0 }} />
+            <img src={avatarUrl} alt={displayName} style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(255,0,102,0.30)', flexShrink: 0 }} />
           ) : profile ? (
-            <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'rgba(198,255,51,0.10)', border: '1.5px solid rgba(198,255,51,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 18, color: '#ff471a', flexShrink: 0 }}>
+            <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'rgba(255,0,102,0.10)', border: '1.5px solid rgba(255,0,102,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 18, color: '#ff0066', flexShrink: 0 }}>
               {getInitials(displayName)}
             </div>
           ) : (
@@ -73,7 +73,7 @@ export default function MorePage() {
             {profile ? (
               <>
                 <p style={{ color: '#fff', fontWeight: 700, fontSize: 16, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayName}</p>
-                <p style={{ color: '#ff471a', fontSize: 13, fontWeight: 600, marginTop: 1 }}>@{profile.username || '—'}</p>
+                <p style={{ color: '#ff0066', fontSize: 13, fontWeight: 600, marginTop: 1 }}>@{profile.username || '—'}</p>
                 <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: 12, marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{profile.email}</p>
               </>
             ) : (
@@ -92,7 +92,7 @@ export default function MorePage() {
             style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: 'none', cursor: 'pointer' }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <Shield style={{ width: 20, height: 20, color: '#ff471a' }} />
+              <Shield style={{ width: 20, height: 20, color: '#ff0066' }} />
               <span style={{ color: '#fff', fontWeight: 600, fontSize: 14 }}>Privacy Policy</span>
             </div>
             <ChevronRight style={{ width: 16, height: 16, color: 'rgba(255,255,255,0.25)' }} />
@@ -103,7 +103,7 @@ export default function MorePage() {
             style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: 'none', cursor: 'pointer' }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <FileText style={{ width: 20, height: 20, color: '#ff471a' }} />
+              <FileText style={{ width: 20, height: 20, color: '#ff0066' }} />
               <span style={{ color: '#fff', fontWeight: 600, fontSize: 14 }}>Terms & Conditions</span>
             </div>
             <ChevronRight style={{ width: 16, height: 16, color: 'rgba(255,255,255,0.25)' }} />
@@ -112,7 +112,7 @@ export default function MorePage() {
 
         <div className="text-center pt-4 space-y-1" style={{ color: 'rgba(255,255,255,0.25)' }}>
           <p className="font-semibold text-xs">MONiA v1.9.0</p>
-          <a href="mailto:moniaaiofficial@gmail.com" style={{ color: '#ff471a', fontSize: 12 }}>
+          <a href="mailto:moniaaiofficial@gmail.com" style={{ color: '#ff0066', fontSize: 12 }}>
             moniaaiofficial@gmail.com
           </a>
         </div>

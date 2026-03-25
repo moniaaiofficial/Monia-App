@@ -3,7 +3,7 @@ You are a senior Next.js developer. Implement **only Phase 2B** of MONiA app. Th
 ## 🎯 CURRENT STATUS (Phase 1 + 2A complete)
 - ✅ Phase 1 (auth, splash, T&C, Privacy, login/signup) working.
 - ✅ **Phase 2A (5‑tab navigation, top bar with animated "Ask MONiA", search expand, M+Ai middle tab) already complete and working.**
-- ✅ UI theme preserved: #1a0d00 background, #ff471a active, white inactive, thin neon border, breathing pulse.
+- ✅ UI theme preserved: #14141f background, #ff0066 active, white inactive, thin neon border, breathing pulse.
 
 ## 🚨 CRITICAL PRESERVATION RULES
 ### 🔒 AUTH & BACKEND (DO NOT TOUCH)

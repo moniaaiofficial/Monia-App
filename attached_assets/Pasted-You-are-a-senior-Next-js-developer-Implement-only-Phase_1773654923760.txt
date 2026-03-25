@@ -3,7 +3,7 @@ You are a senior Next.js developer. Implement **only Phase 2A** of MONiA app as 
 ## 🎯 CURRENT STATUS (Phase 1 – DO NOT TOUCH)
 - ✅ Splash screen, T&C, Privacy Policy, Login/Signup/Signin working with Clerk.
 - ✅ Dashboard with bottom navigation (currently 4 tabs: Chats, Calls, Updates, More).
-- ✅ UI theme: background #1a0d00, neon green #ff471a active, white inactive, thin neon border, breathing pulse, light sweep.
+- ✅ UI theme: background #14141f, neon green #ff0066 active, white inactive, thin neon border, breathing pulse, light sweep.
 - ✅ Clerk authentication, Supabase profiles table, webhook working, GitHub, Vercel deployed.
 
 ## 🚨 CRITICAL PRESERVATION RULES (MUST FOLLOW)
@@ -28,7 +28,7 @@ You are a senior Next.js developer. Implement **only Phase 2A** of MONiA app as 
 
 ### 1. TOP BAR REDESIGN
 - **Left side:** Replace "MONiA" text with **"Ask MONiA"**.
-  - Add CSS animation: colour cycles through #ff471a → #00e5ff → #ff00ff → #a855f7 smoothly, each colour 2 seconds (total 8s). Use `text-shadow` matching current colour.
+  - Add CSS animation: colour cycles through #ff0066 → #00e5ff → #ff00ff → #a855f7 smoothly, each colour 2 seconds (total 8s). Use `text-shadow` matching current colour.
   - Make it clickable (opens AI chat – placeholder for now).
 - **Right side:** Search icon (🔍) and Profile icon (👤) – keep existing.
   - Search click: expand to full‑width input, temporarily hide left text and profile icon, show back arrow to collapse.
@@ -44,7 +44,7 @@ You are a senior Next.js developer. Implement **only Phase 2A** of MONiA app as 
 - **Middle tab special:**
   - Icon size slightly larger than others.
   - Icon and its boundary continuously cycle through neon colours (same palette as above, 2s per colour).
-- **Other tabs:** Icon white, active state neon green (#ff471a) – preserve existing.
+- **Other tabs:** Icon white, active state neon green (#ff0066) – preserve existing.
 - **Gestures:** Swipe left/right to switch tabs.
 - **Haptics:** Short 8ms vibration on tab switch.
 - **FAB:** Add a Floating Action Button (centered above tab bar) – placeholder for quick actions.
@@ -52,11 +52,11 @@ You are a senior Next.js developer. Implement **only Phase 2A** of MONiA app as 
 ### 3. CSS ANIMATIONS (Add to globals.css)
 ```css
 @keyframes askMoniaNeon {
-  0%   { color: #ff471a; text-shadow: 0 0 10px #ff471a; }
+  0%   { color: #ff0066; text-shadow: 0 0 10px #ff0066; }
   25%  { color: #00e5ff; text-shadow: 0 0 15px #00e5ff; }
   50%  { color: #ff00ff; text-shadow: 0 0 15px #ff00ff; }
   75%  { color: #a855f7; text-shadow: 0 0 15px #a855f7; }
-  100% { color: #ff471a; text-shadow: 0 0 10px #ff471a; }
+  100% { color: #ff0066; text-shadow: 0 0 10px #ff0066; }
 }
 .ask-monia-live {
   animation: askMoniaNeon 8s infinite;
@@ -65,11 +65,11 @@ You are a senior Next.js developer. Implement **only Phase 2A** of MONiA app as 
 }
 
 @keyframes middleIconNeon {
-  0%   { filter: drop-shadow(0 0 5px #ff471a); }
+  0%   { filter: drop-shadow(0 0 5px #ff0066); }
   25%  { filter: drop-shadow(0 0 8px #00e5ff); }
   50%  { filter: drop-shadow(0 0 8px #ff00ff); }
   75%  { filter: drop-shadow(0 0 8px #a855f7); }
-  100% { filter: drop-shadow(0 0 5px #ff471a); }
+  100% { filter: drop-shadow(0 0 5px #ff0066); }
 }
 .middle-icon {
   animation: middleIconNeon 8s infinite;

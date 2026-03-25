@@ -79,7 +79,7 @@ export default function SignupPage() {
   return (
     <main
       className="min-h-screen flex items-center justify-center px-5 py-10 page-enter"
-      style={{ background: '#1a0d00' }}
+      style={{ background: '#14141f' }}
     >
       <div className="w-full max-w-sm space-y-7">
         <div className="text-center space-y-2">
@@ -163,7 +163,7 @@ export default function SignupPage() {
             type="submit"
             disabled={loading}
             className="btn-neon w-full py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 mt-2"
-            style={{ color: '#1a0d00' }}
+            style={{ color: '#14141f' }}
           >
             {loading ? (
               <><Loader2 className="w-4 h-4 animate-spin" />Creating account…</>
@@ -193,7 +193,7 @@ export default function SignupPage() {
         <p className="text-center text-sm" style={{ color: 'rgba(255,255,255,0.38)' }}>
           Already have an account?{' '}
           <Link href="/auth/login" className="font-bold hover:opacity-80 transition-opacity"
-            style={{ color: '#ff471a' }}>
+            style={{ color: '#ff0066' }}>
             Sign in
           </Link>
         </p>

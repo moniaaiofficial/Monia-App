@@ -7,7 +7,7 @@ import { ProfileProvider } from '@/lib/profile-context';
 import Splash from './page'; // Tera Splash component (page.tsx)
 
 export const viewport: Viewport = {
-  themeColor: '#1a0d00',
+  themeColor: '#14141f',
 };
 
 export const metadata: Metadata = {
@@ -34,8 +34,8 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider signInUrl="/auth/login" signUpUrl="/auth/signup">
-      <html lang="en" className="dark" style={{ backgroundColor: '#1a0d00' }}>
-        <body style={{ backgroundColor: '#1a0d00', color: '#ffffff', margin: 0 }}>
+      <html lang="en" className="dark" style={{ backgroundColor: '#14141f' }}>
+        <body style={{ backgroundColor: '#14141f', color: '#ffffff', margin: 0 }}>
           
           {/* ✅ Splash ab Provider ke andar hai, error nahi aayega */}
           <Splash /> 

@@ -6,7 +6,7 @@ export default function TabsLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen pb-28" style={{ background: '#1a0d00' }}>
+    <div className="min-h-screen pb-28" style={{ background: '#14141f' }}>
       {children}
       <BottomNav />
     </div>

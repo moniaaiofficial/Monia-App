@@ -20,7 +20,7 @@ export default function ChatError({
     <div
       style={{
         minHeight: '100vh',
-        background: '#1a0d00',
+        background: '#14141f',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -56,9 +56,9 @@ export default function ChatError({
           style={{
             padding: '10px 20px',
             borderRadius: 14,
-            background: 'rgba(198,255,51,0.12)',
-            border: '1px solid rgba(198,255,51,0.25)',
-            color: '#ff471a',
+            background: 'rgba(255,0,102,0.12)',
+            border: '1px solid rgba(255,0,102,0.25)',
+            color: '#ff0066',
             fontWeight: 600,
             fontSize: 14,
             cursor: 'pointer',

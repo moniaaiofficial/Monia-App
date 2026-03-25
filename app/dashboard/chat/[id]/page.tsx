@@ -85,11 +85,11 @@ function PollCreatorModal({ onSend, onClose }: { onSend: (q: string, opts: strin
           />
         ))}
         {options.length < 6 && (
-          <button onClick={addOption} style={{ color: '#ff471a', fontWeight: 600, fontSize: 13, background: 'none', border: 'none', cursor: 'pointer', marginBottom: 16 }}>+ Add option</button>
+          <button onClick={addOption} style={{ color: '#ff0066', fontWeight: 600, fontSize: 13, background: 'none', border: 'none', cursor: 'pointer', marginBottom: 16 }}>+ Add option</button>
         )}
         <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
           <button onClick={onClose} style={{ flex: 1, padding: '12px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: 'none', color: 'rgba(255,255,255,0.55)', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
-          <button onClick={submit} style={{ flex: 1, padding: '12px', borderRadius: 14, background: '#ff471a', border: 'none', color: '#1a0d00', fontWeight: 700, cursor: 'pointer' }}>Send Poll</button>
+          <button onClick={submit} style={{ flex: 1, padding: '12px', borderRadius: 14, background: '#ff0066', border: 'none', color: '#14141f', fontWeight: 700, cursor: 'pointer' }}>Send Poll</button>
         </div>
       </div>
     </div>
@@ -323,10 +323,10 @@ export default function ChatPage() {
 
   if (loading) {
     return (
-      <div style={{ background: '#1a0d00', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ background: '#14141f', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ display: 'flex', gap: 6 }}>
           {[0, 1, 2].map((i) => (
-            <span key={i} style={{ width: 8, height: 8, borderRadius: '50%', background: '#ff471a', opacity: 0.6, animation: 'typingDot 1.2s ease-in-out infinite', animationDelay: `${i * 0.18}s` }} />
+            <span key={i} style={{ width: 8, height: 8, borderRadius: '50%', background: '#ff0066', opacity: 0.6, animation: 'typingDot 1.2s ease-in-out infinite', animationDelay: `${i * 0.18}s` }} />
           ))}
         </div>
       </div>
@@ -335,9 +335,9 @@ export default function ChatPage() {
 
   if (notFound || !partner) {
     return (
-      <div style={{ background: '#1a0d00', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
+      <div style={{ background: '#14141f', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
         <p style={{ color: 'rgba(255,255,255,0.5)' }}>Chat not found</p>
-        <button onClick={() => router.push('/dashboard')} style={{ color: '#ff471a', fontWeight: 700 }}>← Back to Chats</button>
+        <button onClick={() => router.push('/dashboard')} style={{ color: '#ff0066', fontWeight: 700 }}>← Back to Chats</button>
       </div>
     );
   }
@@ -345,23 +345,23 @@ export default function ChatPage() {
   const partnerInSleep = partner.sleep_mode_enabled && isTimeInSleepMode(partner.sleep_start, partner.sleep_end);
 
   return (
-    <main style={{ background: '#1a0d00', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+    <main style={{ background: '#14141f', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       {/* Header */}
       <div style={{ position: 'sticky', top: 0, zIndex: 20, background: 'rgba(26,13,0,0.94)', backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
-        <button onClick={() => router.push('/dashboard')} style={{ color: '#ff471a', flexShrink: 0 }}>
+        <button onClick={() => router.push('/dashboard')} style={{ color: '#ff0066', flexShrink: 0 }}>
           <ArrowLeft size={22} />
         </button>
         <button onClick={() => setShowProfile(true)} style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 0, background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}>
           {partner.avatar_url ? (
-            <img src={partner.avatar_url} alt={partner.full_name ?? ''} style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(198,255,51,0.30)', flexShrink: 0 }} />
+            <img src={partner.avatar_url} alt={partner.full_name ?? ''} style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(255,0,102,0.30)', flexShrink: 0 }} />
           ) : (
-            <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(198,255,51,0.10)', border: '1px solid rgba(198,255,51,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ff471a', fontWeight: 700, fontSize: 14, flexShrink: 0 }}>
+            <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(255,0,102,0.10)', border: '1px solid rgba(255,0,102,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ff0066', fontWeight: 700, fontSize: 14, flexShrink: 0 }}>
               {getInitials(partner.full_name)}
             </div>
           )}
           <div style={{ minWidth: 0 }}>
             <p style={{ color: '#fff', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{partner.full_name}</p>
-            <p style={{ color: partnerInSleep ? '#ff471a' : 'rgba(255,255,255,0.38)', fontSize: 12 }}>
+            <p style={{ color: partnerInSleep ? '#ff0066' : 'rgba(255,255,255,0.38)', fontSize: 12 }}>
               {partnerInSleep ? '🌙 In Sleep Mode — messages stored' : isTyping ? '〰️〰️〰️ typing…' : `@${partner.username || ''}`}
             </p>
           </div>
@@ -373,7 +373,7 @@ export default function ChatPage() {
 
       {/* Action toast */}
       {actionMsg && (
-        <div style={{ position: 'fixed', top: 80, left: '50%', transform: 'translateX(-50%)', zIndex: 300, background: 'rgba(198,255,51,0.15)', border: '1px solid rgba(198,255,51,0.35)', borderRadius: 20, padding: '8px 18px', color: '#ff471a', fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap' }}>
+        <div style={{ position: 'fixed', top: 80, left: '50%', transform: 'translateX(-50%)', zIndex: 300, background: 'rgba(255,0,102,0.15)', border: '1px solid rgba(255,0,102,0.35)', borderRadius: 20, padding: '8px 18px', color: '#ff0066', fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap' }}>
           {actionMsg}
         </div>
       )}
@@ -499,21 +499,21 @@ export default function ChatPage() {
             </button>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
               {partner.avatar_url ? (
-                <img src={partner.avatar_url} alt={partner.full_name ?? ''} style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(198,255,51,0.35)' }} />
+                <img src={partner.avatar_url} alt={partner.full_name ?? ''} style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(255,0,102,0.35)' }} />
               ) : (
-                <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'rgba(198,255,51,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, fontWeight: 700, color: '#ff471a' }}>
+                <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'rgba(255,0,102,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, fontWeight: 700, color: '#ff0066' }}>
                   {getInitials(partner.full_name)}
                 </div>
               )}
               <div style={{ textAlign: 'center' }}>
                 <p style={{ color: '#fff', fontWeight: 700, fontSize: 18 }}>{partner.full_name || 'MONiA User'}</p>
-                <p style={{ color: '#ff471a', fontSize: 14, fontWeight: 600, marginTop: 2 }}>@{partner.username || '—'}</p>
+                <p style={{ color: '#ff0066', fontSize: 14, fontWeight: 600, marginTop: 2 }}>@{partner.username || '—'}</p>
               </div>
               <div style={{ width: '100%', marginTop: 8 }}>
                 {partner.email && <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 13, textAlign: 'center', marginBottom: 4 }}>{partner.email}</p>}
                 {partner.mobile && <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 13, textAlign: 'center', marginBottom: 4 }}>{partner.mobile}</p>}
                 {partner.city && <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 13, textAlign: 'center' }}>{partner.city}</p>}
-                {partnerInSleep && <p style={{ color: '#ff471a', fontSize: 13, textAlign: 'center', marginTop: 8 }}>🌙 Currently in Sleep Mode</p>}
+                {partnerInSleep && <p style={{ color: '#ff0066', fontSize: 13, textAlign: 'center', marginTop: 8 }}>🌙 Currently in Sleep Mode</p>}
               </div>
             </div>
           </div>

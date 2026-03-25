@@ -106,12 +106,12 @@ export default function ChatInput({
           padding: '8px 14px 4px',
           borderBottom: '1px solid rgba(255,255,255,0.06)',
         }}>
-          <CornerUpLeft size={14} style={{ color: '#ff471a', flexShrink: 0 }} />
+          <CornerUpLeft size={14} style={{ color: '#ff0066', flexShrink: 0 }} />
           <div style={{
-            flex: 1, borderLeft: '2px solid #ff471a', paddingLeft: 8,
+            flex: 1, borderLeft: '2px solid #ff0066', paddingLeft: 8,
             minWidth: 0,
           }}>
-            <p style={{ fontSize: 11, fontWeight: 700, color: '#ff471a', marginBottom: 1 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: '#ff0066', marginBottom: 1 }}>
               {replyTo.isSelf ? 'You' : replyTo.senderName}
             </p>
             <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -177,7 +177,7 @@ export default function ChatInput({
           aria-label="Send"
           style={{
             width: 42, height: 42, borderRadius: '50%', border: 'none',
-            background: canSend ? 'linear-gradient(135deg,#ff471a,#a8e000)' : 'rgba(255,255,255,0.08)',
+            background: canSend ? 'linear-gradient(135deg,#ff0066,#a8e000)' : 'rgba(255,255,255,0.08)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             cursor: canSend ? 'pointer' : 'default', flexShrink: 0,
             transition: 'background 0.2s, transform 0.15s',
@@ -186,7 +186,7 @@ export default function ChatInput({
           onPointerDown={(e) => { if (canSend) (e.currentTarget as HTMLButtonElement).style.transform = 'scale(0.9)'; }}
           onPointerUp={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)'; }}
         >
-          <Send size={18} style={{ color: canSend ? '#1a0d00' : 'rgba(255,255,255,0.25)', strokeWidth: 2.5, marginLeft: 2 }} />
+          <Send size={18} style={{ color: canSend ? '#14141f' : 'rgba(255,255,255,0.25)', strokeWidth: 2.5, marginLeft: 2 }} />
         </button>
       </div>
     </div>

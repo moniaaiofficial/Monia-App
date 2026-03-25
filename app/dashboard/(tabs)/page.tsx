@@ -9,7 +9,7 @@ import { supabase } from '@/lib/supabase/client';
 import { useMyProfile } from '@/lib/profile-context';
 
 function avatarBg(name: string | undefined) {
-  const p = ['rgba(255,71,26,0.14)', 'rgba(0,229,255,0.11)', 'rgba(255,0,255,0.10)', 'rgba(168,85,247,0.12)'];
+  const p = ['rgba(255,0,102,0.14)', 'rgba(0,229,255,0.11)', 'rgba(255,0,255,0.10)', 'rgba(168,85,247,0.12)'];
   return p[(name?.charCodeAt(0) ?? 0) % p.length];
 }
 
@@ -150,16 +150,16 @@ function ChatsPageInner() {
   const userInitials = getInitials(myProfile?.full_name || user?.fullName || user?.firstName || '');
 
   return (
-    <main className="min-h-screen page-enter neon-wire-border" style={{ background: '#1a0d00' }}>
+    <main className="min-h-screen page-enter neon-shining-line" style={{ background: '#14141f' }}>
       {/* Header */}
       <div
         className="sticky top-0 z-10"
-        style={{ background: 'rgba(26,13,0,0.94)', backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)' }}
+        style={{ background: '#14141f' }}
       >
         <div className="px-5 py-4">
           {searchOpen ? (
             <div className="flex items-center gap-3">
-              <button onClick={closeSearch} style={{ color: '#ff471a', flexShrink: 0 }}>
+              <button onClick={closeSearch} style={{ color: '#ff0066', flexShrink: 0 }}>
                 <ArrowLeft className="w-5 h-5" />
               </button>
               <div className="relative flex-1">
@@ -200,10 +200,10 @@ function ChatsPageInner() {
                       key={myAvatarUrl}
                       src={myAvatarUrl}
                       alt="Me"
-                      style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(255,71,26,0.45)' }}
+                      style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid rgba(255,0,102,0.45)' }}
                     />
                   ) : (
-                    <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(255,71,26,0.12)', border: '1.5px solid rgba(255,71,26,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: '#ff471a' }}>
+                    <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(255,0,102,0.12)', border: '1.5px solid rgba(255,0,102,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: '#ff0066' }}>
                       {userInitials}
                     </div>
                   )}
@@ -216,9 +216,9 @@ function ChatsPageInner() {
 
       {/* New Chat Modal */}
       {newChatOpen && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'flex', flexDirection: 'column', background: '#1a0d00' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(26,13,0,0.96)' }}>
-            <button onClick={closeNewChat} style={{ color: '#ff471a', flexShrink: 0 }}>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'flex', flexDirection: 'column', background: '#14141f' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)', background: '#14141f' }}>
+            <button onClick={closeNewChat} style={{ color: '#ff0066', flexShrink: 0 }}>
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div style={{ flex: 1, position: 'relative' }}>
@@ -250,12 +250,12 @@ function ChatsPageInner() {
                 key={p.id}
                 onClick={() => startChat(p.id)}
                 disabled={startingChat === p.id}
-                style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 14, padding: '12px 14px', borderRadius: 16, background: startingChat === p.id ? 'rgba(198,255,51,0.08)' : 'rgba(255,255,255,0.04)', marginBottom: 8, cursor: startingChat === p.id ? 'wait' : 'pointer', textAlign: 'left', border: 'none' }}
+                style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 14, padding: '12px 14px', borderRadius: 16, background: startingChat === p.id ? 'rgba(255,0,102,0.08)' : 'rgba(255,255,255,0.04)', marginBottom: 8, cursor: startingChat === p.id ? 'wait' : 'pointer', textAlign: 'left', border: 'none' }}
               >
                 {p.avatar_url ? (
                   <img src={p.avatar_url} alt={p.full_name ?? ''} style={{ width: 46, height: 46, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
                 ) : (
-                  <div style={{ width: 46, height: 46, borderRadius: '50%', background: avatarBg(p.full_name ?? undefined), display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 15, color: '#ff471a', flexShrink: 0 }}>
+                  <div style={{ width: 46, height: 46, borderRadius: '50%', background: avatarBg(p.full_name ?? undefined), display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 15, color: '#ff0066', flexShrink: 0 }}>
                     {getInitials(p.full_name)}
                   </div>
                 )}
@@ -278,7 +278,7 @@ function ChatsPageInner() {
 
             {!newChatQuery.trim() && (
               <div style={{ textAlign: 'center', paddingTop: 60 }}>
-                <Search style={{ width: 36, height: 36, color: 'rgba(198,255,51,0.25)', margin: '0 auto 12px' }} />
+                <Search style={{ width: 36, height: 36, color: 'rgba(255,0,102,0.25)', margin: '0 auto 12px' }} />
                 <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: 14 }}>Search by name, username, email, mobile or city</p>
               </div>
             )}
@@ -302,15 +302,15 @@ function ChatsPageInner() {
           </div>
         ) : displayedChats.length === 0 ? (
           <div className="text-center py-24">
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5" style={{ background: 'rgba(198,255,51,0.08)' }}>
-              <UserPlus className="w-8 h-8 icon-active-glow" style={{ color: '#ff471a' }} />
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5 neon-shining-line" style={{ background: 'rgba(255,0,102,0.08)' }}>
+              <UserPlus className="w-8 h-8 neon-icon-glow" />
             </div>
             <h2 className="text-xl font-bold text-white mb-2">{searchQuery ? 'No chats found' : 'No chats yet'}</h2>
             <p className="text-sm mb-6" style={{ color: 'rgba(255,255,255,0.38)' }}>
               {searchQuery ? 'Try another search term' : 'Start a conversation with someone'}
             </p>
             {!searchQuery && (
-              <button onClick={openNewChat} className="btn-neon px-6 py-3 rounded-2xl font-bold text-sm" style={{ color: '#1a0d00' }}>
+              <button onClick={openNewChat} className="btn-neon px-6 py-3 rounded-2xl font-bold text-sm" style={{ color: '#14141f' }}>
                 Find People
               </button>
             )}
@@ -320,15 +320,16 @@ function ChatsPageInner() {
             {displayedChats.map((chat) => (
               <button
                 key={chat.id}
+                className="neon-shining-line"
                 onClick={() => router.push(`/dashboard/chat/${chat.id}`)}
-                style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 14, padding: '11px 10px', borderRadius: 16, background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', transition: 'background 0.1s' }}
+                style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 14, padding: '11px 10px', borderRadius: 16, background: 'transparent', cursor: 'pointer', textAlign: 'left', transition: 'background 0.1s', border: '1px solid rgba(255,255,255,0.06)' }}
                 onPointerEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.04)')}
                 onPointerLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = 'transparent')}
               >
                 {chat.partner?.avatar_url ? (
                   <img src={chat.partner.avatar_url} alt={chat.partner.full_name ?? ''} style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, border: '1px solid rgba(255,255,255,0.08)' }} />
                 ) : (
-                  <div style={{ width: 52, height: 52, borderRadius: '50%', background: avatarBg(chat.partner?.full_name ?? undefined), display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 17, color: '#ff471a', flexShrink: 0 }}>
+                  <div style={{ width: 52, height: 52, borderRadius: '50%', background: avatarBg(chat.partner?.full_name ?? undefined), display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 17, color: '#ff0066', flexShrink: 0 }}>
                     {getInitials(chat.partner?.full_name)}
                   </div>
                 )}
@@ -356,7 +357,7 @@ function ChatsPageInner() {
 
 export default function ChatsPage() {
   return (
-    <Suspense fallback={<div style={{ background: '#1a0d00', minHeight: '100vh' }} />}>
+    <Suspense fallback={<div style={{ background: '#14141f', minHeight: '100vh' }} />}>
       <ChatsPageInner />
     </Suspense>
   );

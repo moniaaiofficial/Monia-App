@@ -95,7 +95,7 @@ export default function VerifyEmailPage() {
   return (
     <main
       className="min-h-screen flex items-center justify-center px-5 py-10 page-enter"
-      style={{ background: '#1a0d00' }}
+      style={{ background: '#14141f' }}
     >
       <div className="w-full max-w-sm space-y-8">
         <Link
@@ -110,9 +110,9 @@ export default function VerifyEmailPage() {
         <div className="text-center space-y-3">
           <div
             className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto tilt-target"
-            style={{ background: 'rgba(198,255,51,0.08)' }}
+            style={{ background: 'rgba(255,0,102,0.08)' }}
           >
-            <Mail className="w-8 h-8 icon-active-glow" style={{ color: '#ff471a' }} />
+            <Mail className="w-8 h-8 icon-active-glow" style={{ color: '#ff0066' }} />
           </div>
           <h1
             className="font-black text-white logo-glow"
@@ -125,7 +125,7 @@ export default function VerifyEmailPage() {
             <p className="text-sm mt-1" style={{ color: 'rgba(255,255,255,0.38)' }}>
               We sent a 6-digit code to
               {email && (
-                <span className="block font-semibold mt-1" style={{ color: '#ff471a' }}>
+                <span className="block font-semibold mt-1" style={{ color: '#ff0066' }}>
                   {email}
                 </span>
               )}
@@ -143,7 +143,7 @@ export default function VerifyEmailPage() {
           {resendSuccess && (
             <div
               className="flex items-center gap-2 px-4 py-3 rounded-2xl text-sm font-medium"
-              style={{ background: 'rgba(198,255,51,0.10)', border: '1px solid rgba(198,255,51,0.25)', color: '#ff471a' }}
+              style={{ background: 'rgba(255,0,102,0.10)', border: '1px solid rgba(255,0,102,0.25)', color: '#ff0066' }}
             >
               <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
               New code sent! Check your inbox.
@@ -165,7 +165,7 @@ export default function VerifyEmailPage() {
             type="submit"
             disabled={loading || code.length !== 6}
             className="btn-neon w-full py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2"
-            style={{ color: '#1a0d00' }}
+            style={{ color: '#14141f' }}
           >
             {loading ? (
               <><Loader2 className="w-4 h-4 animate-spin" />Verifying…</>
@@ -177,7 +177,7 @@ export default function VerifyEmailPage() {
             onClick={resendCode}
             disabled={resending}
             className="w-full py-3 font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-80 transition-opacity disabled:opacity-40"
-            style={{ color: '#ff471a' }}
+            style={{ color: '#ff0066' }}
           >
             {resending ? (
               <><Loader2 className="w-4 h-4 animate-spin" />Sending…</>

@@ -64,14 +64,14 @@ export default function ForgotPasswordPage() {
   const iconClass = 'absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none';
   const inputClass = 'glass-input pl-11 pr-4 py-3.5 text-sm font-medium';
 
-  const neonIcon = { color: '#ff471a' };
+  const neonIcon = { color: '#ff0066' };
 
   const renderStep = () => {
     if (step === 'email') return (
       <>
         <div className="text-center space-y-3">
           <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto tilt-target"
-            style={{ background: 'rgba(198,255,51,0.08)' }}>
+            style={{ background: 'rgba(255,0,102,0.08)' }}>
             <Mail className="w-8 h-8 icon-active-glow" style={neonIcon} />
           </div>
           <h1 className="font-black text-white logo-glow" style={{ fontSize: '3rem', letterSpacing: '-0.03em' }}>MONiA</h1>
@@ -86,7 +86,7 @@ export default function ForgotPasswordPage() {
             <Mail className={iconClass} style={iconStyle} />
             <input type="email" placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass} required />
           </div>
-          <button type="submit" disabled={loading} className="btn-neon w-full py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2" style={{ color: '#1a0d00' }}>
+          <button type="submit" disabled={loading} className="btn-neon w-full py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2" style={{ color: '#14141f' }}>
             {loading ? <><Loader2 className="w-4 h-4 animate-spin" />Sending…</> : 'Send Reset Code'}
           </button>
         </form>
@@ -97,21 +97,21 @@ export default function ForgotPasswordPage() {
       <>
         <div className="text-center space-y-3">
           <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto tilt-target"
-            style={{ background: 'rgba(198,255,51,0.08)' }}>
+            style={{ background: 'rgba(255,0,102,0.08)' }}>
             <KeyRound className="w-8 h-8 icon-active-glow" style={neonIcon} />
           </div>
           <h1 className="font-black text-white logo-glow" style={{ fontSize: '3rem', letterSpacing: '-0.03em' }}>MONiA</h1>
           <div>
             <h2 className="text-lg font-bold text-white">Enter Reset Code</h2>
             <p className="text-sm mt-1" style={{ color: 'rgba(255,255,255,0.38)' }}>
-              We sent a code to <span className="font-semibold" style={{ color: '#ff471a' }}>{email}</span>
+              We sent a code to <span className="font-semibold" style={{ color: '#ff0066' }}>{email}</span>
             </p>
           </div>
         </div>
         <form onSubmit={handleVerifyCode} className="space-y-4">
           {error && <div className="glass-card px-4 py-3 text-sm font-medium" style={{ color: '#ff6b6b' }}>{error}</div>}
           <input type="text" placeholder="• • • • • •" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))} className="glass-input px-4 py-5 text-center text-3xl font-black tracking-[0.5em]" maxLength={6} required />
-          <button type="submit" disabled={loading || code.length !== 6} className="btn-neon w-full py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2" style={{ color: '#1a0d00' }}>
+          <button type="submit" disabled={loading || code.length !== 6} className="btn-neon w-full py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2" style={{ color: '#14141f' }}>
             {loading ? <><Loader2 className="w-4 h-4 animate-spin" />Verifying…</> : 'Verify Code'}
           </button>
           <button type="button" onClick={() => setStep('email')} className="w-full text-sm font-medium py-2 transition-colors" style={{ color: 'rgba(255,255,255,0.32)' }}>
@@ -125,7 +125,7 @@ export default function ForgotPasswordPage() {
       <>
         <div className="text-center space-y-3">
           <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto tilt-target"
-            style={{ background: 'rgba(198,255,51,0.08)' }}>
+            style={{ background: 'rgba(255,0,102,0.08)' }}>
             <Lock className="w-8 h-8 icon-active-glow" style={neonIcon} />
           </div>
           <h1 className="font-black text-white logo-glow" style={{ fontSize: '3rem', letterSpacing: '-0.03em' }}>MONiA</h1>
@@ -150,7 +150,7 @@ export default function ForgotPasswordPage() {
               {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
           </div>
-          <button type="submit" disabled={loading} className="btn-neon w-full py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2" style={{ color: '#1a0d00' }}>
+          <button type="submit" disabled={loading} className="btn-neon w-full py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2" style={{ color: '#14141f' }}>
             {loading ? <><Loader2 className="w-4 h-4 animate-spin" />Resetting…</> : 'Reset Password'}
           </button>
         </form>
@@ -161,7 +161,7 @@ export default function ForgotPasswordPage() {
   return (
     <main
       className="min-h-screen flex items-center justify-center px-5 py-10 page-enter"
-      style={{ background: '#1a0d00' }}
+      style={{ background: '#14141f' }}
     >
       <div className="w-full max-w-sm space-y-8">
         <Link href="/auth/login" className="inline-flex items-center gap-2 text-sm font-medium transition-colors hover:text-white"

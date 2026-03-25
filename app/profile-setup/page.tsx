@@ -101,8 +101,8 @@ export default function ProfileSetupPage() {
 
   if (!isLoaded) {
     return (
-      <main className="min-h-screen flex items-center justify-center" style={{ background: '#1a0d00' }}>
-        <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#ff471a' }} />
+      <main className="min-h-screen flex items-center justify-center" style={{ background: '#14141f' }}>
+        <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#ff0066' }} />
       </main>
     );
   }
@@ -111,7 +111,7 @@ export default function ProfileSetupPage() {
   const iconClass = 'absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none';
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-5 py-10 page-enter" style={{ background: '#1a0d00' }}>
+    <main className="min-h-screen flex items-center justify-center px-5 py-10 page-enter" style={{ background: '#14141f' }}>
       <div className="w-full max-w-sm space-y-7">
         <div className="text-center space-y-2">
           <h1 className="font-black text-white logo-glow" style={{ fontSize: '3rem', letterSpacing: '-0.03em' }}>
@@ -129,7 +129,7 @@ export default function ProfileSetupPage() {
             <img
               src={user.imageUrl}
               alt="Profile"
-              style={{ width: 72, height: 72, borderRadius: '50%', border: '2px solid rgba(198,255,51,0.35)', objectFit: 'cover' }}
+              style={{ width: 72, height: 72, borderRadius: '50%', border: '2px solid rgba(255,0,102,0.35)', objectFit: 'cover' }}
             />
           </div>
         )}
@@ -146,7 +146,7 @@ export default function ProfileSetupPage() {
             <span
               style={{
                 position: 'absolute', left: 16, fontSize: 15, fontWeight: 700,
-                color: '#ff471a', pointerEvents: 'none', zIndex: 1, userSelect: 'none',
+                color: '#ff0066', pointerEvents: 'none', zIndex: 1, userSelect: 'none',
               }}
             >
               @
@@ -195,7 +195,7 @@ export default function ProfileSetupPage() {
             type="submit"
             disabled={loading}
             className="btn-neon w-full py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 mt-2"
-            style={{ color: '#1a0d00' }}
+            style={{ color: '#14141f' }}
           >
             {loading ? <><Loader2 className="w-4 h-4 animate-spin" />Saving…</> : 'Continue to MONiA →'}
           </button>
