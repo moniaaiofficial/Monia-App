@@ -11,6 +11,9 @@ importers:
       '@clerk/nextjs':
         specifier: ^6.0.0
         version: 6.39.0(next@14.2.25(@babel/core@7.29.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@google/generative-ai':
+        specifier: ^0.24.1
+        version: 0.24.1
       '@supabase/ssr':
         specifier: ^0.9.0
         version: 0.9.0(@supabase/supabase-js@2.99.2)
@@ -634,6 +637,10 @@ packages:
   '@eslint/js@8.49.0':
     resolution: {integrity: sha512-1S8uAY/MTJqVx0SC4epBq+N2yhuwtNwLbJYNZyhL2pO1ZVKn5HFXav5T41Ryzy9K9V7ZId2JB2oy/W4aCd9/2w==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+
+  '@google/generative-ai@0.24.1':
+    resolution: {integrity: sha512-MqO+MLfM6kjxcKoy0p1wRzG3b4ZZXtPI+z2IE26UogS2Cm/XHO+7gGRBh6gcJsOiIVoH93UwKvW4HdgiOZCy9Q==}
+    engines: {node: '>=18.0.0'}
 
   '@humanwhocodes/config-array@0.11.14':
     resolution: {integrity: sha512-3T8LkOmg45BV5FICb15QQMsyUSWrQ8AygVfC7ZG32zOalnqrilm018ZVCw0eapXux8FtA33q8PSRSstjee3jSg==}
@@ -3895,6 +3902,8 @@ snapshots:
       - supports-color
 
   '@eslint/js@8.49.0': {}
+
+  '@google/generative-ai@0.24.1': {}
 
   '@humanwhocodes/config-array@0.11.14':
     dependencies:
