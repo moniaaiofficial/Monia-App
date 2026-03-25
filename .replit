@@ -37,3 +37,5 @@ externalPort = 80
 
 [userenv.shared]
 NEXT_PUBLIC_GEMINI_API_KEY = "AIzaSyBcg7MWZI0yahCLf0kz3x9pRYb0VHXSyTQ"
+CLERK_TRUSTED_ORIGINS = "https://4429f14a-b623-4fa7-8514-cdf03a3b9351-00-1chcghcrsis4h.kirk.replit.dev"
+NEXT_PUBLIC_CLERK_FRONTEND_API = "https://relaxed-cougar-34.clerk.accounts.dev"
