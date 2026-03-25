@@ -4,7 +4,6 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  // Allow all hosts for Replit's proxied preview environment
   async headers() {
     return [
       {
