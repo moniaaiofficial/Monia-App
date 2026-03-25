@@ -347,7 +347,7 @@ export default function ChatPage() {
   return (
     <main style={{ background: '#14141f', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       {/* Header */}
-      <div className="neon-shining-line" style={{ position: 'sticky', top: 0, zIndex: 20, background: '#14141f', backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)', borderBottom: '1px solid rgba(255,0,102,0.20)', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+      <div style={{ position: 'sticky', top: 0, zIndex: 20, background: '#14141f', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
         <button onClick={() => router.push('/dashboard')} style={{ color: '#ffffff', flexShrink: 0 }}>
           <ArrowLeft size={22} />
         </button>
@@ -379,7 +379,7 @@ export default function ChatPage() {
       )}
 
       {/* Messages */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px 8px', scrollBehavior: 'smooth' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0', scrollBehavior: 'smooth' }}>
         {messages.map((msg) => (
           <ChatBubble
             key={msg.id}
@@ -442,8 +442,6 @@ export default function ChatPage() {
           onCancelReply={() => setReplyTo(null)}
         />
       )}
-
-      <div style={{ height: 70, flexShrink: 0 }} />
 
       {/* ── 3-Dots Action Menu ── */}
       {menuOpen && (
