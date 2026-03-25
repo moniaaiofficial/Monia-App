@@ -266,11 +266,11 @@ export default function ProfilePage() {
     <main className="min-h-screen page-enter pb-10" style={{ background: '#14141f' }}>
       {/* ── Header ──────────────────────────────────────────────── */}
       <div
-        className="sticky top-0 z-10"
-        style={{ background: 'rgba(26,13,0,0.94)', backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)', borderBottom: '1px solid rgba(255,0,102,0.08)' }}
+        className="sticky top-0 z-10 neon-shining-line"
+        style={{ background: '#14141f', backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)', borderBottom: '1px solid rgba(255,0,102,0.20)' }}
       >
         <div className="flex items-center px-5 py-4 gap-3">
-          <button onClick={() => router.back()} style={{ color: '#ff0066' }}>
+          <button onClick={() => router.back()} style={{ color: '#ffffff' }}>
             <ArrowLeft style={{ width: 22, height: 22 }} />
           </button>
           <h1 className="text-lg font-black text-white">Profile</h1>

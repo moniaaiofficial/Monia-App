@@ -347,8 +347,8 @@ export default function ChatPage() {
   return (
     <main style={{ background: '#14141f', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       {/* Header */}
-      <div style={{ position: 'sticky', top: 0, zIndex: 20, background: 'rgba(26,13,0,0.94)', backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
-        <button onClick={() => router.push('/dashboard')} style={{ color: '#ff0066', flexShrink: 0 }}>
+      <div className="neon-shining-line" style={{ position: 'sticky', top: 0, zIndex: 20, background: '#14141f', backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)', borderBottom: '1px solid rgba(255,0,102,0.20)', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+        <button onClick={() => router.push('/dashboard')} style={{ color: '#ffffff', flexShrink: 0 }}>
           <ArrowLeft size={22} />
         </button>
         <button onClick={() => setShowProfile(true)} style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, minWidth: 0, background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}>
