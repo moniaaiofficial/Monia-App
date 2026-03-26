@@ -379,7 +379,7 @@ export default function ChatPage() {
       )}
 
       {/* Messages */}
-      <div style={{ flex: 1, overflowY: 'auto', paddingBottom: '88px', scrollBehavior: 'smooth' }}>
+      <div style={{ flex: 1, overflowY: 'auto', paddingBottom: '180px', scrollBehavior: 'smooth', WebkitOverflowScrolling: 'touch' }}>
         {messages.map((msg) => (
           <ChatBubble
             key={msg.id}
