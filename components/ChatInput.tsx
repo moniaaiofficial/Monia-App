@@ -287,18 +287,20 @@ export default function ChatInput({
         }
       `}</style>
 
+      {/* ═══ SOLID PARENT WRAPPER — fixed flush above BottomNav ═══ */}
       <div style={{
-        position: 'fixed', bottom: '64px', left: 0, right: 0, zIndex: 50,
+        position: 'fixed', bottom: 64, left: 0, right: 0, zIndex: 50,
         background: '#14141f',
+        borderTop: '1px solid #2d2d3d',
       }}>
-        {/* ── AI Insight strip ───────────────────────────────────────── */}
+        {/* ── AI Insight strip (conditional, slides in above) ──────── */}
         {aiInsight && (
           <div style={{
-            margin: '0 12px 6px',
+            margin: '6px 12px 0',
             background: 'linear-gradient(135deg, rgba(255,0,102,0.12), rgba(168,224,0,0.08))',
             border: '1px solid rgba(255,0,102,0.25)',
             borderRadius: 12,
-            padding: '8px 12px',
+            padding: '7px 12px',
             display: 'flex', alignItems: 'flex-start', gap: 8,
             animation: 'slide-up 0.25s ease',
           }}>
@@ -310,63 +312,72 @@ export default function ChatInput({
           </div>
         )}
 
-        {/* ── Status message ─────────────────────────────────────────── */}
+        {/* ── Status message (conditional) ─────────────────────────── */}
         {statusMsg && (
-          <p style={{
-            textAlign: 'center', fontSize: 11, color: '#ff0066',
-            margin: '0 12px 4px', opacity: 0.9,
-          }}>{statusMsg}</p>
+          <p style={{ textAlign: 'center', fontSize: 11, color: '#ff0066', margin: '4px 12px 0', opacity: 0.9 }}>
+            {statusMsg}
+          </p>
         )}
 
-        {/* ── MONiA helper link ──────────────────────────────────────── */}
-        <div style={{ textAlign: 'center', paddingBottom: 4 }}>
+        {/* ══ SINGLE AI BAR ROW: MONiA + Translate on same line ═══ */}
+        <div
+          ref={langDropRef}
+          style={{
+            display: 'flex', alignItems: 'center',
+            padding: '6px 12px 0',
+            gap: 6, position: 'relative',
+          }}
+        >
+          {/* MONiA shortcut — left */}
           <button
             onClick={focusWithMonia}
             style={{
               background: 'none', border: 'none', cursor: 'pointer',
-              fontSize: 11.5, fontWeight: 600, color: '#ff0066',
-              padding: '2px 10px', borderRadius: 20,
-              animation: 'monia-glow 2.5s ease-in-out infinite, monia-pulse-bg 2.5s ease-in-out infinite',
-              letterSpacing: 0.3,
+              fontSize: 11, fontWeight: 700, color: '#ff0066',
+              padding: '2px 0', flexShrink: 0,
+              animation: 'monia-glow 2.5s ease-in-out infinite',
+              letterSpacing: 0.2, whiteSpace: 'nowrap',
             }}
           >
             ✦ Need MONiA's help?
           </button>
-        </div>
 
-        {/* ── Language selector row ──────────────────────────────────── */}
-        <div style={{ display: 'flex', alignItems: 'center', padding: '0 12px 4px', gap: 6 }} ref={langDropRef}>
-          <Globe size={12} style={{ color: 'rgba(255,255,255,0.3)', flexShrink: 0 }} />
-          <span style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.3)', flexShrink: 0 }}>Translate to:</span>
+          {/* Spacer pushes dropdown to right */}
+          <div style={{ flex: 1 }} />
+
+          {/* Translate label + dropdown — right */}
+          <Globe size={11} style={{ color: 'rgba(255,255,255,0.28)', flexShrink: 0 }} />
+          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)', flexShrink: 0 }}>Translate:</span>
           <button
             onClick={() => setLangOpen(o => !o)}
             style={{
-              background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)',
-              borderRadius: 10, padding: '2px 8px', cursor: 'pointer',
-              color: '#fff', fontSize: 11, display: 'flex', alignItems: 'center', gap: 4,
+              background: 'rgba(255,255,255,0.06)', border: '1px solid #2d2d3d',
+              borderRadius: 8, padding: '2px 7px', cursor: 'pointer',
+              color: '#fff', fontSize: 10.5, display: 'flex', alignItems: 'center', gap: 3,
+              flexShrink: 0,
             }}
           >
-            {targetLang.name} <span style={{ opacity: 0.4 }}>▾</span>
+            {targetLang.name} <span style={{ opacity: 0.4, fontSize: 9 }}>▾</span>
           </button>
 
-          {/* Dropdown */}
+          {/* Language dropdown — opens upward */}
           {langOpen && (
             <div style={{
-              position: 'absolute', bottom: '100%', left: 12, right: 12,
-              background: '#1e1e2e', border: '1px solid rgba(255,255,255,0.12)',
+              position: 'absolute', bottom: 'calc(100% + 4px)', right: 12, left: 12,
+              background: '#1a1a2e', border: '1px solid #2d2d3d',
               borderRadius: 14, zIndex: 200, overflow: 'hidden',
-              boxShadow: '0 -8px 32px rgba(0,0,0,0.5)',
+              boxShadow: '0 -8px 32px rgba(0,0,0,0.6)',
               animation: 'slide-up 0.2s ease',
-              maxHeight: 280, display: 'flex', flexDirection: 'column',
+              maxHeight: 260, display: 'flex', flexDirection: 'column',
             }}>
-              <div style={{ padding: '8px 10px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+              <div style={{ padding: '8px 10px', borderBottom: '1px solid #2d2d3d' }}>
                 <input
                   autoFocus
                   value={langSearch}
                   onChange={e => setLangSearch(e.target.value)}
                   placeholder="Search language…"
                   style={{
-                    width: '100%', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)',
+                    width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid #2d2d3d',
                     borderRadius: 8, padding: '5px 10px', color: '#fff', fontSize: 12.5, outline: 'none',
                     boxSizing: 'border-box',
                   }}
@@ -376,11 +387,7 @@ export default function ChatInput({
                 {filteredLangs ? (
                   filteredLangs.map(l => (
                     <button key={l.code} onClick={() => { setTargetLang(l); setLangOpen(false); setLangSearch(''); }}
-                      style={{
-                        width: '100%', textAlign: 'left', background: targetLang.code === l.code ? 'rgba(255,0,102,0.12)' : 'none',
-                        border: 'none', padding: '8px 14px', color: targetLang.code === l.code ? '#ff0066' : 'rgba(255,255,255,0.8)',
-                        cursor: 'pointer', fontSize: 13,
-                      }}>
+                      style={{ width: '100%', textAlign: 'left', background: targetLang.code === l.code ? 'rgba(255,0,102,0.12)' : 'none', border: 'none', padding: '8px 14px', color: targetLang.code === l.code ? '#ff0066' : 'rgba(255,255,255,0.8)', cursor: 'pointer', fontSize: 13 }}>
                       {l.name} <span style={{ opacity: 0.35, fontSize: 10 }}>({l.code})</span>
                     </button>
                   ))
@@ -391,11 +398,7 @@ export default function ChatInput({
                     </p>
                     {grp.langs.map(l => (
                       <button key={l.code} onClick={() => { setTargetLang(l); setLangOpen(false); setLangSearch(''); }}
-                        style={{
-                          width: '100%', textAlign: 'left', background: targetLang.code === l.code ? 'rgba(255,0,102,0.12)' : 'none',
-                          border: 'none', padding: '7px 14px', color: targetLang.code === l.code ? '#ff0066' : 'rgba(255,255,255,0.8)',
-                          cursor: 'pointer', fontSize: 13,
-                        }}>
+                        style={{ width: '100%', textAlign: 'left', background: targetLang.code === l.code ? 'rgba(255,0,102,0.12)' : 'none', border: 'none', padding: '7px 14px', color: targetLang.code === l.code ? '#ff0066' : 'rgba(255,255,255,0.8)', cursor: 'pointer', fontSize: 13 }}>
                         {l.name} <span style={{ opacity: 0.35, fontSize: 10 }}>({l.code})</span>
                       </button>
                     ))}
@@ -410,36 +413,33 @@ export default function ChatInput({
         {plusOpen && (
           <div style={{
             position: 'absolute', bottom: '100%', left: 12,
-            background: '#1e1e2e', border: '1px solid rgba(255,255,255,0.10)',
+            background: '#1a1a2e', border: '1px solid #2d2d3d',
             borderRadius: 14, padding: 6, display: 'flex', flexDirection: 'column', gap: 2,
             animation: 'slide-up 0.2s ease', zIndex: 100,
-            boxShadow: '0 -8px 24px rgba(0,0,0,0.4)',
+            boxShadow: '0 -8px 24px rgba(0,0,0,0.5)',
             minWidth: 170,
           }}>
-            <button onClick={() => { toggleListening(); setPlusOpen(false); }}
-              style={{ ...menuItemStyle }}>
+            <button onClick={() => { toggleListening(); setPlusOpen(false); }} style={{ ...menuItemStyle }}>
               <Mic size={15} style={{ color: isListening ? '#ff0066' : '#a8e000' }} />
               <span>Voice AI (Local)</span>
             </button>
-            <button onClick={() => { onAttachment?.(); setPlusOpen(false); }}
-              style={{ ...menuItemStyle }}>
+            <button onClick={() => { onAttachment?.(); setPlusOpen(false); }} style={{ ...menuItemStyle }}>
               <Paperclip size={15} style={{ color: '#a8e000' }} />
               <span>Media Attach</span>
             </button>
-            <button onClick={runAnalysis} disabled={isAnalyzing}
-              style={{ ...menuItemStyle, opacity: isAnalyzing ? 0.6 : 1 }}>
+            <button onClick={runAnalysis} disabled={isAnalyzing} style={{ ...menuItemStyle, opacity: isAnalyzing ? 0.6 : 1 }}>
               <Sparkles size={15} style={{ color: '#a8e000' }} />
               <span>{isAnalyzing ? 'Analysing…' : 'AI Analysis'}</span>
             </button>
           </div>
         )}
 
-        {/* ── Reply preview bar ──────────────────────────────────────── */}
+        {/* ── Reply preview bar (conditional) ───────────────────────── */}
         {replyTo && (
           <div style={{
             display: 'flex', alignItems: 'center', gap: 10,
-            padding: '8px 14px 4px',
-            borderBottom: '1px solid rgba(255,255,255,0.06)',
+            padding: '6px 14px 0',
+            borderBottom: '1px solid #2d2d3d',
           }}>
             <CornerUpLeft size={14} style={{ color: '#ff0066', flexShrink: 0 }} />
             <div style={{ flex: 1, borderLeft: '2px solid #ff0066', paddingLeft: 8, minWidth: 0 }}>
@@ -450,15 +450,14 @@ export default function ChatInput({
                 {previewText(replyTo.content, replyTo.type)}
               </p>
             </div>
-            <button onClick={onCancelReply}
-              style={{ color: 'rgba(255,255,255,0.4)', background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0 }}>
+            <button onClick={onCancelReply} style={{ color: 'rgba(255,255,255,0.4)', background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0 }}>
               <X size={16} />
             </button>
           </div>
         )}
 
-        {/* ── Main input row ─────────────────────────────────────────── */}
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, padding: '8px 12px' }}>
+        {/* ══ INPUT ROW — directly below AI bar, ZERO gap ══════════ */}
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, padding: '4px 12px 8px' }}>
 
           {/* (+) button */}
           <button
