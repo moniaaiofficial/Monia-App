@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import { supabase } from '@/lib/supabase/client';
-import { Shield, FileText, ChevronRight, Bot } from 'lucide-react';
+import { Shield, FileText, ChevronRight } from 'lucide-react';
 import { getInitials } from '@/lib/chat';
 import { useMyProfile } from '@/lib/profile-context';
 
@@ -87,20 +87,6 @@ export default function MorePage() {
         </button>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <button
-            onClick={() => router.push('/dashboard/more/ai-settings')}
-            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderRadius: 16, background: 'rgba(255,0,102,0.06)', border: '1px solid rgba(255,0,102,0.15)', cursor: 'pointer' }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <Bot style={{ width: 20, height: 20, color: '#ff0066' }} />
-              <div style={{ textAlign: 'left' }}>
-                <span style={{ color: '#fff', fontWeight: 700, fontSize: 14, display: 'block' }}>MONiA AI Settings</span>
-                <span style={{ color: 'rgba(255,255,255,0.38)', fontSize: 11 }}>Voice, mode, cache & personality</span>
-              </div>
-            </div>
-            <ChevronRight style={{ width: 16, height: 16, color: 'rgba(255,0,102,0.5)' }} />
-          </button>
-
           <button
             onClick={() => router.push('/legal/privacy-policy')}
             style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: 'none', cursor: 'pointer' }}
