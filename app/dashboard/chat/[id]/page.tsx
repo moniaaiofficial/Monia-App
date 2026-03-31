@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
-import { ArrowLeft, MoreVertical, X, User, BellOff, Trash2, ShieldOff } from 'lucide-react';
+import { ArrowLeft, MoreVertical, X, User, BellOff, Trash2, ShieldOff, Bot, Loader2, Globe } from 'lucide-react';
+import { analyzeConversation, translateWithCache } from '@/lib/ai-brain';
+import { speak } from '@/lib/ai-voice';
 import { getInitials, type Message, type Profile } from '@/lib/chat';
 import { uploadChatFile } from '@/lib/upload';
 import { supabase } from '@/lib/supabase/client';
@@ -119,6 +121,15 @@ export default function ChatPage() {
   const [showProfile,    setShowProfile]    = useState(false);
   const [clearConfirm,   setClearConfirm]   = useState(false);
   const [actionMsg,      setActionMsg]      = useState('');
+
+  // MONiA AI overlay
+  const [showMoniaHelp,  setShowMoniaHelp]  = useState(false);
+  const [moniaAnalysis,  setMoniaAnalysis]  = useState('');
+  const [moniaLoading,   setMoniaLoading]   = useState(false);
+  const [translateLang,  setTranslateLang]  = useState('hi');
+  const [translateResult,setTranslateResult]= useState('');
+  const [translateLoading,setTranslateLoading] = useState(false);
+  const [translateText,  setTranslateText]  = useState('');
 
   const bottomRef   = useRef<HTMLDivElement>(null);
   const presenceRef = useRef<any>(null);
@@ -344,6 +355,62 @@ export default function ChatPage() {
 
   const partnerInSleep = partner.sleep_mode_enabled && isTimeInSleepMode(partner.sleep_start, partner.sleep_end);
 
+  // ── MONiA Help handlers ──────────────────────────────────────────────────
+  const handleOpenMoniaHelp = async () => {
+    setShowMoniaHelp(true);
+    setMoniaAnalysis('');
+    setTranslateResult('');
+    setTranslateText('');
+    if (messages.length === 0) return;
+    setMoniaLoading(true);
+    try {
+      const texts = messages.slice(-5).map(m => {
+        const isMe = m.sender_id === user?.id;
+        return `${isMe ? 'Me' : (partner?.full_name || 'Them')}: ${m.content}`;
+      });
+      const result = await analyzeConversation(texts);
+      setMoniaAnalysis(result);
+    } finally {
+      setMoniaLoading(false);
+    }
+  };
+
+  const handleTranslate = async () => {
+    const src = translateText.trim() || (messages.slice(-1)[0]?.content ?? '');
+    if (!src) return;
+    setTranslateLoading(true);
+    setTranslateResult('');
+    try {
+      const result = await translateWithCache(src, translateLang);
+      setTranslateResult(result);
+      const hdMode = localStorage.getItem('monia_voice_style') === 'hd';
+      speak(result, hdMode);
+    } finally {
+      setTranslateLoading(false);
+    }
+  };
+
+  const TRANSLATE_LANGS: { code: string; label: string }[] = [
+    { code: 'hi', label: 'Hindi' },
+    { code: 'en', label: 'English' },
+    { code: 'ta', label: 'Tamil' },
+    { code: 'te', label: 'Telugu' },
+    { code: 'bn', label: 'Bengali' },
+    { code: 'mr', label: 'Marathi' },
+    { code: 'gu', label: 'Gujarati' },
+    { code: 'pa', label: 'Punjabi' },
+    { code: 'ur', label: 'Urdu' },
+    { code: 'es', label: 'Spanish' },
+    { code: 'fr', label: 'French' },
+    { code: 'de', label: 'German' },
+    { code: 'ar', label: 'Arabic' },
+    { code: 'zh', label: 'Chinese' },
+    { code: 'ja', label: 'Japanese' },
+    { code: 'ko', label: 'Korean' },
+    { code: 'ru', label: 'Russian' },
+    { code: 'pt', label: 'Portuguese' },
+  ];
+
   return (
     <main style={{ background: '#14141f', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       {/* Header */}
@@ -517,6 +584,114 @@ export default function ChatPage() {
           </div>
         </div>
       )}
+
+      {/* ── MONiA Help floating button ── */}
+      <button
+        onClick={handleOpenMoniaHelp}
+        title="Ask MONiA for help"
+        style={{ position: 'fixed', bottom: 88, right: 16, zIndex: 55, width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,0,102,0.15)', border: '1.5px solid rgba(255,0,102,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 20px rgba(255,0,102,0.2)', backdropFilter: 'blur(8px)' }}>
+        <Bot size={18} style={{ color: '#ff0066' }} />
+      </button>
+
+      {/* ── MONiA Help overlay ── */}
+      {showMoniaHelp && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,0.65)', display: 'flex', alignItems: 'flex-end' }} onClick={() => setShowMoniaHelp(false)}>
+          <div
+            style={{ width: '100%', background: '#0a0412', borderRadius: '24px 24px 0 0', padding: '20px 20px 40px', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 -8px 40px rgba(0,0,0,0.6)' }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Handle */}
+            <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.15)', margin: '0 auto 16px' }} />
+
+            {/* Title */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Bot size={18} style={{ color: '#ff0066' }} />
+                <span style={{ color: '#fff', fontWeight: 800, fontSize: 15 }}>MONiA AI Help</span>
+              </div>
+              <button onClick={() => setShowMoniaHelp(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
+                <X size={18} style={{ color: 'rgba(255,255,255,0.4)' }} />
+              </button>
+            </div>
+
+            {/* Suggested replies section */}
+            <div style={{ marginBottom: 20 }}>
+              <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>Suggested Replies</p>
+              {moniaLoading ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '14px 0' }}>
+                  <Loader2 size={14} style={{ color: '#ff0066', animation: 'spin 1s linear infinite' }} />
+                  <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>MONiA is analyzing the conversation…</span>
+                </div>
+              ) : moniaAnalysis ? (
+                <div style={{ background: 'rgba(255,0,102,0.06)', border: '1px solid rgba(255,0,102,0.15)', borderRadius: 14, padding: '12px 14px' }}>
+                  <p style={{ color: '#fff', fontSize: 13, lineHeight: 1.6, whiteSpace: 'pre-wrap', margin: 0 }}>{moniaAnalysis}</p>
+                  {moniaAnalysis.split('\n').filter(l => /^\d+\./.test(l.trim())).map((line, i) => {
+                    const text = line.replace(/^\d+\.\s*/, '').trim();
+                    return text ? (
+                      <button
+                        key={i}
+                        onClick={() => { handleSend(text); setShowMoniaHelp(false); }}
+                        style={{ display: 'block', width: '100%', marginTop: 8, padding: '8px 12px', borderRadius: 10, background: 'rgba(255,0,102,0.12)', border: '1px solid rgba(255,0,102,0.2)', color: '#ff0066', fontSize: 13, fontWeight: 600, cursor: 'pointer', textAlign: 'left' }}>
+                        ↗ {text}
+                      </button>
+                    ) : null;
+                  })}
+                </div>
+              ) : messages.length === 0 ? (
+                <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: 13 }}>Start a conversation to get suggestions.</p>
+              ) : null}
+            </div>
+
+            {/* Translate section */}
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+                <Globe size={14} style={{ color: '#ff0066' }} />
+                <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>Translate</p>
+              </div>
+
+              <textarea
+                value={translateText}
+                onChange={e => setTranslateText(e.target.value)}
+                placeholder="Type text or leave blank to translate the last message…"
+                rows={2}
+                style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, padding: '10px 12px', color: '#fff', fontSize: 13, outline: 'none', resize: 'none', fontFamily: 'inherit', boxSizing: 'border-box', marginBottom: 10 }}
+              />
+
+              <div style={{ display: 'flex', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
+                {TRANSLATE_LANGS.map(l => (
+                  <button
+                    key={l.code}
+                    onClick={() => setTranslateLang(l.code)}
+                    style={{ padding: '5px 10px', borderRadius: 10, background: translateLang === l.code ? 'rgba(255,0,102,0.2)' : 'rgba(255,255,255,0.05)', border: `1px solid ${translateLang === l.code ? 'rgba(255,0,102,0.45)' : 'rgba(255,255,255,0.08)'}`, color: translateLang === l.code ? '#ff0066' : 'rgba(255,255,255,0.55)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                    {l.label}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                onClick={handleTranslate}
+                disabled={translateLoading}
+                style={{ width: '100%', padding: '12px', borderRadius: 14, background: '#ff0066', border: 'none', color: '#fff', fontWeight: 700, fontSize: 14, cursor: translateLoading ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                {translateLoading ? <><Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> Translating…</> : `Translate to ${TRANSLATE_LANGS.find(l => l.code === translateLang)?.label || translateLang}`}
+              </button>
+
+              {translateResult && (
+                <div style={{ marginTop: 12, padding: '12px 14px', background: 'rgba(168,224,0,0.06)', border: '1px solid rgba(168,224,0,0.2)', borderRadius: 14 }}>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: 'rgba(168,224,0,0.7)', marginBottom: 6 }}>Translation</p>
+                  <p style={{ color: '#fff', fontSize: 14, lineHeight: 1.55, margin: 0 }}>{translateResult}</p>
+                  <button
+                    onClick={() => { handleSend(translateResult); setShowMoniaHelp(false); }}
+                    style={{ marginTop: 10, width: '100%', padding: '9px', borderRadius: 12, background: 'rgba(168,224,0,0.12)', border: '1px solid rgba(168,224,0,0.25)', color: 'rgba(168,224,0,0.9)', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+                    Send this translation
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </main>
   );
 }
